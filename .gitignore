@@ -1,0 +1,11 @@
+*.blend1
+obj
+bin
+*.xnb
+.vs
+.userinfo
+*.suo
+*.user
+*.userprefs
+.DS_Store
+.mgstats
