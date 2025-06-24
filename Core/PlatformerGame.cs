@@ -15,13 +15,13 @@ public class PlatformerGame : Game
         MainScene
     }
 
-    #if DEBUG
+#if DEBUG
     [Flags]
     private enum DebugFlags
     {
         None = 0,
         ShowCollisionMesh = 1 << 0,
-        ShowShadowMap = 1 << 1
+        ShowRenderTargets = 1 << 1,
     }
     #endif
     
@@ -145,7 +145,7 @@ public class PlatformerGame : Game
         }
         if (currentKeyboardState.IsKeyDown(Keys.F2) && _previousKeyboardState.IsKeyUp(Keys.F2))
         {
-            _debugFlags ^= DebugFlags.ShowShadowMap;
+            _debugFlags ^= DebugFlags.ShowRenderTargets;
         }
         #endif
 
@@ -321,12 +321,13 @@ public class PlatformerGame : Game
                 _postProcessor.EndScene();
                 // Draw the score etc.
                 DrawHud ();
-                #if DEBUG
-                if (_debugFlags.HasFlag(DebugFlags.ShowShadowMap))
+#if DEBUG
+                if (_debugFlags.HasFlag(DebugFlags.ShowRenderTargets))
                 {
                     _shadowProcessor.DebugDrawShadowMap(new Rectangle(0, 0, 256, 256));
+                    _postProcessor.DebugDrawRenderTargets(new Rectangle(256, 0, 256, 256));
                 }
-                #endif
+#endif
                 break;
         }
 

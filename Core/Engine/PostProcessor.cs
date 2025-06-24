@@ -87,13 +87,13 @@ public class PostProcessor
         // Final composite with vignette
         _graphicsDevice.SetRenderTarget(null);
         _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-        
+
         // Draw main scene
         _spriteBatch.Draw(_mainRenderTarget, fullscreen, Color.White);
-        
+
         // Overlay bloom
-        _spriteBatch.Draw(_bloomBlurTarget, fullscreen , Color.White * 0.8f);
-        
+        _spriteBatch.Draw(_bloomBlurTarget, fullscreen, Color.White * 0.8f);
+
         // Apply vignette
         _vignetteEffect.Parameters["Radius"].SetValue(new Vector2(0.8f, 0.8f));
         _vignetteEffect.Parameters["Center"].SetValue(new Vector2(0.5f, 0.5f));
@@ -101,10 +101,15 @@ public class PostProcessor
         _vignetteEffect.CurrentTechnique.Passes[0].Apply();
         _spriteBatch.Draw(_mainRenderTarget, fullscreen, Color.White * 0.3f);
 
-        // _spriteBatch.Draw(_bloomBlurTarget, new Rectangle (0,0,200,200), Color.White);
-        // _spriteBatch.Draw(_mainRenderTarget, new Rectangle (200,0,200,200), Color.White);
-        // _spriteBatch.Draw(_bloomBlurTarget, new Rectangle (400,0,200,200), Color.White);
-        
+        _spriteBatch.End();
+    }
+
+    public void DebugDrawRenderTargets(Rectangle rectangle)
+    {
+        _spriteBatch.Begin();
+        _spriteBatch.Draw(_mainRenderTarget, rectangle, Color.White);
+        _spriteBatch.Draw(_bloomExtractTarget, new Rectangle(rectangle.X + rectangle.Width, rectangle.Y, rectangle.Width, rectangle.Height), Color.White);
+        _spriteBatch.Draw(_bloomBlurTarget, new Rectangle(rectangle.X + (rectangle.Width * 2), rectangle.Y, rectangle.Width, rectangle.Height), Color.White);
         _spriteBatch.End();
     }
 }
