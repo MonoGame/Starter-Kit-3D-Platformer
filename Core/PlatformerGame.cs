@@ -66,6 +66,9 @@ public class PlatformerGame : Game
         _graphics.GraphicsProfile = GraphicsProfile.HiDef;
         _graphics.PreferMultiSampling = true;
         _graphics.SynchronizeWithVerticalRetrace = true;
+        // work around for MSAA issues in windows
+        // https://github.com/MonoGame/MonoGame/issues/7914
+        _graphics.PreparingDeviceSettings += (s, e) => e.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 4;
         _graphics.ApplyChanges();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
