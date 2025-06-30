@@ -33,6 +33,11 @@ public class PlatformerGame : Game
     private readonly Color _skyColor = new Color(0.752941f, 0.776471f, 0.827451f);
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    
+    /// <summary>
+    /// A scale to gameplay time for debugging.
+    /// </summary>
+    public static float TimeScale = 1f;
 
     private SpriteFont _font;
 
@@ -168,13 +173,18 @@ public class PlatformerGame : Game
 
             case GameState.MainScene:
                 // Handle main scene logic
+                // 
+
+                // We use a scaled time here mostly for testing/debugging.
+                var scaledTime = new GameTime(gameTime.TotalGameTime,
+                    TimeSpan.FromSeconds(gameTime.ElapsedGameTime.TotalSeconds * TimeScale));
 
                 _player.Forward = _camera.ForwardDirection;
-                _player.Update(gameTime);
-                _dust.Update(gameTime);
+                _player.Update(scaledTime);
+                _dust.Update(scaledTime);
                 if (_player.IsMoving && !_player.IsJumping)
                 {
-                    _dust.AddDust(gameTime, _player.Position);
+                    _dust.AddDust(scaledTime, _player.Position);
                 }
                 if (_player.Dead())
                 {
@@ -184,7 +194,7 @@ public class PlatformerGame : Game
                 }
                 foreach (var entity in _entities)
                 {
-                    entity.Update(gameTime);
+                    entity.Update(scaledTime);
                     entity.CheckCollision(_player);
                     _player.CheckCollision(entity);
                     if (entity.Dead())
@@ -198,7 +208,7 @@ public class PlatformerGame : Game
                     _entities.Remove(entity);
                 }
                 _camera.Target = _player.Position;
-                _camera.Update(gameTime);
+                _camera.Update(scaledTime);
                 _collisionMesh.UpdateWorldCollisionMesh();
                 _shadowProcessor.TargetPosition = _player.Position;
 
