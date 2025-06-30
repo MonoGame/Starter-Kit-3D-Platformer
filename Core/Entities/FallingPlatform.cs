@@ -56,7 +56,7 @@ public class FallingPlatform : Platform
             if (_fallTime > _fallDelay)
             {
                 // Apply gravity
-                _velocity.Y += GRAVITY * deltaTime * GRAVITY_SCALE;
+                _velocity.Y += GameConstants.GRAVITY * deltaTime;
                 
                 // Apply velocity to position with time-based movement
                 Position += _velocity;

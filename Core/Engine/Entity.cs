@@ -6,8 +6,6 @@ using Microsoft.Xna.Framework.Content;
 
 public class Entity
 {
-    protected const float GRAVITY = -9.81f; // Gravity constant 
-    protected const float GRAVITY_SCALE = 10f; // Gravity scale for the entity
     public Model Model;
     public Matrix WorldMatrix = Matrix.Identity;
     public Vector3 Position = Vector3.Zero;

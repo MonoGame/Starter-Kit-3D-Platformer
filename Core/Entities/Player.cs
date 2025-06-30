@@ -8,10 +8,8 @@ using System.Collections.Generic;
 
 public class Player : AnimatedEntity
 {
-    public float Speed = 6f;
-    public float JumpForce = 20f;
     public bool IsJumping = false;
-    public float RotationSpeed = 6f; // Controls how quickly the player rotates
+
     public int Score = 0;
     public Vector3 Forward { get; set; } = new Vector3(0, 0, -1); // Default forward is negative Z
 
@@ -41,6 +39,7 @@ public class Player : AnimatedEntity
     private float _minShadowSize = 10.0f; // Minimum shadow size when far away
     private float _maxShadowSize = 5.0f; // Maximum shadow size when close
     private float _currentShadowDistance = 0f; // Current distance to the surface below
+    private Vector3 _scaleAnimation = Vector3.One;
 
     // 3D shadow quad resources
     private VertexBuffer _shadowVertexBuffer;
@@ -106,18 +105,6 @@ public class Player : AnimatedEntity
             6,
             BufferUsage.WriteOnly);
         _shadowIndexBuffer.SetData(indices);
-    }
-
-    public void Jump()
-    {
-        if (_jumpCount < _maxJumps)
-        {
-            _velocity.Y = JumpForce;
-            IsJumping = true;
-            _jumpCount++;
-            _jumpSound.Play();
-            PlayAnimation("jump");
-        }
     }
 
     public override bool CheckCollision(Entity other)
@@ -247,6 +234,7 @@ public class Player : AnimatedEntity
         GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
 
         var jump = (_previousGamePadState.Buttons.A == ButtonState.Released && gamePadState.Buttons.A == ButtonState.Pressed) || (currentKeyboardState.IsKeyDown(Keys.Space) && !_previousKeyboardState.IsKeyDown(Keys.Space));
+        var jumpHeld = gamePadState.Buttons.A == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Space);
 
         // Calculate the right vector based on forward (cross product with up)
         Vector3 right = Vector3.Cross(Vector3.Up, Forward);
@@ -308,7 +296,7 @@ public class Player : AnimatedEntity
         float angleDifference = MathHelper.WrapAngle(_targetRotationAngle - _currentRotationAngle);
 
         // Apply rotation based on rotation speed and delta time
-        _currentRotationAngle += angleDifference * RotationSpeed * deltaTime;
+        _currentRotationAngle += angleDifference * GameConstants.PLAYER_ROTATION_SPEED * deltaTime;
 
         // Ensure current angle stays within proper range
         _currentRotationAngle = MathHelper.WrapAngle(_currentRotationAngle);
@@ -317,26 +305,52 @@ public class Player : AnimatedEntity
         Rotation = Quaternion.CreateFromAxisAngle(Vector3.Up, _currentRotationAngle);
 
         // Apply movement to velocity (maintaining Y velocity for jumps/gravity)
-        _velocity.X = _moveDirection.X * Speed;
-        _velocity.Z = _moveDirection.Z * Speed;
+        _velocity.X = _moveDirection.X * GameConstants.PLAYER_MOVE_SPEED;
+        _velocity.Z = _moveDirection.Z * GameConstants.PLAYER_MOVE_SPEED;
 
-        // Check for space key (jump)
-        if (jump)
+        // Platformer physics isn't realistic.
+        // You want a weaker gravity while you jump than when falling.
+        if (_velocity.Y > 0 && jumpHeld)
+            _velocity.Y += GameConstants.PLAYER_JUMP_GRAVITY * deltaTime;
+        else
         {
-            Jump();
+            _velocity.Y += GameConstants.PLAYER_FALL_GRAVITY * deltaTime;
+
+            // Keep the player from falling too fast.
+            _velocity.Y = MathHelper.Max(-GameConstants.PLAYER_MAX_FALL_SPEED, _velocity.Y);
         }
+
+        // Apply the jumps.
+        if (jump && _jumpCount < _maxJumps)
+        {
+            // Instant velocity change on jump.
+            _velocity.Y = GameConstants.PLAYER_JUMP_FORCE;
+
+            IsJumping = true;
+            _jumpCount++;
+            _jumpSound.Play();
+            PlayAnimation("jump");
+        }
+
+        // Apply velocity to position with time-based movement.
+        Position += _velocity * deltaTime;
 
         // Store current keyboard state for next frame
         _previousKeyboardState = currentKeyboardState;
         _previousGamePadState = gamePadState;
 
-        // Apply gravity
-        _velocity.Y += GRAVITY * deltaTime * GRAVITY_SCALE;
-
-        // Apply velocity to position with time-based movement
-        Position += _velocity;
-
-        Scale = new Vector3(1f, 1.0f - (_currentShadowDistance / (_maxShadowDistance * 5f)), 1f); // Reset scale when jumping
+        // Animate the player scale.
+        if (Math.Abs(_velocity.Y) < 0.1f)
+            _scaleAnimation = Vector3.One;
+        else
+        {
+            // When we jump or fall apply a little squash and stretch to the player mesh.
+            var jumpOrFall = MathHelper.Clamp(-_velocity.Y / GameConstants.PLAYER_JUMP_FORCE, -1.0f, 1.0f);
+            var scaleXZ = 1.0f + ((1.0f - jumpOrFall) * 0.1f);
+            var scaleY = 1.0f + (jumpOrFall * 0.15f);
+            _scaleAnimation = new Vector3(scaleXZ, scaleY, scaleXZ);
+        }
+        Scale = Vector3.Lerp(Scale, _scaleAnimation, 1f - (float)Math.Exp(10.0f * -deltaTime));
 
         base.Update(gameTime);
     }
