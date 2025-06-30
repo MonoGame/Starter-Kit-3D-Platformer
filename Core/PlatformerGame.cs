@@ -301,7 +301,7 @@ public class PlatformerGame : Game
                 _shadowProcessor.DrawModelWithShadow(_player, _player.WorldMatrix, _camera.ViewMatrix, _camera.ProjectionMatrix, Color.White);
                 _dust.Draw(GraphicsDevice, _spriteBatch, _camera);
 
-                #if DEBUG
+#if DEBUG
                 if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
                 {
                     foreach (var entity in _entities)
@@ -310,16 +310,13 @@ public class PlatformerGame : Game
                     }
                     _player.Draw(GraphicsDevice, _spriteBatch, _camera);
                 }
-                #endif
+#endif
 
-
-                // Setup for billboard rendering
-                BlendState originalBlendState = GraphicsDevice.BlendState;
-                DepthStencilState originalDepthState = GraphicsDevice.DepthStencilState;
-                
                 // Enable alpha blending and disable depth writing (but keep depth testing)
+                GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
                 GraphicsDevice.BlendState = BlendState.AlphaBlend;
                 GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+                GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
 
                 _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
                 foreach (var entity in _entities)
@@ -327,10 +324,6 @@ public class PlatformerGame : Game
                     entity.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
                 }
                 _spriteBatch.End();
-                
-                // Restore original states
-                GraphicsDevice.BlendState = originalBlendState;
-                GraphicsDevice.DepthStencilState = originalDepthState;
                 _postProcessor.EndScene();
                 // Draw the score etc.
                 DrawHud ();
