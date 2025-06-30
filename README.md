@@ -16,6 +16,48 @@ Includes features like;
 
 ![Screenshot of the 3D platformer game](ScreenShots/screenshot.png)
 
+## Controls
+
+- Standard keyboard controls (WASD, Space), plus GamePad support
+- Camera controls (Arrows to move), Comma/Period Zoom
+
+## Level Editing
+
+This sample uses Blender to create levels. The entire game is made up of these
+building blocks of meshes.
+
+- cloud
+- coin
+- grass
+- platform-falling
+- platform-grass
+- platform-large
+- platform-medium
+- platform
+- flag
+
+All of these have already been imported into the `level.blend` file.
+To layout more platforms, select one of the platforms you want to add and
+duplicate it (Shift+D). You can then move it to the desired location.
+
+We use custom properties in blender to all us to flag an object as having
+special properties. For example in the example you will now that the `Empty`
+which is used for the spawn point has an `IsSpawnPoint` boolean custom property.
+When using an `Empty` you can change the Display Type to be a sphere and alter
+the radius if you want to define an area. This can be useful for things like
+goals or trigger points.
+
+Supported custom properties:
+
+- `IsGoal`: Add this to an `Empty` and set it to `true` to make this the end goal of a level.
+- `IsSpawnPoint`: Add this to an `Empty` and set it to `true` to make this the spawn point of the level.
+- `IsCollidable`: Add this to any object to control if this mesh should collide with the player. This can be useful for things such as grass which the player can move through.
+
+Once you have organised your level you can go to the scripting tab in blender
+and run the provided script. This script will examine all the objects in the
+`Scene` collection and export their properties to the `level.json` file.
+If you want to export to a different file you can change the name in the script.
+
 ## License
 
 MIT License
