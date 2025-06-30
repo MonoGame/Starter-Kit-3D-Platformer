@@ -1,3 +1,6 @@
+// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.md', which is part of this source code package.
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -83,7 +86,7 @@ public class ShadowProcessor
         _graphicsDevice.SetRenderTarget(_shadowMap);
         _graphicsDevice.Clear(Color.White); // Clear with white (meaning far depth)
 
-        _shadowEffect.Parameters["ShadowMapSampler+ShadowMap"].SetValue(_shadowMap);
+        _shadowEffect.Parameters["ShadowMap"].SetValue(_shadowMap);
         _shadowEffect.CurrentTechnique = _shadowEffect.Techniques["RenderDepth"];
     }
     
@@ -172,8 +175,8 @@ public class ShadowProcessor
                 effect.Parameters["Color"].SetValue(color.ToVector4());
                 effect.Parameters["SpecularIntensity"].SetValue(entity.SpecularIntensity);
                 effect.Parameters["Shininess"].SetValue(entity.Shininess);
-                effect.Parameters["ShadowMapSampler+ShadowMap"].SetValue(_shadowMap);
-                effect.Parameters["TextureSampler+Texture"].SetValue(originalEffect.Texture);
+                effect.Parameters["ShadowMap"].SetValue(_shadowMap);
+                effect.Parameters["Texture"].SetValue(originalEffect.Texture);
                 
                 _graphicsDevice.SetVertexBuffer(part.VertexBuffer);
                 _graphicsDevice.Indices = part.IndexBuffer;

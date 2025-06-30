@@ -1,5 +1,6 @@
-using System.Reflection.Metadata;
-using Microsoft.Xna.Framework;
+// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.md', which is part of this source code package.
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
