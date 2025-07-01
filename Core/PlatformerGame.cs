@@ -18,7 +18,7 @@ public class PlatformerGame : Game
         MainScene
     }
 
-#if DEBUG
+#if DEVMODE
     [Flags]
     private enum DebugFlags
     {
@@ -57,7 +57,7 @@ public class PlatformerGame : Game
 
     CollisionMesh _collisionMesh;
 
-    #if DEBUG
+    #if DEVMODE
     private DebugFlags _debugFlags = DebugFlags.None;
     #endif
 
@@ -149,7 +149,7 @@ public class PlatformerGame : Game
             Exit();
 
         // Handle debug flags toggling
-        #if DEBUG 
+        #if DEVMODE 
         if (currentKeyboardState.IsKeyDown(Keys.F1) && _previousKeyboardState.IsKeyUp(Keys.F1))
         {
             _debugFlags ^= DebugFlags.ShowCollisionMesh;
@@ -157,6 +157,22 @@ public class PlatformerGame : Game
         if (currentKeyboardState.IsKeyDown(Keys.F2) && _previousKeyboardState.IsKeyUp(Keys.F2))
         {
             _debugFlags ^= DebugFlags.ShowRenderTargets;
+        }
+        if (currentKeyboardState.IsKeyDown(Keys.OemPlus) && _previousKeyboardState.IsKeyUp(Keys.OemPlus))
+        {
+            TimeScale += 0.1f; // Increase time scale by 0.1x
+            if (TimeScale > 10f) // Prevent excessive time scale
+            {
+                TimeScale = 10f;
+            }
+        }
+        if (currentKeyboardState.IsKeyDown(Keys.OemMinus) && _previousKeyboardState.IsKeyUp(Keys.OemMinus))
+        {
+            TimeScale -= 0.1f; // Decrease time scale by 0.1x
+            if (TimeScale < 0.1f) // Prevent negative or zero time scale
+            {
+                TimeScale = 0.1f;
+            }
         }
         #endif
 
@@ -304,7 +320,7 @@ public class PlatformerGame : Game
                 _shadowProcessor.DrawModelWithShadow(_player, _player.WorldMatrix, _camera.ViewMatrix, _camera.ProjectionMatrix, Color.White);
                 _dust.Draw(GraphicsDevice, _spriteBatch, _camera);
 
-#if DEBUG
+#if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
                 {
                     foreach (var entity in _entities)
@@ -330,7 +346,7 @@ public class PlatformerGame : Game
                 _postProcessor.EndScene();
                 // Draw the score etc.
                 DrawHud ();
-#if DEBUG
+#if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowRenderTargets))
                 {
                     _shadowProcessor.DebugDrawShadowMap(new Rectangle(0, 0, 256, 256));
