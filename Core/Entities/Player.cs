@@ -178,7 +178,6 @@ public class Player : AnimatedEntity
                     IsJumping = false;
                     _jumpCount = 0; // Reset jump count when landing
                     _currentShadowDistance = 0f; // Reset shadow distance when landing
-                    //PlayAnimation("idle");
                 }
                 // If we're hitting our head on something
                 else if (resolveDirection.Y < 0 && _velocity.Y > 0)
