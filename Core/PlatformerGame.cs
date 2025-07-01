@@ -158,87 +158,90 @@ public class PlatformerGame : Game
         {
             _debugFlags ^= DebugFlags.ShowRenderTargets;
         }
-        if (currentKeyboardState.IsKeyDown(Keys.OemPlus) && _previousKeyboardState.IsKeyUp(Keys.OemPlus))
+        if (currentKeyboardState.IsKeyDown(Keys.LeftControl) || currentKeyboardState.IsKeyDown(Keys.RightControl))
         {
-            TimeScale += 0.1f; // Increase time scale by 0.1x
-            if (TimeScale > 10f) // Prevent excessive time scale
+            if (currentKeyboardState.IsKeyDown(Keys.OemPlus) && _previousKeyboardState.IsKeyUp(Keys.OemPlus))
             {
-                TimeScale = 10f;
+                TimeScale += 0.1f; // Increase time scale by 0.1x
+                if (TimeScale > 10f) // Prevent excessive time scale
+                {
+                    TimeScale = 10f;
+                }
             }
-        }
-        if (currentKeyboardState.IsKeyDown(Keys.OemMinus) && _previousKeyboardState.IsKeyUp(Keys.OemMinus))
-        {
-            TimeScale -= 0.1f; // Decrease time scale by 0.1x
-            if (TimeScale < 0.1f) // Prevent negative or zero time scale
+            if (currentKeyboardState.IsKeyDown(Keys.OemMinus) && _previousKeyboardState.IsKeyUp(Keys.OemMinus))
             {
-                TimeScale = 0.1f;
+                TimeScale -= 0.1f; // Decrease time scale by 0.1x
+                if (TimeScale < 0.1f) // Prevent negative or zero time scale
+                {
+                    TimeScale = 0.1f;
+                }
             }
         }
         #endif
 
-        // TODO: Add your update logic here
-        switch (_currentState)
-        {
-            case GameState.SplashScreen:
-                // Handle splash screen logic
-                _splashTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // TODO: Add your update logic here
+            switch (_currentState)
+            {
+                case GameState.SplashScreen:
+                    // Handle splash screen logic
+                    _splashTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                // Transition to main scene after SplashDuration seconds
-                if (_splashTimer >= SplashDurationInSeconds)
-                {
-                    _currentState = GameState.MainScene;
-                }
-                break;
-
-            case GameState.MainScene:
-                // Handle main scene logic
-                // 
-
-                // We use a scaled time here mostly for testing/debugging.
-                var scaledTime = new GameTime(gameTime.TotalGameTime,
-                    TimeSpan.FromSeconds(gameTime.ElapsedGameTime.TotalSeconds * TimeScale));
-
-                _player.Forward = _camera.ForwardDirection;
-                _player.Update(scaledTime);
-                _dust.Update(scaledTime);
-                if (_player.IsMoving && !_player.IsJumping)
-                {
-                    _dust.AddDust(scaledTime, _player.Position);
-                }
-                if (_player.Dead())
-                {
-                    _currentState = GameState.SplashScreen;
-                    _splashTimer = 0f; // Reset splash timer
-                    LoadLevel(); // Reload the level
-                }
-                foreach (var entity in _entities)
-                {
-                    entity.Update(scaledTime);
-                    entity.CheckCollision(_player);
-                    _player.CheckCollision(entity);
-                    if (entity.Dead())
+                    // Transition to main scene after SplashDuration seconds
+                    if (_splashTimer >= SplashDurationInSeconds)
                     {
-                        _entitiesToRemove.Enqueue(entity);
+                        _currentState = GameState.MainScene;
                     }
-                }
-                while (_entitiesToRemove.Count > 0)
-                {
-                    var entity = _entitiesToRemove.Dequeue();
-                    _entities.Remove(entity);
-                }
-                _camera.Target = _player.Position;
-                _camera.Update(scaledTime);
-                _collisionMesh.UpdateWorldCollisionMesh();
-                _shadowProcessor.TargetPosition = _player.Position;
+                    break;
 
-                if (_goal.Complete)
-                {
-                    _currentState = GameState.SplashScreen;
-                    _splashTimer = 0f; // Reset splash timer
-                    LoadLevel(); // Reload the level
-                }
-                break;
-        }
+                case GameState.MainScene:
+                    // Handle main scene logic
+                    // 
+
+                    // We use a scaled time here mostly for testing/debugging.
+                    var scaledTime = new GameTime(gameTime.TotalGameTime,
+                        TimeSpan.FromSeconds(gameTime.ElapsedGameTime.TotalSeconds * TimeScale));
+
+                    _player.Forward = _camera.ForwardDirection;
+                    _player.Update(scaledTime);
+                    _dust.Update(scaledTime);
+                    if (_player.IsMoving && !_player.IsJumping)
+                    {
+                        _dust.AddDust(scaledTime, _player.Position);
+                    }
+                    if (_player.Dead())
+                    {
+                        _currentState = GameState.SplashScreen;
+                        _splashTimer = 0f; // Reset splash timer
+                        LoadLevel(); // Reload the level
+                    }
+                    foreach (var entity in _entities)
+                    {
+                        entity.Update(scaledTime);
+                        entity.CheckCollision(_player);
+                        _player.CheckCollision(entity);
+                        if (entity.Dead())
+                        {
+                            _entitiesToRemove.Enqueue(entity);
+                        }
+                    }
+                    while (_entitiesToRemove.Count > 0)
+                    {
+                        var entity = _entitiesToRemove.Dequeue();
+                        _entities.Remove(entity);
+                    }
+                    _camera.Target = _player.Position;
+                    _camera.Update(scaledTime);
+                    _collisionMesh.UpdateWorldCollisionMesh();
+                    _shadowProcessor.TargetPosition = _player.Position;
+
+                    if (_goal.Complete)
+                    {
+                        _currentState = GameState.SplashScreen;
+                        _splashTimer = 0f; // Reset splash timer
+                        LoadLevel(); // Reload the level
+                    }
+                    break;
+            }
 
         base.Update(gameTime);
 
