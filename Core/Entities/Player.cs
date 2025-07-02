@@ -42,6 +42,11 @@ public class Player : AnimatedEntity
     private float _minShadowSize = 10.0f; // Minimum shadow size when far away
     private float _maxShadowSize = 5.0f; // Maximum shadow size when close
     private float _currentShadowDistance = 0f; // Current distance to the surface below
+
+    // Used to do effects when the player lands from a fall/jump.
+    private float _landVelocity = 0.0f;
+
+    // Used to animate the player scale during jumps, falls, and landings.
     private Vector3 _scaleAnimation = Vector3.One;
 
     // 3D shadow quad resources
@@ -170,14 +175,16 @@ public class Player : AnimatedEntity
                 // If we're resolving upward, we're standing on something
                 if (resolveDirection.Y > 0)
                 {
-                    _velocity.Y = 0;
                     if (IsJumping)
                     {
                         _landSound.Play();
+                        _landVelocity = Math.Max(-_velocity.Y, 0.0f);
+                        IsJumping = false;
                     }
-                    IsJumping = false;
+
+                    _velocity.Y = 0;
                     _jumpCount = 0; // Reset jump count when landing
-                    _currentShadowDistance = 0f; // Reset shadow distance when landing
+                    _currentShadowDistance = 0f; // Reset shadow distance when landing                 
                 }
                 // If we're hitting our head on something
                 else if (resolveDirection.Y < 0 && _velocity.Y > 0)
@@ -320,6 +327,7 @@ public class Player : AnimatedEntity
             // upward velocity gives you an even bigger jump.
             //
             _velocity.Y = Math.Max(_velocity.Y, 0) + GameConstants.PLAYER_JUMP_FORCE;
+            _landVelocity = 0.0f;
 
             IsJumping = true;
             _jumpCount++;
@@ -355,17 +363,37 @@ public class Player : AnimatedEntity
         _previousGamePadState = gamePadState;
 
         // Animate the player scale.
-        if (Math.Abs(_velocity.Y) < 0.1f)
-            _scaleAnimation = Vector3.One;
-        else
         {
-            // When we jump or fall apply a little squash and stretch to the player mesh.
-            var jumpOrFall = MathHelper.Clamp(-_velocity.Y / GameConstants.PLAYER_JUMP_FORCE, -1.0f, 1.0f);
-            var scaleXZ = 1.0f + ((1.0f - jumpOrFall) * 0.1f);
-            var scaleY = 1.0f + (jumpOrFall * 0.15f);
-            _scaleAnimation = new Vector3(scaleXZ, scaleY, scaleXZ);
+            if (_landVelocity > 0.0f)
+            {
+                // If we've landed the use the land velocity to
+                // squash us a bit to take the impact.
+
+                // When we jump or fall apply a little squash and stretch to the player mesh.
+                var land = MathHelper.Clamp(_landVelocity / GameConstants.PLAYER_MAX_FALL_SPEED, 0.0f, 1.0f);
+                var scaleXZ = 1.0f + (land * 0.55f);
+                var scaleY = 1.0f - (land * 0.35f);
+                _scaleAnimation = new Vector3(scaleXZ, scaleY, scaleXZ);
+
+                // Relax it over time.
+                _landVelocity = Math.Max(0.0f, _landVelocity - (GameConstants.PLAYER_MAX_FALL_SPEED * 2.0f * deltaTime));
+            }
+            else
+            {
+                if (Math.Abs(_velocity.Y) < 0.1f)
+                    _scaleAnimation = Vector3.One;
+                else
+                {
+                    // When we jump or fall apply a little squash and stretch to the player mesh.
+                    var jumpOrFall = MathHelper.Clamp(-_velocity.Y / GameConstants.PLAYER_JUMP_FORCE, -1.0f, 1.0f);
+                    var scaleXZ = 1.0f + ((1.0f - jumpOrFall) * 0.1f);
+                    var scaleY = 1.0f + (jumpOrFall * 0.15f);
+                    _scaleAnimation = new Vector3(scaleXZ, scaleY, scaleXZ);
+                }
+            }
+
+            Scale = Vector3.Lerp(Scale, _scaleAnimation, 1f - (float)Math.Exp(10.0f * -deltaTime));
         }
-        Scale = Vector3.Lerp(Scale, _scaleAnimation, 1f - (float)Math.Exp(10.0f * -deltaTime));
 
         base.Update(gameTime);
     }
