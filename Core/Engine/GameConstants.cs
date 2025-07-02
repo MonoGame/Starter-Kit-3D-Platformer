@@ -19,20 +19,19 @@ public static class GameConstants
     /// <summary>
     /// The gravity force while the player is jumping (holding the jump button).
     /// </summary>
-    public const float PLAYER_JUMP_GRAVITY = EARTH_GRAVITY * 10.0f;
+    public const float PLAYER_JUMP_GRAVITY = EARTH_GRAVITY * 300.0f;
 
     /// <summary>
-    /// The gravity force when then player is not jumping 
-    /// or has a negative velocity.
+    /// The gravity force when then player is not jumping or has a negative velocity.
     /// </summary>
-    public const float PLAYER_FALL_GRAVITY = EARTH_GRAVITY * 70.0f;
+    public const float PLAYER_FALL_GRAVITY = EARTH_GRAVITY * 350.0f;
 
     /// <summary>
     /// The instant velocity force of the players jump.
     /// </summary>
-    public const float PLAYER_JUMP_FORCE = 125.0f;
+    public const float PLAYER_JUMP_FORCE = 700.0f;
 
-    public const float PLAYER_MAX_FALL_SPEED = 600.0f;
+    public const float PLAYER_MAX_FALL_SPEED = 800.0f;
 
     public const float PLAYER_MOVE_SPEED = 360;
 

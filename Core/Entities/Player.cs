@@ -308,8 +308,30 @@ public class Player : AnimatedEntity
         _velocity.X = _moveDirection.X * GameConstants.PLAYER_MOVE_SPEED;
         _velocity.Z = _moveDirection.Z * GameConstants.PLAYER_MOVE_SPEED;
 
+        // Apply the jumps.
+        if (jump && _jumpCount < _maxJumps)
+        {
+            // Instant velocity change on jump including
+            // any existing upward forces we have on us.
+            //
+            // This means hitting your second jump at your peak
+            // upward velocity gives you an even bigger jump.
+            //
+            _velocity.Y = Math.Max(_velocity.Y, 0) + GameConstants.PLAYER_JUMP_FORCE;
+
+            IsJumping = true;
+            _jumpCount++;
+            _jumpSound.Play();
+            PlayAnimation("jump");
+        }
+
         // Platformer physics isn't realistic.
+        //
         // You want a weaker gravity while you jump than when falling.
+        //
+        // This is done after the jump to ensure we apply the correct
+        // gravity this frame.
+        //
         if (_velocity.Y > 0 && jumpHeld)
             _velocity.Y += GameConstants.PLAYER_JUMP_GRAVITY * deltaTime;
         else
@@ -318,18 +340,6 @@ public class Player : AnimatedEntity
 
             // Keep the player from falling too fast.
             _velocity.Y = MathHelper.Max(-GameConstants.PLAYER_MAX_FALL_SPEED, _velocity.Y);
-        }
-
-        // Apply the jumps.
-        if (jump && _jumpCount < _maxJumps)
-        {
-            // Instant velocity change on jump.
-            _velocity.Y = GameConstants.PLAYER_JUMP_FORCE;
-
-            IsJumping = true;
-            _jumpCount++;
-            _jumpSound.Play();
-            PlayAnimation("jump");
         }
 
         // Apply velocity to position with time-based movement.
