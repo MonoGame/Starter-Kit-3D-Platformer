@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Desktop", "Platforms\Desktop\Desktop.csproj", "{9C4F1790-B6B7-E244-CA72-8BB3C90BB572}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D8C17D5D-F698-4B21-9BA7-8FB2B63F2295} = {D8C17D5D-F698-4B21-9BA7-8FB2B63F2295}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{B7401BAC-66B8-44AD-940C-5E9F55E31764}"
 EndProject
