@@ -29,7 +29,7 @@ public class Player : AnimatedEntity
     private Vector3 _moveDirection = Vector3.Zero;
     private float _targetRotationAngle = 1.5f; // The angle we want to rotate towards
     private float _currentRotationAngle = 1.5f; // Current rotation angle, start facing the player
-    private SoundEffectInstance _jumpSound;
+    private SoundEffect _jumpSound;
     private SoundEffectInstance _landSound;
     private SoundEffectInstance _walkSound;
     private Texture2D _shadowTexture;
@@ -63,7 +63,7 @@ public class Player : AnimatedEntity
     {
         // Load any additional content here
         base.LoadContent();
-        _jumpSound = Content.Load<SoundEffect>("Sounds/jump").CreateInstance();
+        _jumpSound = Content.Load<SoundEffect>("Sounds/jump");
         _landSound = Content.Load<SoundEffect>("Sounds/land").CreateInstance();
         _walkSound = Content.Load<SoundEffect>("Sounds/walking").CreateInstance();
         _shadowTexture = Content.Load<Texture2D>("Textures/blob_shadow");
@@ -321,8 +321,11 @@ public class Player : AnimatedEntity
 
             IsJumping = true;
             _jumpCount++;
-            _jumpSound.Play();
             PlayAnimation("jump");
+
+            // By using the pooled SoundEffect.Play
+            // we can play overlapping jump sounds.
+            _jumpSound.Play();
         }
 
         // Platformer physics isn't realistic.
