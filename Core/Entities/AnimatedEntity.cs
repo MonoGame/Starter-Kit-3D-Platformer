@@ -18,8 +18,8 @@ public class AnimatedEntity : Entity
     /// <param name="name">The name of the entity.</param>
     public AnimatedEntity(Model model, ContentManager contentManager) : base(model, contentManager)
     {
-        if (model.Tag is AnimationData)
-            AnimationData = model.Tag as AnimationData;
+        if (model.Tag is ModelData data)
+            AnimationData = data.AnimationData;
     }
 
     /// <summary>
