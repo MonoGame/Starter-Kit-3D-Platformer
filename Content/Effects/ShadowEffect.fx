@@ -22,8 +22,8 @@ float AmbientIntensity; // Controls the intensity of ambient light
 
 static const int ShadowSamples = 64;
 
-Texture2D<float> ShadowMap;
-SamplerState ShadowMapSampler = sampler_state
+texture ShadowMap;
+sampler2D ShadowMapSampler = sampler_state
 {
     Texture = (ShadowMap);
     MinFilter = point;
@@ -33,8 +33,8 @@ SamplerState ShadowMapSampler = sampler_state
     AddressV = Wrap;
 };
 
-Texture2D<float4> Texture;
-SamplerState TextureSampler = sampler_state
+texture Texture;
+sampler2D TextureSampler = sampler_state
 {
     Texture = (Texture);
     Filter = ANISOTROPIC;
@@ -107,7 +107,7 @@ float4 ApplyLightingModel(V2P input, float4 color)
         
         float2 samplePosition = input.SMPosition + (randomOffset(seed) / 500.0f);
         
-        float sampledDepth = ShadowMap.Sample(ShadowMapSampler, samplePosition);
+        float sampledDepth = tex2D(ShadowMapSampler, samplePosition);
         if (sampledDepth <= input.SMDepth)
         {
             shadowScalar -= (1.0f / ShadowSamples);
@@ -157,7 +157,7 @@ float4 PSDepthMap(V2PDepth input) : COLOR
 
 float4 PShaderTextureColor(V2P input) : COLOR
 {
-    float4 color = Color * Texture.Sample(TextureSampler, input.TextureCoords);
+    float4 color = Color * tex2D(TextureSampler, input.TextureCoords);
     return ApplyLightingModel(input, color);
 }
 

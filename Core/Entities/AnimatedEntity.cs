@@ -1,3 +1,6 @@
+// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.md', which is part of this source code package.
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -107,14 +110,12 @@ public class AnimatedEntity : Entity
             if (keyframe.Time > currentTimeValue)
                 break;
 
-            // Use this keyframe. AnimationData.BindPose[keyframe.Index] * 
             var parent = Model.Bones[keyframe.Index].Parent;
             Matrix transform = Matrix.Identity;
             if (parent != null)
             {
                 // If the parent has no transform, we need to go up the hierarchy.
                 transform *= parent != null ? Model.Bones[parent.Index].Transform : Matrix.Identity;
-                parent = Model.Bones[parent.Index].Parent;
             }
             MeshTransforms[keyframe.Index] = keyframe.Transform * transform;
             
