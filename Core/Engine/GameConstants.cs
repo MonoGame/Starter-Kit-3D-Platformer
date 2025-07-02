@@ -5,6 +5,14 @@ using System;
 
 public static class GameConstants
 {
+
+    /// <summary>
+    /// Base resolution for the game.
+    /// This is used to scale the UI and other elements based on the actual screen resolution.
+    /// </summary>
+    public const float BASE_RESOLUTION_WIDTH = 1280f;
+    public const float BASE_RESOLUTION_HEIGHT = 720f;
+
     /// <summary>
     /// Default Earth gravity for reference.
     /// </summary>

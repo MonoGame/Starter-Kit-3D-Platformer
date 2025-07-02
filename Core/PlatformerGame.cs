@@ -62,13 +62,13 @@ public class PlatformerGame : Game
     #endif
 
     private KeyboardState _previousKeyboardState = new KeyboardState();
-    
+
 
     public PlatformerGame()
     {
         _graphics = new GraphicsDeviceManager(this);
-        _graphics.PreferredBackBufferWidth = 1280;
-        _graphics.PreferredBackBufferHeight = 720;
+        _graphics.PreferredBackBufferWidth = (int)GameConstants.BASE_RESOLUTION_WIDTH;
+        _graphics.PreferredBackBufferHeight = (int)GameConstants.BASE_RESOLUTION_HEIGHT;
         _graphics.PreferredBackBufferFormat = SurfaceFormat.Color;
         _graphics.PreferredDepthStencilFormat = DepthFormat.Depth24;
         _graphics.GraphicsProfile = GraphicsProfile.HiDef;
@@ -80,6 +80,9 @@ public class PlatformerGame : Game
         _graphics.ApplyChanges();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+        Window.Title = "3D Platformer Game";
+        Window.AllowUserResizing = true;
+        Window.AllowAltF4 = true;
     }
 
     protected override void Initialize()
@@ -248,15 +251,19 @@ public class PlatformerGame : Game
         _previousKeyboardState = currentKeyboardState;
     }
 
-    void DrawHud()
+    void DrawHud(Rectangle rect, Vector2 scale)
     {
-        _spriteBatch.Begin();
-        // Draw HUD elements here
+        // Apply a globl scale to make sure all the HUD elements are scaled correctly
+        // This is useful for different screen resolutions and aspect ratios.
+        // The scale is based on the original resolution of 1280x720.
+        _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(scale.X, scale.Y, 0f) * Matrix.CreateTranslation(new Vector3(rect.X, rect.Y, 0)));
+
         _spriteBatch.Draw (_coinTexture, new Rectangle (10, 10, 100, 100), Color.White);
         _spriteBatch.DrawString(_font, $"{_player.Score}", new Vector2(110, 30), Color.White);
         if (_goal.GoalReached)
         {
-            _spriteBatch.DrawString(_font, "Level Complete!", new Vector2(500, 300), Color.White);
+            var textSize = _font.MeasureString("Level Complete!");
+            _spriteBatch.DrawString(_font, "Level Complete!", new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), (GameConstants.BASE_RESOLUTION_HEIGHT / 2) - (textSize.Y / 2)), Color.White);
         }
         _spriteBatch.End();
     }
@@ -264,6 +271,8 @@ public class PlatformerGame : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+        var screenRect = _graphics.GraphicsDevice.Viewport.Bounds;
+        Vector2 uiScale = new Vector2(screenRect.Width / GameConstants.BASE_RESOLUTION_WIDTH, screenRect.Height / GameConstants.BASE_RESOLUTION_HEIGHT); // Scale UI based on screen size
 
         // TODO: Add your drawing code here
         switch (_currentState)
@@ -271,18 +280,18 @@ public class PlatformerGame : Game
             case GameState.SplashScreen:
                 // Draw splash screen
                 GraphicsDevice.Clear(Color.Black);
-                
-                _spriteBatch.Begin();
-                
+
+                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+
                 // Draw splash texture centered on screen
                 Rectangle destinationRectangle = new Rectangle(
-                    (GraphicsDevice.Viewport.Width - _splashTexture.Width) / 2,
-                    (GraphicsDevice.Viewport.Height - _splashTexture.Height) / 2,
+                    ((int)GameConstants.BASE_RESOLUTION_WIDTH - _splashTexture.Width) / 2,
+                    ((int)GameConstants.BASE_RESOLUTION_HEIGHT - _splashTexture.Height) / 2,
                     _splashTexture.Width,
                     _splashTexture.Height);
-                    
+
                 _spriteBatch.Draw(_splashTexture, destinationRectangle, Color.White);
-                
+
                 _spriteBatch.End();
                 break;
 
@@ -294,7 +303,7 @@ public class PlatformerGame : Game
                     {
                         continue;
                     }
-                   _shadowProcessor.DrawEntityToShadowMap(entity, entity.WorldMatrix);
+                    _shadowProcessor.DrawEntityToShadowMap(entity, entity.WorldMatrix);
                 }
                 _shadowProcessor.DrawEntityToShadowMap(_player, _player.WorldMatrix);
                 _shadowProcessor.DrawEntityToShadowMap(_dust, _dust.WorldMatrix);
@@ -303,7 +312,7 @@ public class PlatformerGame : Game
                 // Draw main scene
                 _postProcessor.BeginScene();
                 GraphicsDevice.Clear(_skyColor);
-                
+
                 // Set render states
                 GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
                 GraphicsDevice.BlendState = BlendState.Opaque;
@@ -348,7 +357,7 @@ public class PlatformerGame : Game
                 _spriteBatch.End();
                 _postProcessor.EndScene();
                 // Draw the score etc.
-                DrawHud ();
+                DrawHud(screenRect, uiScale);
 #if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowRenderTargets))
                 {
