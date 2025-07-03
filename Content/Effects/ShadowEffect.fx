@@ -107,7 +107,7 @@ float4 ApplyLightingModel(V2P input, float4 color)
         
         float2 samplePosition = input.SMPosition + (randomOffset(seed) / 500.0f);
         
-        float sampledDepth = tex2D(ShadowMapSampler, samplePosition);
+        float sampledDepth = tex2D(ShadowMapSampler, samplePosition).x;
         if (sampledDepth <= input.SMDepth)
         {
             shadowScalar -= (1.0f / ShadowSamples);
