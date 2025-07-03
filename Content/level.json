@@ -41,7 +41,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": false
     },
     {
         "name": "coin.001",
@@ -62,7 +62,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": false
     },
     {
         "name": "coin.002",
@@ -83,7 +83,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": false
     },
     {
         "name": "coin.003",
@@ -125,7 +125,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": false
     },
     {
         "name": "coin.005",
@@ -146,7 +146,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": false
     },
     {
         "name": "coin.006",
@@ -167,7 +167,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": false
     },
     {
         "name": "coin.007",
@@ -188,7 +188,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": false
     },
     {
         "name": "coin.008",
@@ -209,7 +209,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": false
     },
     {
         "name": "flag",
