@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 
 
+[ContentSerializerRuntimeType($"{nameof(ModelData)}, {GameConstants.AssemblyName}")]
 public class ModelData
 {
     [ContentSerializer]

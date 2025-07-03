@@ -5,7 +5,7 @@ using System;
 
 public static class GameConstants
 {
-
+    public const string AssemblyName = "3DPlatformer";
     /// <summary>
     /// Base resolution for the game.
     /// This is used to scale the UI and other elements based on the actual screen resolution.

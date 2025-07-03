@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Content;
 /// <summary>
 /// Describes the position of a single bone at a single point in time.
 /// </summary>
+[ContentSerializerRuntimeType($"{nameof(Keyframe)}, {GameConstants.AssemblyName}")]
 public class Keyframe
 {
     /// <summary>
@@ -57,6 +58,7 @@ public class Keyframe
 /// Microsoft.Xna.Framework.Content.Pipeline.Graphics.AnimationContent type.
 /// It holds all the keyframes needed to describe a single animation.
 /// </summary>
+[ContentSerializerRuntimeType($"{nameof(AnimationClip)}, {GameConstants.AssemblyName}")]
 public class AnimationClip
 {
     /// <summary>
@@ -92,6 +94,7 @@ public class AnimationClip
     public List<Keyframe> Keyframes { get; private set; }
 }
 
+[ContentSerializerRuntimeType($"{nameof(AnimationData)}, {GameConstants.AssemblyName}")]
 public class AnimationData
 {
 

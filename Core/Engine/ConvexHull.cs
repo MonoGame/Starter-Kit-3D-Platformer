@@ -8,9 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-
+[ContentSerializerRuntimeType($"{nameof(ConvexHull)}, {GameConstants.AssemblyName}")]
 public class ConvexHull
 {
+    [ContentSerializerRuntimeType($"{nameof(ConvexHull)}+{nameof(Face)}, {GameConstants.AssemblyName}")]
     public struct Face
     {
         public Vector3 Normal;
@@ -30,7 +31,7 @@ public class ConvexHull
     {
         var verts = new List<Vector3>();
         var faces = new List<Face>();
-        
+
         var halfHeight = height / 2f;
 
         for (int i = 0; i < segments; i++)
@@ -53,7 +54,7 @@ public class ConvexHull
         // Bottom face.
         var bottomIndices = new List<int>();
         for (int i = segments - 1; i >= 0; i--)
-            bottomIndices.Add(i * 2 + 1); 
+            bottomIndices.Add(i * 2 + 1);
         faces.Add(new Face { Indices = bottomIndices.ToArray(), Normal = Vector3.Down });
 
         // Side faces as triangles.
