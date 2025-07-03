@@ -19,7 +19,10 @@ public class Keyframe
     {
         Index = boneIndex;
         Time = time;
-        Transform = transform;
+        transform.Decompose(out Vector3 currentScale, out Quaternion currentRotation, out Vector3 currentTranslation);
+        Translation = currentTranslation;
+        Orientation = currentRotation;
+        Scale = currentScale;
     }
 
 
@@ -44,11 +47,29 @@ public class Keyframe
     public TimeSpan Time { get; private set; }
 
 
+    // /// <summary>
+    // /// Gets the bone transform for this keyframe.
+    // /// </summary>
+    // [ContentSerializer]
+    // public Matrix Transform { get; set; }
+
     /// <summary>
-    /// Gets the bone transform for this keyframe.
+    /// Gets the translation, orientation, and scale of the bone at this keyframe.
     /// </summary>
     [ContentSerializer]
-    public Matrix Transform { get; set; }
+    public Vector3 Translation { get; set; }
+
+    /// <summary>
+    /// Gets the orientation of the bone at this keyframe.
+    /// </summary>
+    [ContentSerializer]
+    public Quaternion Orientation { get; set; }
+
+    /// <summary>
+    /// Gets the scale of the bone at this keyframe.
+    /// </summary>
+    [ContentSerializer]
+    public Vector3 Scale { get; set; }
 
     public string ChannelName { get; set; }
 }
