@@ -150,9 +150,18 @@ public class PlatformerGame : Game
         var gamePadState = GamePad.GetState(PlayerIndex.One);
         if (gamePadState.Buttons.Back == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Escape))
             Exit();
+            
+        if (currentKeyboardState.IsKeyDown(Keys.LeftAlt))
+        {
+            if (currentKeyboardState.IsKeyDown(Keys.Enter) && _previousKeyboardState.IsKeyUp(Keys.Enter))
+            {
+                // Toggle fullscreen mode
+                _graphics.ToggleFullScreen();
+            }
+        }
 
         // Handle debug flags toggling
-        #if DEVMODE 
+#if DEVMODE
         if (currentKeyboardState.IsKeyDown(Keys.F1) && _previousKeyboardState.IsKeyUp(Keys.F1))
         {
             _debugFlags ^= DebugFlags.ShowCollisionMesh;
@@ -180,7 +189,7 @@ public class PlatformerGame : Game
                 }
             }
         }
-        #endif
+#endif
 
             // TODO: Add your update logic here
             switch (_currentState)
