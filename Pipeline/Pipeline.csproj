@@ -13,10 +13,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Core\Engine\AnimationData.cs" />
-    <Compile Include="..\Core\Engine\ModelData.cs" />
-    <Compile Include="..\Core\Engine\ConvexHull.cs" />
-    <Compile Include="..\Core\Engine\GameConstants.cs" />
+    <Compile Include="..\Source\Engine\AnimationData.cs" />
+    <Compile Include="..\Source\Engine\ModelData.cs" />
+    <Compile Include="..\Source\Engine\ConvexHull.cs" />
+    <Compile Include="..\Source\Engine\GameConstants.cs" />
   </ItemGroup>
 
 </Project>
