@@ -3,6 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MIConvexHull" Version="1.1.19.1019" />
     <PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.4">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>

@@ -3,10 +3,7 @@
 // file 'LICENSE.md', which is part of this source code package.
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -54,8 +51,6 @@ public class PlatformerGame : Game
     private Dust _dust; 
     private PostProcessor _postProcessor;
     private ShadowProcessor _shadowProcessor;
-
-    CollisionMesh _collisionMesh;
 
     #if DEVMODE
     private DebugFlags _debugFlags = DebugFlags.None;
@@ -135,12 +130,6 @@ public class PlatformerGame : Game
             Position = spawnPoint.Position,
             Rotation = spawnPoint.Rotation,
         };
-
-        var platform = _entities.Find(e => e is Platform p && p.Rotation != Quaternion.Identity) as Platform;
-        _collisionMesh = new CollisionMesh(platform);
-        _collisionMesh.GenerateFromModel(platform.Model);
-        _collisionMesh.UpdateWorldCollisionMesh();
-        _collisionMesh.ShowCollisionMesh = true;
     }
 
 
@@ -243,7 +232,6 @@ public class PlatformerGame : Game
                     }
                     _camera.Target = _player.Position;
                     _camera.Update(scaledTime);
-                    _collisionMesh.UpdateWorldCollisionMesh();
                     _shadowProcessor.TargetPosition = _player.Position;
 
                     if (_goal.Complete)

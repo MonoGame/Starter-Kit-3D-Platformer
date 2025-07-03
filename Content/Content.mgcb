@@ -27,7 +27,7 @@
 
 #begin Models/platform.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -46,7 +46,7 @@
 
 #begin Models/platform-falling.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -85,7 +85,7 @@
 
 #begin Models/coin.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -104,7 +104,7 @@
 
 #begin Models/cloud.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -123,7 +123,7 @@
 
 #begin Models/flag.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -142,7 +142,7 @@
 
 #begin Models/grass.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -161,7 +161,7 @@
 
 #begin Models/grass-small.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -180,7 +180,7 @@
 
 #begin Models/platform-grass-large-round.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -199,7 +199,7 @@
 
 #begin Models/platform-large.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -218,7 +218,7 @@
 
 #begin Models/platform-medium.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
@@ -237,7 +237,7 @@
 
 #begin Models/dust.fbx
 /importer:FbxImporter
-/processor:ModelProcessor
+/processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect

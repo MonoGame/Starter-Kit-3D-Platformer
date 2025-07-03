@@ -1,0 +1,150 @@
+﻿// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.md', which is part of this source code package.
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+
+public class ConvexHull
+{
+    public struct Face
+    {
+        public Vector3 Normal;
+        public int[] Indices;
+    }
+
+    [ContentSerializer]
+    public Vector3[] Vertices;
+
+    [ContentSerializer]
+    public Face[] Faces;
+
+    [ContentSerializer]
+    public BoundingBox AABB;
+
+    public static ConvexHull CreateCylinder(Vector3 offset, float radius, float height, int segments)
+    {
+        var verts = new List<Vector3>();
+        var faces = new List<Face>();
+        
+        var halfHeight = height / 2f;
+
+        for (int i = 0; i < segments; i++)
+        {
+            float angle = MathHelper.TwoPi * i / segments;
+            float x = (float)Math.Cos(angle) * radius;
+            float z = (float)Math.Sin(angle) * radius;
+
+            // Top ring and bottom ring of verts.
+            verts.Add(offset + new Vector3(x, halfHeight, z));
+            verts.Add(offset + new Vector3(x, -halfHeight, z));
+        }
+
+        // Top face.
+        var topIndices = new List<int>();
+        for (int i = 0; i < segments; i++)
+            topIndices.Add(i * 2);
+        faces.Add(new Face { Indices = topIndices.ToArray(), Normal = Vector3.Up });
+
+        // Bottom face.
+        var bottomIndices = new List<int>();
+        for (int i = segments - 1; i >= 0; i--)
+            bottomIndices.Add(i * 2 + 1); 
+        faces.Add(new Face { Indices = bottomIndices.ToArray(), Normal = Vector3.Down });
+
+        // Side faces as triangles.
+        for (int i = 0; i < segments; i++)
+        {
+            var topA = (i * 2) % (segments * 2);
+            var botA = (topA + 1) % (segments * 2);
+            var topB = (topA + 2) % (segments * 2);
+            var botB = (topB + 1) % (segments * 2);
+
+            var va = verts[topA];
+            var vb = verts[topB];
+            var vc = verts[botB];
+            var normal1 = Vector3.Normalize(Vector3.Cross(vb - va, vc - va));
+
+            faces.Add(new Face { Indices = new[] { topA, botA, botB }, Normal = normal1 });
+            faces.Add(new Face { Indices = new[] { botB, topB, topA }, Normal = normal1 });
+        }
+
+        return new ConvexHull
+        {
+            Vertices = verts.ToArray(),
+            Faces = faces.ToArray(),
+            AABB = BoundingBox.CreateFromPoints(verts)
+        };
+    }
+
+    /// <summary>
+    /// Returns a clone of the hull sharing face indices.
+    /// </summary>
+    /// <returns></returns>
+    public ConvexHull Clone()
+    {
+        var hull = new ConvexHull();
+
+        hull.Faces = new Face[Faces.Length];
+
+        for (var i = 0; i < hull.Faces.Length; i++)
+        {
+            var face = Faces[i];
+            hull.Faces[i] = new Face
+            {
+                Indices = face.Indices,
+                Normal = face.Normal
+            };
+        }
+
+        hull.Vertices = Vertices.ToArray();
+        hull.AABB = AABB;
+
+        return hull;
+    }
+
+    private static bool IsSeparatingAxis(Vector3 axis, Vector3[] vertsA, Vector3[] vertsB)
+    {
+        ProjectOntoAxis(vertsA, axis, out float minA, out float maxA);
+        ProjectOntoAxis(vertsB, axis, out float minB, out float maxB);
+
+        return maxA < minB || maxB < minA;
+    }
+
+    private static void ProjectOntoAxis(Vector3[] vertices, Vector3 axis, out float min, out float max)
+    {
+        float dot = Vector3.Dot(vertices[0], axis);
+        min = max = dot;
+
+        for (int i = 1; i < vertices.Length; i++)
+        {
+            dot = Vector3.Dot(vertices[i], axis);
+            if (dot < min) min = dot;
+            if (dot > max) max = dot;
+        }
+    }
+
+    public static bool Intersects(ConvexHull a, ConvexHull b)
+    {
+        // Skip the faces when we can.
+        if (!a.AABB.Intersects(b.AABB))
+            return false;
+
+        foreach (var face in a.Faces)
+            if (IsSeparatingAxis(face.Normal, a.Vertices, b.Vertices))
+                return false;
+
+        foreach (var face in b.Faces)
+            if (IsSeparatingAxis(face.Normal, a.Vertices, b.Vertices))
+                return false;
+
+        // TODO: Edges too?
+
+        // Intersects!
+        return true;
+    }
+}

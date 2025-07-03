@@ -1,127 +1,17 @@
 // MonoGame - Copyright (C) MonoGame Foundation, Inc
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 
 public class CollisionMesh
 {
-    // Collision box data structure
-    private class OrientedBoundingBox
-    {
-        public BoundingBox LocalBox { get; set; }
-        public Matrix Transform { get; set; }
-        public Vector3[] WorldCorners { get; set; } = new Vector3[8];
-        
-        public OrientedBoundingBox(BoundingBox localBox)
-        {
-            LocalBox = localBox;
-            Transform = Matrix.Identity;
-            UpdateWorldCorners();
-        }
-        
-        public void UpdateWorldCorners()
-        {
-            // Transform the local corners to world space
-            Vector3[] corners = LocalBox.GetCorners();
-            for (int i = 0; i < 8; i++)
-            {
-                WorldCorners[i] = Vector3.Transform(corners[i], Transform);
-            }
-        }
-        
-        // Check if this OBB intersects with another OBB using the Separating Axis Theorem
-        public bool Intersects(OrientedBoundingBox other)
-        {
-            // We need to test 15 separating axes:
-            // - 3 from this box's face normals
-            // - 3 from other box's face normals
-            // - 9 from cross products of all edges (3x3)
-            
-            // Face normals for this box (considering orientation)
-            Vector3[] axesThis = new Vector3[3];
-            axesThis[0] = Vector3.Normalize(WorldCorners[1] - WorldCorners[0]); // X axis
-            axesThis[1] = Vector3.Normalize(WorldCorners[3] - WorldCorners[0]); // Y axis
-            axesThis[2] = Vector3.Normalize(WorldCorners[4] - WorldCorners[0]); // Z axis
-            
-            // Face normals for other box
-            Vector3[] axesOther = new Vector3[3];
-            axesOther[0] = Vector3.Normalize(other.WorldCorners[1] - other.WorldCorners[0]); // X axis
-            axesOther[1] = Vector3.Normalize(other.WorldCorners[3] - other.WorldCorners[0]); // Y axis
-            axesOther[2] = Vector3.Normalize(other.WorldCorners[4] - other.WorldCorners[0]); // Z axis
-            
-            // Check face normals from this box
-            foreach (var axis in axesThis)
-            {
-                if (!OverlapOnAxis(this, other, axis))
-                    return false;
-            }
-            
-            // Check face normals from other box
-            foreach (var axis in axesOther)
-            {
-                if (!OverlapOnAxis(this, other, axis))
-                    return false;
-            }
-            
-            // Check cross-product axes (edge combinations)
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    Vector3 axis = Vector3.Cross(axesThis[i], axesOther[j]);
-                    
-                    // Skip near-zero axes (parallel edges)
-                    if (axis.LengthSquared() < 0.0001f)
-                        continue;
-                        
-                    axis = Vector3.Normalize(axis);
-                    
-                    if (!OverlapOnAxis(this, other, axis))
-                        return false;
-                }
-            }
-            
-            // No separating axis found, boxes must be intersecting
-            return true;
-        }
-        
-        // Check if two OBBs overlap when projected onto a specific axis
-        private bool OverlapOnAxis(OrientedBoundingBox a, OrientedBoundingBox b, Vector3 axis)
-        {
-            // Project all corners onto the axis
-            float minA = float.MaxValue, maxA = float.MinValue;
-            float minB = float.MaxValue, maxB = float.MinValue;
-            
-            // Project box A
-            foreach (var corner in a.WorldCorners)
-            {
-                float projection = Vector3.Dot(corner, axis);
-                minA = Math.Min(minA, projection);
-                maxA = Math.Max(maxA, projection);
-            }
-            
-            // Project box B
-            foreach (var corner in b.WorldCorners)
-            {
-                float projection = Vector3.Dot(corner, axis);
-                minB = Math.Min(minB, projection);
-                maxB = Math.Max(maxB, projection);
-            }
-            
-            // Check for overlap
-            return maxA >= minB && maxB >= minA;
-        }
-    }
-    
-    // Collection of collision boxes
-    private List<OrientedBoundingBox> _collisionBoxes = new List<OrientedBoundingBox>();
-    
-    // The local space collision boxes
-    private List<BoundingBox> _localCollisionBoxes = new List<BoundingBox>();
-    
+    private List<ConvexHull> _hulls;
+    private List<ConvexHull> _worldHulls;
+
     // Reference to the parent entity for transforms
     private Entity _parent;
     private BoundingBox _corseBoundingBox;
@@ -145,22 +35,43 @@ public class CollisionMesh
 
     public BoundingBox WorldBoundingBox => _worldBoundingBox;
     
-    public CollisionMesh(Entity parent)
+    public CollisionMesh(Entity parent, Model model, List<ConvexHull> collisionData)
     {
         _parent = parent;
+
+        GenerateFromModel(model, collisionData);
+        UpdateWorldCollisionMesh();
     }
-    
-    public void GenerateFromModel(Model model, int boxCount = 8)
+
+    public void GenerateFromCylinder(Vector3 offset, float radius, float height, int segments)
     {
-        // Clear any existing collision boxes
-        _localCollisionBoxes.Clear();
-        
+        _hulls = new List<ConvexHull>();
+        _hulls.Add(ConvexHull.CreateCylinder(offset, radius, height, segments));
+
+        _corseBoundingBox = new BoundingBox(
+            offset + new Vector3(-radius, -height / 2f, -radius), 
+            offset + new Vector3(radius, height / 2f, radius));
+
+        _worldHulls = new List<ConvexHull>();
+        foreach (var hull in _hulls)
+            _worldHulls.Add(hull.Clone());
+
+        UpdateWorldCollisionMesh();
+    }
+
+    private void GenerateFromModel(Model model, List<ConvexHull> collisionData)
+    {
+        _hulls = collisionData;
+       
+        // TODO: Could we get this from the hulls?
+        // Maybe we store the bone index in the hulls?
+
         // Get all vertices from the model
         List<Vector3> allVertices = new List<Vector3>();
         Matrix[] transforms = new Matrix[model.Bones.Count];
         model.CopyAbsoluteBoneTransformsTo(transforms);
         
-        foreach (ModelMesh mesh in model.Meshes)
+        foreach (var mesh in model.Meshes)
         {
             foreach (ModelMeshPart meshPart in mesh.MeshParts)
             {
@@ -182,59 +93,27 @@ public class CollisionMesh
         
         // Simple approach: divide the model into regions and create boxes
         _corseBoundingBox = BoundingBox.CreateFromPoints(allVertices);
-        Vector3 dimensions = _corseBoundingBox.Max - _corseBoundingBox.Min;
-        
-        // Divide model into multiple boxes along its longest axis
-        int axis = 0; // 0=X, 1=Y, 2=Z
-        if (dimensions.Y > dimensions.X && dimensions.Y > dimensions.Z)
-            axis = 1;
-        else if (dimensions.Z > dimensions.X && dimensions.Z > dimensions.Y)
-            axis = 2;
-            
-        // Create multiple boxes along the chosen axis
-        for (int i = 0; i < boxCount; i++)
-        {
-            float start = (float)i / boxCount;
-            float end = (float)(i + 1) / boxCount;
-            
-            Vector3 boxMin = _corseBoundingBox.Min;
-            Vector3 boxMax = _corseBoundingBox.Max;
-            
-            // Adjust the min/max along the chosen axis
-            switch (axis)
-            {
-                case 0: // X axis
-                    boxMin.X = MathHelper.Lerp(_corseBoundingBox.Min.X, _corseBoundingBox.Max.X, start);
-                    boxMax.X = MathHelper.Lerp(_corseBoundingBox.Min.X, _corseBoundingBox.Max.X, end);
-                    break;
-                case 1: // Y axis
-                    boxMin.Y = MathHelper.Lerp(_corseBoundingBox.Min.Y, _corseBoundingBox.Max.Y, start);
-                    boxMax.Y = MathHelper.Lerp(_corseBoundingBox.Min.Y, _corseBoundingBox.Max.Y, end);
-                    break;
-                case 2: // Z axis
-                    boxMin.Z = MathHelper.Lerp(_corseBoundingBox.Min.Z, _corseBoundingBox.Max.Z, start);
-                    boxMax.Z = MathHelper.Lerp(_corseBoundingBox.Min.Z, _corseBoundingBox.Max.Z, end);
-                    break;
-            }
-            
-            _localCollisionBoxes.Add(new BoundingBox(boxMin, boxMax));
-        }
-        
+
+        _worldHulls = new List<ConvexHull>();
+        foreach(var hull in _hulls)
+            _worldHulls.Add(hull.Clone());
+
         // Initialize world-space boxes
         UpdateWorldCollisionMesh();
     }
     
     public void UpdateWorldCollisionMesh()
     {
-        _collisionBoxes.Clear();
-        
-        foreach (BoundingBox localBox in _localCollisionBoxes)
+        for (int i = 0; i < _hulls.Count; i++)
         {
-            OrientedBoundingBox worldBox = new OrientedBoundingBox(localBox);
-            worldBox.Transform = _parent.WorldMatrix;
-            worldBox.UpdateWorldCorners();
-            
-            _collisionBoxes.Add(worldBox);
+            var h = _hulls[i];
+            var wh = _worldHulls[i];
+
+            for (int j = 0; j < h.Vertices.Length; j++)
+                wh.Vertices[j] = Vector3.Transform(h.Vertices[j], _parent.WorldMatrix);
+
+            for (int j = 0; j < h.Faces.Length; j++)
+                wh.Faces[j].Normal = Vector3.TransformNormal(h.Faces[j].Normal, _parent.WorldMatrix);
         }
 
         // Transform the local bounding box corners
@@ -254,53 +133,25 @@ public class CollisionMesh
     {
         if (other == null)
             return false;
-        // early out if the corse bounding boxes do not intersect
+
+        // We can early out if the corse bounding boxes do not intersect.
         if (_corseBoundingBox.Intersects(other._corseBoundingBox) == false)
             return false;
-        foreach (OrientedBoundingBox box in _collisionBoxes)
+
+        foreach (var hull in _worldHulls)
         {
-            foreach (OrientedBoundingBox otherBox in other._collisionBoxes)
+            foreach (var hull2 in other._worldHulls)
             {
-                if (box.Intersects(otherBox))
+                if (ConvexHull.Intersects(hull, hull2))
                 {
                     return true;
                 }
             }
         }
-        
+
         return false;
     }
-
-    public Vector3 CalculateCollissionResolution(CollisionMesh other)
-    {
-        // Calculate the collision resolution vector
-        Vector3 resolution = Vector3.Zero;
         
-        // Early out if no intersection between coarse bounding boxes
-        if (!_worldBoundingBox.Intersects(other._worldBoundingBox))
-            return resolution;
-            
-        bool collisionFound = false;
-         
-        // Check each pair of collision boxes
-        foreach (OrientedBoundingBox box in _collisionBoxes)
-        {
-            foreach (OrientedBoundingBox otherBox in other._collisionBoxes)
-            {
-                if (box.Intersects(otherBox))
-                {
-                    collisionFound = true;
-                    
-                    break;
-                }
-            }
-            if (collisionFound)
-                break;
-        }
-        
-        return resolution;
-    }
-    
     public void Draw(GraphicsDevice graphicsDevice, Camera camera)
     {
         if (!_showCollisionMesh) 
@@ -315,11 +166,12 @@ public class CollisionMesh
         _debugEffect.View = camera.ViewMatrix;
         _debugEffect.Projection = camera.ProjectionMatrix;
         _debugEffect.World = Matrix.Identity;
-        
-        foreach (OrientedBoundingBox box in _collisionBoxes)
+
+        foreach (var hull in _worldHulls)
         {
-            DrawBox(graphicsDevice, box, Color.Blue);
+            DrawHull(graphicsDevice, hull, Color.Blue);
         }
+
         // Get the corners of the bounding box
         Vector3[] corners = _worldBoundingBox.GetCorners();
         
@@ -354,35 +206,34 @@ public class CollisionMesh
 
     }
     
-    private void DrawBox(GraphicsDevice graphicsDevice, OrientedBoundingBox box, Color color)
+    private void DrawHull(GraphicsDevice graphicsDevice, ConvexHull hull, Color color)
     {
-        // Define the 12 edges of the bounding box cube
-        // The corners array contains 8 points, ordered:
-        // 0: Near bottom left, 1: Near bottom right
-        // 2: Far bottom right, 3: Far bottom left
-        // 4: Near top left, 5: Near top right
-        // 6: Far top right, 7: Far top left
-        int[] indices = {
-            // Bottom face
-            0, 1, 1, 2, 2, 3, 3, 0,
-            // Top face
-            4, 5, 5, 6, 6, 7, 7, 4,
-            // Connecting edges
-            0, 4, 1, 5, 2, 6, 3, 7
-        };
+        // TODO: We could cache the debug rendering hulls
+        // to avoid per-frame rebuild work.
 
         // Create colored vertices from world space corners
-        VertexPositionColor[] vertices = new VertexPositionColor[indices.Length];
-        for (int i = 0; i < indices.Length; i++)
+        var lines = new List<VertexPositionColor>();
+        for (var f = 0; f < hull.Faces.Length; f++)
         {
-            vertices[i] = new VertexPositionColor(box.WorldCorners[indices[i]], color);
+            var face = hull.Faces[f];
+
+            for (var i = 0; i < face.Indices.Length; i++)
+            {
+                var v1 = face.Indices[i];
+                var v2 = face.Indices[(i+1) % face.Indices.Length];
+
+                lines.Add(new VertexPositionColor(hull.Vertices[v1], color));
+                lines.Add(new VertexPositionColor(hull.Vertices[v2], color));
+            }
         }
 
+        var verts = lines.ToArray();
+
         // Draw the lines
-        foreach (EffectPass pass in _debugEffect.CurrentTechnique.Passes)
+        foreach (var pass in _debugEffect.CurrentTechnique.Passes)
         {
             pass.Apply();
-            graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, vertices.Length / 2);
+            graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, verts, 0, verts.Length / 2);
         }
     }
 }

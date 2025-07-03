@@ -58,6 +58,8 @@ public class Player : AnimatedEntity
 
     public Player(GraphicsDevice graphicsDevice, Model model, ContentManager contentManager) : base(model, contentManager)
     {
+        _collisionMesh.GenerateFromCylinder(new Vector3(0, 40, 0), 30, 80, 8);
+
         Position = new Vector3(0, 0, 0);
         Scale = new Vector3(1, 1, 1);
         Rotation = Quaternion.Identity;

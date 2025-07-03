@@ -10,18 +10,24 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 [ContentProcessor(DisplayName = "Mesh Animated Model Processor")]
 class MeshAnimatedModelProcessor : ModelProcessor
 {
+    // TODO: Expose max collision options, disable, max faces, tolerance, etc.
+
     public override ModelContent Process(NodeContent input, ContentProcessorContext context)
     {
         MeshAnimatedModelHelper.FlattenAnimationKeyframes(input);
+
         var content = base.Process(input, context); 
+
         var clips = MeshAnimatedModelHelper.ProcessNodeAnimations(input, content.Bones);
 
-        var animations = new AnimationData(clips);
+        var animations = clips.Count > 0 ? new AnimationData(clips) : null;
+        var collisions = ConvexHullHelper.GenerateConvexHulls(content, 64, 0.5f);
 
         // The tag is used to pass extra data from the content pipeline to the engine.
         content.Tag = new ModelData()
         {
-            AnimationData = animations
+            AnimationData = animations,
+            CollisionData = collisions
         };
 
         return content;

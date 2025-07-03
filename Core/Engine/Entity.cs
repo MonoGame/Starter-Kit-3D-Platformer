@@ -15,7 +15,7 @@ public class Entity
     public Vector3 Scale = Vector3.One;
     public Quaternion Rotation = Quaternion.Identity;
     public bool IsBlockingMovement = true; // Flag to block movement
-    private CollisionMesh _collisionMesh; // Model space bounding box
+    protected CollisionMesh _collisionMesh;
 
     public float SpecularIntensity = 0.5f; // Intensity of specular highlights
     public float Shininess = 16f; // Power of the specular highlights
@@ -32,17 +32,16 @@ public class Entity
         WorldMatrix = Matrix.Identity;
         Content = contentManager;
 
-        // Calculate the local bounding box once
         if (model != null)
         {
-            _collisionMesh = new CollisionMesh(this);
-            _collisionMesh.GenerateFromModel(model);
-            _collisionMesh.UpdateWorldCollisionMesh();
+            // If we have collision data make the collision mesh.
+            var modelData = model.Tag as ModelData;
+            if (modelData?.CollisionData?.Count > 0)
+                _collisionMesh = new CollisionMesh(this, model, modelData.CollisionData);
+            
             MeshTransforms = new Matrix[model.Bones.Count];
             for (int i = 0; i < model.Bones.Count; i++)
-            {
-                MeshTransforms[i] = Matrix.Identity; // Initialize with identity
-            }
+                MeshTransforms[i] = Matrix.Identity;
         }
 
         LoadContent();
@@ -66,7 +65,7 @@ public class Entity
     {
         if (_collisionMesh == null || other._collisionMesh == null)
             return false;
-        // Check for collision with another entity
+
         return _collisionMesh.Intersects(other._collisionMesh);
     }
 
@@ -81,21 +80,8 @@ public class Entity
         if (Model == null)
             return;
 
-        // Matrix[] transforms = new Matrix[Model.Bones.Count];
-        // Model.CopyAbsoluteBoneTransformsTo(transforms);
-        // foreach (var mesh in Model.Meshes)
-        // {
-        //     foreach (BasicEffect effect in mesh.Effects)
-        //     {
-        //         effect.World = transforms[mesh.ParentBone.Index] * WorldMatrix;
-        //         effect.View = camera.ViewMatrix;
-        //         effect.Projection = camera.ProjectionMatrix;
-        //     }
-        //     mesh.Draw();
-        // }
         if (_collisionMesh != null)
-            _collisionMesh.Draw(graphicsDevice, camera);
-        
+            _collisionMesh.Draw(graphicsDevice, camera);        
     }
 
     public virtual void DrawBillboards(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
