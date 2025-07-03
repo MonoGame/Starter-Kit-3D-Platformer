@@ -47,26 +47,20 @@ public class Keyframe
     public TimeSpan Time { get; private set; }
 
 
-    // /// <summary>
-    // /// Gets the bone transform for this keyframe.
-    // /// </summary>
-    // [ContentSerializer]
-    // public Matrix Transform { get; set; }
-
     /// <summary>
-    /// Gets the translation, orientation, and scale of the bone at this keyframe.
+    /// Gets the translation of the mesh at this keyframe.
     /// </summary>
     [ContentSerializer]
     public Vector3 Translation { get; set; }
 
     /// <summary>
-    /// Gets the orientation of the bone at this keyframe.
+    /// Gets the orientation of the mesh at this keyframe.
     /// </summary>
     [ContentSerializer]
     public Quaternion Orientation { get; set; }
 
     /// <summary>
-    /// Gets the scale of the bone at this keyframe.
+    /// Gets the scale of the mesh at this keyframe.
     /// </summary>
     [ContentSerializer]
     public Vector3 Scale { get; set; }
