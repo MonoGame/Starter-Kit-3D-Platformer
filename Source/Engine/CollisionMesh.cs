@@ -68,35 +68,16 @@ public class CollisionMesh
 
         // Get all vertices from the model
         List<Vector3> allVertices = new List<Vector3>();
-        Matrix[] transforms = new Matrix[model.Bones.Count];
-        model.CopyAbsoluteBoneTransformsTo(transforms);
-        
-        foreach (var mesh in model.Meshes)
+        _worldHulls = new List<ConvexHull>();
+        foreach (var hull in _hulls)
         {
-            foreach (ModelMeshPart meshPart in mesh.MeshParts)
-            {
-                int vertexStride = meshPart.VertexBuffer.VertexDeclaration.VertexStride;
-                int vertexBufferSize = meshPart.NumVertices * vertexStride;
-                
-                float[] vertexData = new float[vertexBufferSize / sizeof(float)];
-                meshPart.VertexBuffer.GetData<float>(vertexData);
-                
-                // Extract vertex positions
-                for (int i = 0; i < vertexBufferSize / sizeof(float); i += vertexStride / sizeof(float))
-                {
-                    Vector3 position = new Vector3(vertexData[i], vertexData[i + 1], vertexData[i + 2]);
-                    position = Vector3.Transform(position, transforms[mesh.ParentBone.Index]);
-                    allVertices.Add(position);
-                }
-            }
+            foreach (var v in hull.Vertices)
+                allVertices.Add(v);
+            _worldHulls.Add(hull.Clone());
         }
         
         // Simple approach: divide the model into regions and create boxes
         _corseBoundingBox = BoundingBox.CreateFromPoints(allVertices);
-
-        _worldHulls = new List<ConvexHull>();
-        foreach(var hull in _hulls)
-            _worldHulls.Add(hull.Clone());
 
         // Initialize world-space boxes
         UpdateWorldCollisionMesh();
