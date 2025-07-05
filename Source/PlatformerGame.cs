@@ -205,7 +205,7 @@ public class PlatformerGame : Game
                     _player.Forward = _camera.ForwardDirection;
                     _player.Update(scaledTime);
                     _dust.Update(scaledTime);
-                    if (_player.IsMoving && !_player.IsJumping)
+                    if (_player.IsMoving && !_player.IsJumping && !_player.IsFalling)
                     {
                         _dust.AddDust(scaledTime, _player.Position);
                     }

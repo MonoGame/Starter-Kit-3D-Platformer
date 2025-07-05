@@ -12,6 +12,7 @@ using System.Collections.Generic;
 public class Player : AnimatedEntity
 {
     public bool IsJumping = false;
+    public bool IsFalling = true;
 
     public int Score = 0;
     public Vector3 Forward { get; set; } = new Vector3(0, 0, -1); // Default forward is negative Z
@@ -127,22 +128,7 @@ public class Player : AnimatedEntity
                 // If the other entity is not blocking movement, we can ignore the collision
                 return false;
             }
-            // var resolveDirection = CollisionMesh.CalculateCollissionResolution(other.CollisionMesh);
-            // if (resolveDirection.Y > 0)
-            // {
-            //     _velocity.Y = 0;
-            //     if (IsJumping)
-            //     {
-            //         _landSound.Play();
-            //     }
-            //     IsJumping = false;
-            //     _jumpCount = 0; // Reset jump count when landing
-            // }
-            // // If we're hitting our head on something
-            // else if (resolveDirection.Y < 0 && _velocity.Y > 0)
-            // {
-            //     _velocity.Y = 0;
-            // }
+
             // Calculate centers of both bounding boxes
             Vector3 thisCenter = (BoundingBox.Min + BoundingBox.Max) / 2;
             Vector3 otherCenter = (other.BoundingBox.Min + other.BoundingBox.Max) / 2;
@@ -187,6 +173,7 @@ public class Player : AnimatedEntity
                     _velocity.Y = 0;
                     _jumpCount = 0; // Reset jump count when landing
                     _currentShadowDistance = 0f; // Reset shadow distance when landing                 
+                    IsFalling = false;
                 }
                 // If we're hitting our head on something
                 else if (resolveDirection.Y < 0 && _velocity.Y > 0)
@@ -220,6 +207,10 @@ public class Player : AnimatedEntity
                 _currentShadowDistance = distance; // Store the distance for shadow sizing
             }
         }
+
+        if (_velocity.Y < 0.0f)
+            IsFalling = true;
+
         return collision;
     }
 
