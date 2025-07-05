@@ -37,7 +37,7 @@ public class Entity
             // If we have collision data make the collision mesh.
             var modelData = model.Tag as ModelData;
             if (modelData?.CollisionData?.Count > 0)
-                _collisionMesh = new CollisionMesh(this, model, modelData.CollisionData);
+                _collisionMesh = new CollisionMesh(this, model, modelData.CollisionData, modelData.BoundingBox);
             
             MeshTransforms = new Matrix[model.Bones.Count];
             for (int i = 0; i < model.Bones.Count; i++)

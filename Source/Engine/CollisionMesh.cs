@@ -35,11 +35,11 @@ public class CollisionMesh
 
     public BoundingBox WorldBoundingBox => _worldBoundingBox;
     
-    public CollisionMesh(Entity parent, Model model, List<ConvexHull> collisionData)
+    public CollisionMesh(Entity parent, Model model, List<ConvexHull> collisionData, BoundingBox boundingBox)
     {
         _parent = parent;
 
-        GenerateFromModel(model, collisionData);
+        GenerateFromModel(model, collisionData, boundingBox);
         UpdateWorldCollisionMesh();
     }
 
@@ -59,25 +59,17 @@ public class CollisionMesh
         UpdateWorldCollisionMesh();
     }
 
-    private void GenerateFromModel(Model model, List<ConvexHull> collisionData)
+    private void GenerateFromModel(Model model, List<ConvexHull> collisionData, BoundingBox boundingBox)
     {
         _hulls = collisionData;
        
-        // TODO: Could we get this from the hulls?
-        // Maybe we store the bone index in the hulls?
+        _corseBoundingBox = boundingBox;
 
-        // Get all vertices from the model
-        List<Vector3> allVertices = new List<Vector3>();
         _worldHulls = new List<ConvexHull>();
         foreach (var hull in _hulls)
         {
-            foreach (var v in hull.Vertices)
-                allVertices.Add(v);
             _worldHulls.Add(hull.Clone());
         }
-        
-        // Simple approach: divide the model into regions and create boxes
-        _corseBoundingBox = BoundingBox.CreateFromPoints(allVertices);
 
         // Initialize world-space boxes
         UpdateWorldCollisionMesh();
