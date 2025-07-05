@@ -1,6 +1,7 @@
 // MonoGame - Copyright (C) MonoGame Foundation, Inc
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -27,7 +28,7 @@ public class Camera
     public float MaxPitch { get; set; } = MathHelper.PiOver2 - 0.1f;
     
     // Input sensitivity
-    public float RotationSpeed { get; set; } = 0.1f;
+    public float RotationSpeed { get; set; } = 0.05f;
     public float ZoomSpeed { get; set; } = 5f;
     
     // Camera direction vector
@@ -36,6 +37,7 @@ public class Camera
     // Previous input states
     private KeyboardState _previousKeyboardState;
     private GamePadState _previousGamePadState;
+    private Vector2 _cameraRotation = Vector2.Zero;
 
     public Matrix ViewMatrix => _viewMatrix;
     public Matrix ProjectionMatrix => _projectionMatrix;
@@ -81,22 +83,30 @@ public class Camera
     {
         KeyboardState keyboardState = Keyboard.GetState();
         GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
-        
-        // Handle keyboard rotation
-        if (keyboardState.IsKeyDown(Keys.Left))
-            RotateCamera(RotationSpeed, 0);
-        if (keyboardState.IsKeyDown(Keys.Right))
-            RotateCamera(-RotationSpeed, 0);
-        if (keyboardState.IsKeyDown(Keys.Up))
-            RotateCamera(0, RotationSpeed);
-        if (keyboardState.IsKeyDown(Keys.Down))
-            RotateCamera(0, -RotationSpeed);
-            
         // Handle gamepad rotation
         Vector2 rightStick = gamePadState.ThumbSticks.Right;
+        // Handle keyboard rotation
+        if (keyboardState.IsKeyDown(Keys.Left))
+            rightStick.X = Math.Clamp(rightStick.X - 0.01f, -1f, 1f);
+        if (keyboardState.IsKeyDown(Keys.Right))
+            rightStick.X = Math.Clamp(rightStick.X + 0.01f, -1f, 1f);
+        if (keyboardState.IsKeyDown(Keys.Up))
+            rightStick.Y = Math.Clamp(rightStick.Y + 0.01f, -1f, 1f);
+        if (keyboardState.IsKeyDown(Keys.Down))
+            rightStick.Y = Math.Clamp(rightStick.Y - 0.01f, -1f, 1f);
+
         if (rightStick != Vector2.Zero)
         {
-            RotateCamera(-rightStick.X * RotationSpeed, rightStick.Y * RotationSpeed);
+            // Apply rotation based on right stick input
+            _cameraRotation.X = MathHelper.Clamp(_cameraRotation.X + rightStick.X * (float)gameTime.ElapsedGameTime.TotalMilliseconds, -RotationSpeed, RotationSpeed);
+            _cameraRotation.Y = MathHelper.Clamp(_cameraRotation.Y + rightStick.Y * (float)gameTime.ElapsedGameTime.TotalMilliseconds, -RotationSpeed, RotationSpeed);
+        }
+
+        if (_cameraRotation != Vector2.Zero)
+        {
+            RotateCamera(-_cameraRotation.X, _cameraRotation.Y);
+            _cameraRotation.X = MathHelper.Lerp(_cameraRotation.X, 0f, RotationSpeed);
+            _cameraRotation.Y = MathHelper.Lerp(_cameraRotation.Y, 0f, RotationSpeed);
         }
         
         // Handle zoom (example using keyboard)
