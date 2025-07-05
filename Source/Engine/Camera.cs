@@ -105,8 +105,8 @@ public class Camera
         if (_cameraRotation != Vector2.Zero)
         {
             RotateCamera(-_cameraRotation.X, _cameraRotation.Y);
-            _cameraRotation.X = MathHelper.Lerp(_cameraRotation.X, 0f, RotationSpeed);
-            _cameraRotation.Y = MathHelper.Lerp(_cameraRotation.Y, 0f, RotationSpeed);
+            _cameraRotation.X = MathHelper.Lerp(_cameraRotation.X, 0f, RotationSpeed * 5f);
+            _cameraRotation.Y = MathHelper.Lerp(_cameraRotation.Y, 0f, RotationSpeed * 5f);
         }
         
         // Handle zoom (example using keyboard)
