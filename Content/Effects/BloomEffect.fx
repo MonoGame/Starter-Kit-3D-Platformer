@@ -7,8 +7,8 @@
     #define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
-float BloomThreshold = 0.8f;
-float2 BlurAmount = float2(1.0f, 0.0f);
+float BloomThreshold;
+float TexelSize;
 texture ScreenTexture;
 
 sampler2D ScreenSampler = sampler_state
@@ -23,13 +23,14 @@ sampler2D ScreenSampler = sampler_state
 struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
-    float2 TexCoord : TEXCOORD0;
+    float4 Color : COLOR0;
+    float2 TexCoord : TEXCOORD0;    
 };
 
 float4 BloomExtractPS(VertexShaderOutput input) : COLOR0
 {
     float4 color = tex2D(ScreenSampler, input.TexCoord);
-    return saturate((color - BloomThreshold) / (1 - BloomThreshold));
+    return float4((color.rgb - BloomThreshold) / (1 - BloomThreshold), 1);
 }
 
 float4 GaussianBlurPS(VertexShaderOutput input) : COLOR0
@@ -38,13 +39,13 @@ float4 GaussianBlurPS(VertexShaderOutput input) : COLOR0
     float2 texCoord = input.TexCoord;
     
     // Simple 5-tap blur
-    color += tex2D(ScreenSampler, texCoord - 2.0 * BlurAmount) * 0.1;
-    color += tex2D(ScreenSampler, texCoord - BlurAmount) * 0.25;
-    color += tex2D(ScreenSampler, texCoord) * 0.3;
-    color += tex2D(ScreenSampler, texCoord + BlurAmount) * 0.25;
-    color += tex2D(ScreenSampler, texCoord + 2.0 * BlurAmount) * 0.1;
+    color += tex2D(ScreenSampler, texCoord + TexelSize * float2(1, 0)) * 0.15;
+    color += tex2D(ScreenSampler, texCoord + TexelSize * float2(-1, 0)) * 0.15;
+    color += tex2D(ScreenSampler, texCoord) * 0.4;
+    color += tex2D(ScreenSampler, texCoord + TexelSize * float2(0, 1)) * 0.15;
+    color += tex2D(ScreenSampler, texCoord + TexelSize * float2(0, -1)) * 0.15;
     
-    return color;
+    return float4(color.rgb, 1);
 }
 
 technique BloomExtract
