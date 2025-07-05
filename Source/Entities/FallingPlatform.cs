@@ -18,7 +18,8 @@ public class FallingPlatform : Platform
     private float _shakeAmplitude = 5.0f; // Maximum shake distance
     private Random _random; // For random shake values
 
-    private SoundEffectInstance _fallSound; // Sound effect for falling
+    // Sound effect for falling
+    private SoundEffect _fallSound;
 
     public FallingPlatform(Model model, ContentManager contentManager) : base(model, contentManager)
     {
@@ -29,7 +30,7 @@ public class FallingPlatform : Platform
     {
         base.LoadContent();
 
-        _fallSound = Content.Load<SoundEffect>("Sounds/fall").CreateInstance();
+        _fallSound = Content.Load<SoundEffect>("Sounds/fall");
     }
 
     public override bool CheckCollision(Entity other)
@@ -41,6 +42,7 @@ public class FallingPlatform : Platform
             {
                 // Start falling when the player lands on the platform
                 _isFalling = true;
+                _fallSound.Play();
                 _originalPosition = Position; // Record original position when we start falling
             }
         }
@@ -63,7 +65,6 @@ public class FallingPlatform : Platform
                 
                 // Apply velocity to position with time-based movement
                 Position += _velocity;
-                _fallSound.Play(); // Play falling sound
             }
             else
             {
