@@ -67,7 +67,7 @@ public class ShadowProcessor
         
         // Create orthographic projection for directional light
         _lightProjectionMatrix = Matrix.CreateOrthographic(
-            1024, 1024, 0.1f, 5000f);
+            2048, 2048, 0.1f, 5000f);
     }
     
     public void BeginShadowMapPass()
@@ -86,7 +86,6 @@ public class ShadowProcessor
         _graphicsDevice.SetRenderTarget(_shadowMap);
         _graphicsDevice.Clear(Color.White); // Clear with white (meaning far depth)
 
-        _shadowEffect.Parameters["ShadowMap"].SetValue(_shadowMap);
         _shadowEffect.CurrentTechnique = _shadowEffect.Techniques["RenderDepth"];
     }
     
@@ -139,6 +138,20 @@ public class ShadowProcessor
         Model model = entity.Model;
         if (model == null)
             return;
+        var lp = Vector3.Normalize(Vector3.TransformNormal(LightPosition, view));
+
+        Effect effect = _shadowEffect;
+        effect.CurrentTechnique = effect.Techniques["RenderTextured"];
+        effect.Parameters["LightPosition"]?.SetValue(lp);
+        effect.Parameters["AmbientIntensity"]?.SetValue(0.8f);
+        effect.Parameters["Color"]?.SetValue(color.ToVector4());
+        effect.Parameters["SpecularIntensity"]?.SetValue(entity.SpecularIntensity);
+        effect.Parameters["Shininess"]?.SetValue(entity.Shininess);
+        effect.Parameters["ShadowMap"]?.SetValue(_shadowMap);
+        effect.Parameters["EdgeFadeScale"]?.SetValue(10.0f);
+        effect.Parameters["ShadowMap"]?.SetValue(_shadowMap);
+
+
         Matrix[] transforms = new Matrix[model.Bones.Count];
         model.CopyAbsoluteBoneTransformsTo(transforms);
         foreach (ModelMesh mesh in model.Meshes)
@@ -154,30 +167,18 @@ public class ShadowProcessor
             Matrix temp = worldViewMatrix;
             temp.Translation = Vector3.Zero;
             Matrix worldViewIT = Matrix.Transpose(Matrix.Invert(temp));
-            
+
+            effect.Parameters["NormalToView"]?.SetValue(worldViewIT);
+            effect.Parameters["ModelToScreen"]?.SetValue(worldViewProjMatrix);
+            effect.Parameters["ModelToLight"]?.SetValue(lightWorldViewProjMatrix);
+            effect.Parameters["ModelToView"]?.SetValue(worldViewMatrix);
+
             foreach (ModelMeshPart part in mesh.MeshParts)
             {
-                // Save original effect
+                // Get the texture from the original effect.
                 BasicEffect originalEffect = part.Effect as BasicEffect;
-                
-                // Apply shadow rendering effect
-                Effect effect = _shadowEffect;
-                effect.CurrentTechnique = effect.Techniques["RenderTextured"];
-                
-                // Set shader parameters
-                var lp = Vector3.Normalize(Vector3.TransformNormal(LightPosition, view));
-                effect.Parameters["LightPosition"].SetValue(lp);
-                effect.Parameters["AmbientIntensity"].SetValue(0.8f);
-                effect.Parameters["ModelToLight"].SetValue(lightWorldViewProjMatrix);
-                effect.Parameters["ModelToView"].SetValue(worldViewMatrix);
-                effect.Parameters["NormalToView"].SetValue(worldViewIT);
-                effect.Parameters["ModelToScreen"].SetValue(worldViewProjMatrix);
-                effect.Parameters["Color"].SetValue(color.ToVector4());
-                effect.Parameters["SpecularIntensity"].SetValue(entity.SpecularIntensity);
-                effect.Parameters["Shininess"].SetValue(entity.Shininess);
-                effect.Parameters["ShadowMap"].SetValue(_shadowMap);
-                effect.Parameters["Texture"].SetValue(originalEffect.Texture);
-                
+                effect.Parameters["Texture"]?.SetValue(originalEffect.Texture);
+
                 _graphicsDevice.SetVertexBuffer(part.VertexBuffer);
                 _graphicsDevice.Indices = part.IndexBuffer;
 

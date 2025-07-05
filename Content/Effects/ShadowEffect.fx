@@ -19,6 +19,7 @@ float3 LightPosition;
 float SpecularIntensity; // Controls the intensity of specular highlights
 float Shininess; // Controls the size/tightness of specular highlights
 float AmbientIntensity; // Controls the intensity of ambient light
+float EdgeFadeScale;
 
 static const int ShadowSamples = 64;
 
@@ -29,8 +30,8 @@ sampler2D ShadowMapSampler = sampler_state
     MinFilter = point;
     MagFilter = point;
     MipFilter = point;
-    AddressU = Wrap;
-    AddressV = Wrap;
+    AddressU = Clamp;
+    AddressV = Clamp;
 };
 
 texture Texture;
@@ -107,10 +108,13 @@ float4 ApplyLightingModel(V2P input, float4 color)
         
         float2 samplePosition = input.SMPosition + (randomOffset(seed) / 500.0f);
         
+        float2 edgeDist = min(samplePosition, 1.0 - samplePosition);
+        float edgeFade = saturate(min(edgeDist.x, edgeDist.y) * EdgeFadeScale); 
+        
         float sampledDepth = tex2D(ShadowMapSampler, samplePosition).x;
-        if (sampledDepth <= input.SMDepth)
+        if (sampledDepth < input.SMDepth)
         {
-            shadowScalar -= (1.0f / ShadowSamples);
+            shadowScalar -= (1.0f / ShadowSamples) * edgeFade;
         }
     }
     
