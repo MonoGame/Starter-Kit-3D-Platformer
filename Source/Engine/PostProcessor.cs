@@ -99,11 +99,11 @@ public class PostProcessor
 
         // Apply vignette.
         _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-        _vignetteEffect.Parameters["Radius"]?.SetValue(new Vector2(0.8f, 0.8f));
-        _vignetteEffect.Parameters["Center"]?.SetValue(new Vector2(0.5f, 0.5f));
-        _vignetteEffect.Parameters["Smoothness"]?.SetValue(0.5f);
+        _vignetteEffect.Parameters["Radius"]?.SetValue(new Vector2(1.15f));
+        _vignetteEffect.Parameters["Center"]?.SetValue(new Vector2(0.5f));
+        _vignetteEffect.Parameters["Smoothness"]?.SetValue(0.96f);
         _vignetteEffect.CurrentTechnique.Passes[0].Apply();
-        //_spriteBatch.Draw(_mainRenderTarget, fullscreen, Color.White * 0.3f);
+        _spriteBatch.Draw(_mainRenderTarget, fullscreen, Color.Black * 0.8f);
         _spriteBatch.End();
     }
 

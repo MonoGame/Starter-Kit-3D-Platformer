@@ -22,6 +22,7 @@ struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
     float2 TexCoord : TEXCOORD0;
+    float4 Color : COLOR0;
 };
 
 float4 VignettePS(VertexShaderOutput input) : COLOR0
@@ -29,10 +30,10 @@ float4 VignettePS(VertexShaderOutput input) : COLOR0
     float4 color = tex2D(ScreenSampler, input.TexCoord);
     
     float2 dist = (input.TexCoord - Center) * Radius;
-    float vignette = 1.0f - saturate(dot(dist, dist));
+    float vignette = saturate(dot(dist, dist));
     vignette = smoothstep(0.0f, Smoothness, vignette);
     
-    return color * vignette;
+    return float4(1,1,1, vignette) * input.Color;
 }
 
 technique Vignette
