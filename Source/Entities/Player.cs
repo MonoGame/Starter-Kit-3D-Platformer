@@ -269,7 +269,7 @@ public class Player : AnimatedEntity
         // Normalize direction if we're moving
         if (_moveDirection.LengthSquared() > 0)
         {
-            if (_walkSound.State != SoundState.Playing)
+            if (_walkSound.State != SoundState.Playing && !IsFalling && !IsJumping)
             {
                 _walkSound.Play();
                 PlayAnimation("walk");
