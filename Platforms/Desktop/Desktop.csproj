@@ -6,6 +6,7 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
     <AssemblyName>3DPlatformer</AssemblyName>
+    <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
