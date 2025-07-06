@@ -120,14 +120,7 @@ public class AnimatedEntity : Entity
             if (keyframe.Time > currentTimeValue)
                 break;
 
-            var parent = Model.Bones[keyframe.Index].Parent;
-            Matrix transform = Matrix.Identity;
-            if (parent != null)
-            {
-                // If the parent has no transform, we need to go up the hierarchy.
-                transform *= parent != null ? Model.Bones[parent.Index].Transform : Matrix.Identity;
-            }
-            keyFrameTransforms[keyframe.Index] = keyframe.Transform;// * transform;
+            keyFrameTransforms[keyframe.Index] = keyframe.Transform;
 
             currentKeyframe++;
         }
