@@ -1,6 +1,7 @@
 // MonoGame - Copyright (C) MonoGame Foundation, Inc
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -94,15 +95,16 @@ public class ShadowProcessor
         _graphicsDevice.SetRenderTarget(null);
     }
 
-    public void BeginShadowRender ()
+    public void BeginShadowRender()
     {
         _graphicsDevice.BlendState = BlendState.AlphaBlend;
-        _graphicsDevice.RasterizerState = RasterizerState.CullNone;
+        _graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
         _graphicsDevice.DepthStencilState = new DepthStencilState
         {
             DepthBufferEnable = true,
             DepthBufferFunction = CompareFunction.LessEqual
         };
+        _graphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
     }
     
     public void DrawEntityToShadowMap(Entity entity, Matrix world)
@@ -132,10 +134,11 @@ public class ShadowProcessor
             }
         }
     }
-    
-    public void DrawModelWithShadow(Entity entity, Matrix world, Matrix view, Matrix projection, Color color)
+
+    public void DrawModelWithShadow(Entity entity, Matrix world, Camera camera, Color color)
     {
         Model model = entity.Model;
+        Matrix view = camera.ViewMatrix;
         if (model == null)
             return;
         var lp = Vector3.Normalize(Vector3.TransformNormal(LightPosition, view));
@@ -150,19 +153,24 @@ public class ShadowProcessor
         effect.Parameters["ShadowMap"]?.SetValue(_shadowMap);
         effect.Parameters["EdgeFadeScale"]?.SetValue(10.0f);
         effect.Parameters["ShadowMap"]?.SetValue(_shadowMap);
+        effect.Parameters["CameraPosition"].SetValue(camera.Position);
+        effect.Parameters["EntityPosition"].SetValue(entity.Position);
+        effect.Parameters["FadeNear"].SetValue(200.0f);
+        effect.Parameters["FadeFar"].SetValue(300.0f);
 
 
         Matrix[] transforms = new Matrix[model.Bones.Count];
         model.CopyAbsoluteBoneTransformsTo(transforms);
         foreach (ModelMesh mesh in model.Meshes)
         {
+            // Calculate the world matrix for the mesh
             Matrix meshWorld = transforms[mesh.ParentBone.Index] * entity.MeshTransforms[mesh.ParentBone.Index] * world;
-            
+
             // Calculate all the necessary matrices
             Matrix worldViewMatrix = meshWorld * view;
-            Matrix worldViewProjMatrix = meshWorld * view * projection;
+            Matrix worldViewProjMatrix = meshWorld * view * camera.ProjectionMatrix;
             Matrix lightWorldViewProjMatrix = meshWorld * _lightViewMatrix * _lightProjectionMatrix;
-            
+
             // Calculate normal matrix (inverse transpose of the world-view matrix)
             Matrix temp = worldViewMatrix;
             temp.Translation = Vector3.Zero;

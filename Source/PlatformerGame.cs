@@ -271,7 +271,7 @@ public class PlatformerGame : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Transparent);
         var screenRect = _graphics.GraphicsDevice.Viewport.Bounds;
         Vector2 uiScale = new Vector2(screenRect.Width / GameConstants.BASE_RESOLUTION_WIDTH, screenRect.Height / GameConstants.BASE_RESOLUTION_HEIGHT); // Scale UI based on screen size
 
@@ -316,7 +316,7 @@ public class PlatformerGame : Game
 
                 // Set render states
                 GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-                GraphicsDevice.BlendState = BlendState.Opaque;
+                GraphicsDevice.BlendState = BlendState.AlphaBlend;
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
                 GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
 
@@ -327,10 +327,10 @@ public class PlatformerGame : Game
                     {
                         continue;
                     }
-                    _shadowProcessor.DrawModelWithShadow(entity, entity.WorldMatrix, _camera.ViewMatrix, _camera.ProjectionMatrix, Color.White);
+                    _shadowProcessor.DrawModelWithShadow(entity, entity.WorldMatrix, _camera, Color.White);
                 }
                 _player.DrawShadow(GraphicsDevice, _camera);
-                _shadowProcessor.DrawModelWithShadow(_player, _player.WorldMatrix, _camera.ViewMatrix, _camera.ProjectionMatrix, Color.White);
+                _shadowProcessor.DrawModelWithShadow(_player, _player.WorldMatrix, _camera, Color.White);
                 _dust.Draw(GraphicsDevice, _spriteBatch, _camera);
 
 #if DEVMODE
