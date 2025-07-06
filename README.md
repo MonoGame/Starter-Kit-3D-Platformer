@@ -35,6 +35,7 @@ building blocks of meshes.
 - platform-medium
 - platform
 - flag
+- jumppad
 
 All of these have already been imported into the `level.blend` file.
 To layout more platforms, select one of the platforms you want to add and
@@ -52,6 +53,8 @@ Supported custom properties:
 - `IsGoal`: Add this to an `Empty` and set it to `true` to make this the end goal of a level.
 - `IsSpawnPoint`: Add this to an `Empty` and set it to `true` to make this the spawn point of the level.
 - `IsCollidable`: Add this to any object to control if this mesh should collide with the player. This can be useful for things such as grass which the player can move through.
+- `JumpForce`: A float value, this defines the amount of force to apply when the player
+touches it. Usually use in conjunction with the `jumppad` mesh.
 
 Once you have organised your level you can go to the scripting tab in blender
 and run the provided script. This script will examine all the objects in the
