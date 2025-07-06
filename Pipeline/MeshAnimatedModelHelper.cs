@@ -30,7 +30,7 @@ internal static class MeshAnimatedModelHelper
                     foreach (var kf in c.Value.Keyframes)
                     {
                         // check if the keyframe already exists
-                        if (clip.Keyframes.Any(k => k.Index == kf.Index && kf.Transform == k.Transform && k.Time == kf.Time))
+                        if (clip.Keyframes.Any(k => k.Index == kf.Index && kf.Scale == k.Scale && kf.Orientation == kf.Orientation && kf.Translation == kf.Translation && k.Time == kf.Time))
                             continue;
                         clip.Keyframes.Add(kf);
                     }
@@ -52,7 +52,7 @@ internal static class MeshAnimatedModelHelper
                 foreach (var kf in c.Value.Keyframes)
                 {
                     // check if the keyframe already exists
-                    if (clip.Keyframes.Any(k => k.Index == kf.Index && kf.Transform == k.Transform && k.Time == kf.Time))
+                    if (clip.Keyframes.Any(k => k.Index == kf.Index && kf.Scale == k.Scale && kf.Orientation == kf.Orientation && kf.Translation == kf.Translation && k.Time == kf.Time))
                         continue;
                     clip.Keyframes.Add(kf);
                 }

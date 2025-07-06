@@ -120,7 +120,7 @@ public class AnimatedEntity : Entity
             if (keyframe.Time > currentTimeValue)
                 break;
 
-            keyFrameTransforms[keyframe.Index] = keyframe.Transform;
+            keyFrameTransforms[keyframe.Index] = keyframe.ToMatrix();
 
             currentKeyframe++;
         }
