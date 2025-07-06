@@ -708,6 +708,7 @@
         "name": "jumppad.001",
         "type": "MESH",
         "instanceof": "jumppad",
+        "jumpforce": 2,                
         "position": [
             -416.9315185546875,
             255.2906036376953,
