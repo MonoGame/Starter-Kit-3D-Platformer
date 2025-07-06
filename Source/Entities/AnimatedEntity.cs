@@ -12,6 +12,9 @@ public class AnimatedEntity : Entity
     AnimationClip currentClip;
     int currentKeyframe = 0;
 
+    /// holds the previous Clip transforms for blending purposes
+    Matrix[] PreviousMeshTransforms;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimatedEntity"/> class.
     /// </summary>
@@ -20,6 +23,8 @@ public class AnimatedEntity : Entity
     {
         if (model.Tag is ModelData data)
             AnimationData = data.AnimationData;
+
+        PreviousMeshTransforms = new Matrix[model.Bones.Count];
     }
 
     /// <summary>
@@ -98,6 +103,11 @@ public class AnimatedEntity : Entity
         }
 
         currentTimeValue = time;
+        var keyFrameTransforms = new Matrix[Model.Bones.Count];
+        for (int i = 0; i < keyFrameTransforms.Length; i++)
+        {
+            keyFrameTransforms[i] = Matrix.Identity;
+        }
 
         // Read keyframe matrices.
         var keyframes = CurrentClip.Keyframes;
@@ -117,9 +127,31 @@ public class AnimatedEntity : Entity
                 // If the parent has no transform, we need to go up the hierarchy.
                 transform *= parent != null ? Model.Bones[parent.Index].Transform : Matrix.Identity;
             }
-            MeshTransforms[keyframe.Index] = keyframe.Transform * transform;
-            
+            keyFrameTransforms[keyframe.Index] = keyframe.Transform;// * transform;
+
             currentKeyframe++;
+        }
+
+        for (int i = 0; i < Model.Bones.Count; i++)
+        {
+            Matrix transform = Matrix.Identity;
+            if (keyFrameTransforms[i] != Matrix.Identity)
+            {
+                var parent = Model.Bones[i].Parent;
+                while (parent != null)
+                {
+                    if (parent.Meshes.Count == 0)
+                    {
+                        // If the parent has no meshes, we need to apply its
+                        // keyframe animation transform otherwise it will be missed
+                        // during rendering.
+                        keyFrameTransforms[i] *= keyFrameTransforms[parent.Index];
+                    }
+                    transform *= Model.Bones[parent.Index].Transform;
+                    parent = parent.Parent;
+                }
+                MeshTransforms[i] = keyFrameTransforms[i] * transform;
+            }
         }
     }
 
@@ -130,6 +162,7 @@ public class AnimatedEntity : Entity
             // Update the animation state based on the current clip and game time.
             // This is where you would typically update the entity's bone transforms
             // based on the keyframes in the CurrentClip.
+            MeshTransforms.CopyTo(PreviousMeshTransforms, 0);
             UpdateMeshTransforms(gameTime.ElapsedGameTime, true);
         }
         base.Update(gameTime);
