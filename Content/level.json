@@ -708,11 +708,10 @@
         "name": "jumppad.001",
         "type": "MESH",
         "instanceof": "jumppad",
-        "jumpforce": 2,                
         "position": [
-            -416.9315185546875,
-            255.2906036376953,
-            -275.7132873535156
+            -417.0950012207031,
+            278.99908447265625,
+            -244.2582550048828
         ],
         "rotation": [
             0,
@@ -724,6 +723,7 @@
             1,
             1
         ],
-        "collidable": true
+        "collidable": true,
+        "jumpforce": 1.0
     }
 ]
