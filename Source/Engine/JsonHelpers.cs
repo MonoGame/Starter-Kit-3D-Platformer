@@ -56,6 +56,6 @@ static public class JsonHelper
             }
             index++;
         }
-        return Quaternion.CreateFromYawPitchRoll(z, x, y);
+        return Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(z), MathHelper.ToRadians(x), MathHelper.ToRadians(y));
     }
 }
