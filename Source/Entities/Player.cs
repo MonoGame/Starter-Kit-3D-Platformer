@@ -227,6 +227,11 @@ public class Player : AnimatedEntity
         return distance <= _maxShadowDistance;
     }
 
+    public void AddForce(Vector3 force)
+    {
+        _velocity += force;
+    }
+
     public override void Update(GameTime gameTime)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;

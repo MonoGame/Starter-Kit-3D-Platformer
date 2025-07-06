@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System;
 using Microsoft.Xna.Framework.Content;
+using System.Text.Json;
 
 public class Entity
 {
@@ -45,6 +46,18 @@ public class Entity
         }
 
         LoadContent();
+    }
+
+    public virtual void SetProperties(JsonElement data)
+    {
+        if (data.TryGetProperty("position", out var position))
+            Position = position.ReadVector3FromJson();
+
+        if (data.TryGetProperty("rotation", out var rotation))
+            Rotation = rotation.ReadRotationFromJson();
+
+        if (data.TryGetProperty("scale", out var scale))
+            Scale = scale.ReadVector3FromJson();
     }
 
     protected virtual void LoadContent()

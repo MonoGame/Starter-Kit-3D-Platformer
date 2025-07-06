@@ -202,19 +202,6 @@ public class PlatformerGame : Game
                     var scaledTime = new GameTime(gameTime.TotalGameTime,
                         TimeSpan.FromSeconds(gameTime.ElapsedGameTime.TotalSeconds * TimeScale));
 
-                    _player.Forward = _camera.ForwardDirection;
-                    _player.Update(scaledTime);
-                    _dust.Update(scaledTime);
-                    if (_player.IsMoving && !_player.IsJumping && !_player.IsFalling)
-                    {
-                        _dust.AddDust(scaledTime, _player.Position);
-                    }
-                    if (_player.Dead())
-                    {
-                        _currentState = GameState.SplashScreen;
-                        _splashTimer = 0f; // Reset splash timer
-                        LoadLevel(); // Reload the level
-                    }
                     foreach (var entity in _entities)
                     {
                         entity.Update(scaledTime);
@@ -230,6 +217,22 @@ public class PlatformerGame : Game
                         var entity = _entitiesToRemove.Dequeue();
                         _entities.Remove(entity);
                     }
+
+                    _player.Forward = _camera.ForwardDirection;
+                    _player.Update(scaledTime);
+                    _dust.Update(scaledTime);
+
+                    if (_player.Dead())
+                    {
+                        _currentState = GameState.SplashScreen;
+                        _splashTimer = 0f; // Reset splash timer
+                        LoadLevel(); // Reload the level
+                    }
+                    else if (_player.IsMoving && !_player.IsJumping && !_player.IsFalling)
+                    {
+                        _dust.AddDust(scaledTime, _player.Position);
+                    }
+
                     _camera.Target = _player.Position;
                     _camera.Update(scaledTime);
                     _shadowProcessor.TargetPosition = _player.Position;
@@ -240,6 +243,7 @@ public class PlatformerGame : Game
                         _splashTimer = 0f; // Reset splash timer
                         LoadLevel(); // Reload the level
                     }
+
                     break;
             }
 

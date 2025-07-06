@@ -3,6 +3,7 @@
 // file 'LICENSE.md', which is part of this source code package.
 using System;
 using System.Reflection.Metadata;
+using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -28,9 +29,15 @@ public class Goal : Entity
 
     public Goal(Model model, ContentManager content) : base(model, content)
     {
-        IsBlockingMovement = false; // Spawn points should not block movement
+        IsBlockingMovement = false;
         SpecularIntensity = 0.1f;
         Shininess = 0.5f;
+    }
+
+    public override void SetProperties(JsonElement data)
+    {
+        base.SetProperties(data);
+        Radius = data.GetProperty("radius").GetSingle();
     }
 
     public override bool CheckCollision(Entity other)
