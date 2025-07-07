@@ -12,6 +12,8 @@ public class AnimatedEntity : Entity
     TimeSpan currentTimeValue;
     AnimationClip currentClip;
 
+    bool isLooping = true;
+
     Pose[] keyFrameTransforms;
     
     // Animation blending properties
@@ -47,7 +49,7 @@ public class AnimatedEntity : Entity
 
         keyFrameTransforms = new Pose[model.Bones.Count];
         previousFrameTransforms = new Pose[model.Bones.Count];
-        
+
         for (int i = 0; i < keyFrameTransforms.Length; i++)
         {
             keyFrameTransforms[i] = Pose.Identity;
@@ -92,7 +94,7 @@ public class AnimatedEntity : Entity
         }
     }
 
-    public void PlayAnimation(string clipName, bool reset = false)
+    public void PlayAnimation(string clipName, bool reset = false, bool loop = true)
     {
         if (AnimationData != null && AnimationData.Animations.TryGetValue(clipName, out var clip))
         {
@@ -102,6 +104,7 @@ public class AnimatedEntity : Entity
                 return;
             }
             CurrentClip = clip;
+            isLooping = loop;
         }
         else
         {
@@ -207,7 +210,17 @@ public class AnimatedEntity : Entity
 
             // If we reached the end, loop back to the start.
             while (time >= CurrentClip.Duration)
-                time -= CurrentClip.Duration;
+            {
+                if (isLooping)
+                {
+                    time -= CurrentClip.Duration;
+                }
+                else
+                {
+                    currentClip = null;
+                    return;
+                }
+            }
         }
 
         if ((time < TimeSpan.Zero) || (time >= CurrentClip.Duration))

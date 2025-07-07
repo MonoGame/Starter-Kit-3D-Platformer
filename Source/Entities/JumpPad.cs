@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Text.Json;
 
-public class JumpPad : Entity
+public class JumpPad : AnimatedEntity
 {
     private float _jumpForce;
 
@@ -28,11 +28,12 @@ public class JumpPad : Entity
         var collision = base.CheckCollision(other);
 
         if (collision && other is Player player)
-        {            
+        {
             var force = new Vector3(0, _jumpForce * GameConstants.PLAYER_JUMP_FORCE, 0);
             var matrix = Matrix.CreateFromQuaternion(Rotation);
             force = Vector3.TransformNormal(force, matrix);
             player.AddForce(force);
+            PlayAnimation("Jump", loop: false);
         }
 
         return collision;
