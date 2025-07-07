@@ -5,15 +5,36 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 public class AnimatedEntity : Entity
 {
     TimeSpan currentTimeValue;
     AnimationClip currentClip;
-    int currentKeyframe = 0;
 
-    /// holds the previous Clip transforms for blending purposes
-    Matrix[] PreviousMeshTransforms;
+    Pose[] keyFrameTransforms;
+    
+    // Animation blending properties
+    private TimeSpan animationTransitionDuration = TimeSpan.FromMilliseconds(200);
+    private TimeSpan transitionElapsedTime;
+    private bool isTransitioning = false;
+    private Pose[] previousFrameTransforms;
+    private AnimationClip previousClip;
+    private TimeSpan previousTimeValue;
+
+    /// <summary>
+    /// Gets or sets the duration for transitioning between animations.
+    /// </summary>
+    public TimeSpan AnimationTransitionDuration
+    {
+        get => animationTransitionDuration;
+        set => animationTransitionDuration = value;
+    }
+
+    /// <summary>
+    /// Gets whether the entity is currently transitioning between animations.
+    /// </summary>
+    public bool IsTransitioning => isTransitioning;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimatedEntity"/> class.
@@ -24,7 +45,14 @@ public class AnimatedEntity : Entity
         if (model.Tag is ModelData data)
             AnimationData = data.AnimationData;
 
-        PreviousMeshTransforms = new Matrix[model.Bones.Count];
+        keyFrameTransforms = new Pose[model.Bones.Count];
+        previousFrameTransforms = new Pose[model.Bones.Count];
+        
+        for (int i = 0; i < keyFrameTransforms.Length; i++)
+        {
+            keyFrameTransforms[i] = Pose.Identity;
+            previousFrameTransforms[i] = Pose.Identity;
+        }
     }
 
     /// <summary>
@@ -34,9 +62,6 @@ public class AnimatedEntity : Entity
 
     /// <summary>
     /// Gets or sets the current animation clip being played by this entity.
-    /// This property is used to determine which animation clip is currently active.
-    /// It is typically set when an animation starts and can be used to check the state of
-    /// the entity's animation system.
     /// </summary>
     public AnimationClip CurrentClip {
         get => currentClip;
@@ -45,9 +70,19 @@ public class AnimatedEntity : Entity
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
+            // Store previous animation state for blending
+            if (currentClip != null && currentClip != value && animationTransitionDuration > TimeSpan.Zero)
+            {
+                previousClip = currentClip;
+                previousTimeValue = currentTimeValue;
+                Array.Copy(keyFrameTransforms, previousFrameTransforms, keyFrameTransforms.Length);
+                
+                isTransitioning = true;
+                transitionElapsedTime = TimeSpan.Zero;
+            }
+
             currentClip = value;
             currentTimeValue = TimeSpan.Zero;
-            currentKeyframe = 0;
 
             // Reset mesh transforms to identity.
             for (int i = 0; i < MeshTransforms.Length; i++)
@@ -75,6 +110,88 @@ public class AnimatedEntity : Entity
     }
 
     /// <summary>
+    /// Gets the pose for a bone at a specific time, with interpolation between keyframes.
+    /// </summary>
+    private Pose GetInterpolatedPose(int boneIndex, TimeSpan time, AnimationClip clip)
+    {
+        var keyframes = clip.Keyframes;
+        
+        // Find the keyframes that bracket the current time
+        Keyframe previousKeyframe = null;
+        Keyframe nextKeyframe = null;
+        
+        for (int i = 0; i < keyframes.Count; i++)
+        {
+            var keyframe = keyframes[i];
+            if (keyframe.Index != boneIndex) continue;
+            
+            if (keyframe.Time <= time)
+            {
+                previousKeyframe = keyframe;
+            }
+            else if (nextKeyframe == null)
+            {
+                nextKeyframe = keyframe;
+                break;
+            }
+        }
+        
+        // If we only have one keyframe or no keyframes, return identity or the single keyframe
+        if (previousKeyframe == null && nextKeyframe == null)
+        {
+            return Pose.Identity;
+        }
+        
+        if (previousKeyframe != null && nextKeyframe == null)
+        {
+            // Only previous keyframe exists
+            return new Pose
+            {
+                Translation = previousKeyframe.Translation,
+                Rotation = previousKeyframe.Orientation,
+                Scale = previousKeyframe.Scale
+            };
+        }
+        
+        if (previousKeyframe == null && nextKeyframe != null)
+        {
+            // Only next keyframe exists
+            return new Pose
+            {
+                Translation = nextKeyframe.Translation,
+                Rotation = nextKeyframe.Orientation,
+                Scale = nextKeyframe.Scale
+            };
+        }
+        
+        // Both keyframes exist - interpolate between them
+        var timeDifference = nextKeyframe.Time - previousKeyframe.Time;
+        var timeProgress = time - previousKeyframe.Time;
+        
+        float blendFactor = timeDifference.TotalMilliseconds > 0 
+            ? (float)(timeProgress.TotalMilliseconds / timeDifference.TotalMilliseconds) 
+            : 0f;
+        
+        blendFactor = MathHelper.Clamp(blendFactor, 0f, 1f);
+        
+        var prevPose = new Pose
+        {
+            Translation = previousKeyframe.Translation,
+            Rotation = previousKeyframe.Orientation,
+            Scale = previousKeyframe.Scale
+        };
+        
+        var nextPose = new Pose
+        {
+            Translation = nextKeyframe.Translation,
+            Rotation = nextKeyframe.Orientation,
+            Scale = nextKeyframe.Scale
+        };
+        
+        return Pose.Slerp(prevPose, nextPose, blendFactor);
+    }
+
+    /// <summary>
     /// Helper used by the Update method to refresh the BoneTransforms data.
     /// </summary>
     public void UpdateMeshTransforms(TimeSpan time, bool relativeToCurrentTime)
@@ -96,39 +213,52 @@ public class AnimatedEntity : Entity
         if ((time < TimeSpan.Zero) || (time >= CurrentClip.Duration))
             throw new ArgumentOutOfRangeException("time");
 
-        // If the position moved backwards, reset the keyframe index.
-        if (time < currentTimeValue)
-        {
-            currentKeyframe = 0;
-        }
-
         currentTimeValue = time;
-        var keyFrameTransforms = new Matrix[Model.Bones.Count];
+
+        // Get interpolated poses for current animation
         for (int i = 0; i < keyFrameTransforms.Length; i++)
         {
-            keyFrameTransforms[i] = Matrix.Identity;
+            keyFrameTransforms[i] = GetInterpolatedPose(i, currentTimeValue, CurrentClip);
         }
 
-        // Read keyframe matrices.
-        var keyframes = CurrentClip.Keyframes;
-
-        while (currentKeyframe < keyframes.Count)
+        // Handle inter-clip blending if transitioning
+        if (isTransitioning && previousClip != null)
         {
-            Keyframe keyframe = keyframes[currentKeyframe];
-
-            // Stop when we've read up to the current time position.
-            if (keyframe.Time > currentTimeValue)
-                break;
-
-            keyFrameTransforms[keyframe.Index] = keyframe.ToMatrix();
-
-            currentKeyframe++;
+            // Update transition time
+            transitionElapsedTime += time - (currentTimeValue - time);
+            
+            if (transitionElapsedTime >= animationTransitionDuration)
+            {
+                // Transition complete
+                isTransitioning = false;
+                previousClip = null;
+            }
+            else
+            {
+                // Calculate blend factor (0 = fully previous, 1 = fully current)
+                float blendFactor = (float)(transitionElapsedTime.TotalMilliseconds / animationTransitionDuration.TotalMilliseconds);
+                blendFactor = MathHelper.Clamp(blendFactor, 0f, 1f);
+                
+                // Get poses from previous animation
+                var previousPoses = new Pose[keyFrameTransforms.Length];
+                for (int i = 0; i < previousPoses.Length; i++)
+                {
+                    previousPoses[i] = GetInterpolatedPose(i, previousTimeValue, previousClip);
+                }
+                
+                // Blend between previous and current poses
+                for (int i = 0; i < keyFrameTransforms.Length; i++)
+                {
+                    keyFrameTransforms[i] = Pose.Slerp(previousPoses[i], keyFrameTransforms[i], blendFactor);
+                }
+            }
         }
 
+        // Apply bone hierarchy and convert to matrices
         for (int i = 0; i < Model.Bones.Count; i++)
         {
             Matrix transform = Matrix.Identity;
-            if (keyFrameTransforms[i] != Matrix.Identity)
+            if (keyFrameTransforms[i] != Pose.Identity)
             {
                 var parent = Model.Bones[i].Parent;
                 while (parent != null)
@@ -143,7 +273,7 @@ public class AnimatedEntity : Entity
                     transform *= Model.Bones[parent.Index].Transform;
                     parent = parent.Parent;
                 }
-                MeshTransforms[i] = keyFrameTransforms[i] * transform;
+                MeshTransforms[i] = keyFrameTransforms[i].ToMatrix() * transform;
             }
         }
     }
@@ -155,7 +285,6 @@ public class AnimatedEntity : Entity
             // Update the animation state based on the current clip and game time.
             // This is where you would typically update the entity's bone transforms
             // based on the keyframes in the CurrentClip.
-            MeshTransforms.CopyTo(PreviousMeshTransforms, 0);
             UpdateMeshTransforms(gameTime.ElapsedGameTime, true);
         }
         base.Update(gameTime);
