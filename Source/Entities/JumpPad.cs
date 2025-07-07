@@ -37,8 +37,4 @@ public class JumpPad : Entity
 
         return collision;
     }
-
-    public override void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
-    {
-    }
 }

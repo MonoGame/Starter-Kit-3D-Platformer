@@ -339,11 +339,12 @@
 /importer:EffectImporter
 /processor:EffectProcessor
 /build:Effects/ShadowEffect.fx
+
 #begin Models/jumppad.fbx
 /importer:FbxImporter
 /processor:MeshAnimatedModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=False
+/processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
 /processorParam:GenerateMipmaps=True
 /processorParam:GenerateTangentFrames=False

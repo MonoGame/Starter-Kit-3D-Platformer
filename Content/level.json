@@ -709,14 +709,14 @@
         "type": "MESH",
         "instanceof": "jumppad",
         "position": [
-            -417.0950012207031,
-            278.99908447265625,
-            -244.2582550048828
+            -414.213134765625,
+            246.0236053466797,
+            -253.6529083251953
         ],
         "rotation": [
             0,
             0,
-            0
+            14
         ],
         "scale": [
             1,
@@ -724,6 +724,28 @@
             1
         ],
         "collidable": true,
-        "jumpforce": 1.0
+        "jumpforce": 2.0
+    },
+    {
+        "name": "jumppad.002",
+        "type": "MESH",
+        "instanceof": "jumppad",
+        "position": [
+            -491.5240173339844,
+            275.9968566894531,
+            -391.2698974609375
+        ],
+        "rotation": [
+            -40,
+            0,
+            -28
+        ],
+        "scale": [
+            1,
+            1,
+            1
+        ],
+        "collidable": true,
+        "jumpforce": 2.0
     }
 ]
