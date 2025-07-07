@@ -11,13 +11,11 @@ public class AnimatedEntity : Entity
 {
     TimeSpan currentTimeValue;
     AnimationClip currentClip;
-    int currentKeyframe = 0;
 
     Pose[] keyFrameTransforms;
     
     // Animation blending properties
     private TimeSpan animationTransitionDuration = TimeSpan.FromMilliseconds(200);
-    private TimeSpan transitionStartTime;
     private TimeSpan transitionElapsedTime;
     private bool isTransitioning = false;
     private Pose[] previousFrameTransforms;
@@ -80,13 +78,11 @@ public class AnimatedEntity : Entity
                 Array.Copy(keyFrameTransforms, previousFrameTransforms, keyFrameTransforms.Length);
                 
                 isTransitioning = true;
-                transitionStartTime = TimeSpan.Zero;
                 transitionElapsedTime = TimeSpan.Zero;
             }
 
             currentClip = value;
             currentTimeValue = TimeSpan.Zero;
-            currentKeyframe = 0;
 
             // Reset mesh transforms to identity.
             for (int i = 0; i < MeshTransforms.Length; i++)
@@ -216,12 +212,6 @@ public class AnimatedEntity : Entity
 
         if ((time < TimeSpan.Zero) || (time >= CurrentClip.Duration))
             throw new ArgumentOutOfRangeException("time");
-
-        // If the position moved backwards, reset the keyframe index.
-        if (time < currentTimeValue)
-        {
-            currentKeyframe = 0;
-        }
 
         currentTimeValue = time;
 
