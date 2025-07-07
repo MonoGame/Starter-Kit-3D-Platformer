@@ -12,8 +12,7 @@ public class AnimatedEntity : Entity
     AnimationClip currentClip;
     int currentKeyframe = 0;
 
-    /// holds the previous Clip transforms for blending purposes
-    Matrix[] PreviousMeshTransforms;
+    Pose[] keyFrameTransforms;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimatedEntity"/> class.
@@ -24,7 +23,11 @@ public class AnimatedEntity : Entity
         if (model.Tag is ModelData data)
             AnimationData = data.AnimationData;
 
-        PreviousMeshTransforms = new Matrix[model.Bones.Count];
+        keyFrameTransforms = new Pose[model.Bones.Count];
+        for (int i = 0; i < keyFrameTransforms.Length; i++)
+        {
+            keyFrameTransforms[i] = Pose.Identity;
+        }
     }
 
     /// <summary>
@@ -103,14 +106,13 @@ public class AnimatedEntity : Entity
         }
 
         currentTimeValue = time;
-        var keyFrameTransforms = new Matrix[Model.Bones.Count];
         for (int i = 0; i < keyFrameTransforms.Length; i++)
         {
-            keyFrameTransforms[i] = Matrix.Identity;
+            keyFrameTransforms[i] = Pose.Identity;
         }
 
         // Read keyframe matrices.
-        var keyframes = CurrentClip.Keyframes;
+            var keyframes = CurrentClip.Keyframes;
 
         while (currentKeyframe < keyframes.Count)
         {
@@ -120,7 +122,12 @@ public class AnimatedEntity : Entity
             if (keyframe.Time > currentTimeValue)
                 break;
 
-            keyFrameTransforms[keyframe.Index] = keyframe.ToMatrix();
+            keyFrameTransforms[keyframe.Index] = new Pose
+            {
+                Scale = keyframe.Scale,
+                Rotation = keyframe.Orientation,
+                Translation = keyframe.Translation
+            };
 
             currentKeyframe++;
         }
@@ -128,7 +135,7 @@ public class AnimatedEntity : Entity
         for (int i = 0; i < Model.Bones.Count; i++)
         {
             Matrix transform = Matrix.Identity;
-            if (keyFrameTransforms[i] != Matrix.Identity)
+            if (keyFrameTransforms[i] != Pose.Identity)
             {
                 var parent = Model.Bones[i].Parent;
                 while (parent != null)
@@ -143,7 +150,7 @@ public class AnimatedEntity : Entity
                     transform *= Model.Bones[parent.Index].Transform;
                     parent = parent.Parent;
                 }
-                MeshTransforms[i] = keyFrameTransforms[i] * transform;
+                MeshTransforms[i] = keyFrameTransforms[i].ToMatrix() * transform;
             }
         }
     }
@@ -155,7 +162,6 @@ public class AnimatedEntity : Entity
             // Update the animation state based on the current clip and game time.
             // This is where you would typically update the entity's bone transforms
             // based on the keyframes in the CurrentClip.
-            MeshTransforms.CopyTo(PreviousMeshTransforms, 0);
             UpdateMeshTransforms(gameTime.ElapsedGameTime, true);
         }
         base.Update(gameTime);

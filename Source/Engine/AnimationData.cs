@@ -68,19 +68,6 @@ public class Keyframe
 
 }
 
-public static class KeyframeExtensions
-{
-    /// <summary>
-    /// Converts a keyframe to a Matrix.
-    /// </summary>
-    public static Matrix ToMatrix(this Keyframe keyframe)
-    {
-        return Matrix.CreateScale(keyframe.Scale) *
-               Matrix.CreateFromQuaternion(keyframe.Orientation) *
-               Matrix.CreateTranslation(keyframe.Translation);
-    }
-}
-
 /// <summary>
 /// An animation clip is the runtime equivalent of the
 /// Microsoft.Xna.Framework.Content.Pipeline.Graphics.AnimationContent type.
