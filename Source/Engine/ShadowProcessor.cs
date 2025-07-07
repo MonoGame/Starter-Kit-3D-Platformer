@@ -1,9 +1,11 @@
 // MonoGame - Copyright (C) MonoGame Foundation, Inc
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
-using Microsoft.VisualBasic;
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
 
 public class ShadowProcessor
 {
@@ -73,19 +75,14 @@ public class ShadowProcessor
     
     public void BeginShadowMapPass()
     {
-        // Update light matrices based on current light position
+        // Update light matrices based on current light position.
         UpdateLightMatrices();
-
-        _graphicsDevice.DepthStencilState = new DepthStencilState
-        {
-            DepthBufferEnable = true,
-            DepthBufferFunction = CompareFunction.LessEqual
-        };
-        _graphicsDevice.RasterizerState = RasterizerState.CullClockwise;
-        
-        // Set render target to shadow map
+       
+        // Set render target to shadow map.
         _graphicsDevice.SetRenderTarget(_shadowMap);
-        _graphicsDevice.Clear(Color.White); // Clear with white (meaning far depth)
+
+        // Clear with white (meaning far depth).
+        _graphicsDevice.Clear(Color.White);
 
         _shadowEffect.CurrentTechnique = _shadowEffect.Techniques["RenderDepth"];
     }
@@ -95,38 +92,36 @@ public class ShadowProcessor
         _graphicsDevice.SetRenderTarget(null);
     }
 
-    public void BeginShadowRender()
-    {
-        _graphicsDevice.BlendState = BlendState.AlphaBlend;
-        _graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-        _graphicsDevice.DepthStencilState = new DepthStencilState
-        {
-            DepthBufferEnable = true,
-            DepthBufferFunction = CompareFunction.LessEqual
-        };
-        _graphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-    }
-    
-    public void DrawEntityToShadowMap(Entity entity, Matrix world)
+    public void DrawEntityToShadowMap(Entity entity)
     {
         var model = entity.Model;
         if (model == null)
             return;
+
+        // Set the state needed to draw to the shadow map.
+        _graphicsDevice.BlendState = BlendState.Opaque;
+        _graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+        _graphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+        var world = entity.WorldMatrix;
+
+        var modelToLight = _shadowEffect.Parameters["ModelToLight"];
+        var passes = _shadowEffect.CurrentTechnique.Passes;
+
         Matrix[] transforms = new Matrix[model.Bones.Count];
         model.CopyAbsoluteBoneTransformsTo(transforms);
         foreach (ModelMesh mesh in model.Meshes)
         {
-            Matrix meshWorld =  transforms[mesh.ParentBone.Index] * entity.MeshTransforms[mesh.ParentBone.Index] * world;
-            Matrix meshLightWorldViewProj = meshWorld * _lightViewMatrix * _lightProjectionMatrix;
-            
+            var meshWorld =  transforms[mesh.ParentBone.Index] * entity.MeshTransforms[mesh.ParentBone.Index] * world;
+
+            modelToLight.SetValue(meshWorld * _lightViewMatrix * _lightProjectionMatrix);
+
             foreach (ModelMeshPart part in mesh.MeshParts)
             {
                 _graphicsDevice.SetVertexBuffer(part.VertexBuffer);
                 _graphicsDevice.Indices = part.IndexBuffer;
 
-                _shadowEffect.Parameters["ModelToLight"].SetValue(meshWorld * _lightViewMatrix * _lightProjectionMatrix);
-
-                foreach (EffectPass pass in _shadowEffect.CurrentTechnique.Passes)
+                foreach (EffectPass pass in passes)
                 {
                     pass.Apply();
                     _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, part.StartIndex, part.PrimitiveCount);
@@ -135,12 +130,43 @@ public class ShadowProcessor
         }
     }
 
-    public void DrawModelWithShadow(Entity entity, Matrix world, Camera camera, Color color)
+    public void DrawModelWithShadow(Entity entity, Camera camera, bool blendPass)
     {
         Model model = entity.Model;
-        Matrix view = camera.ViewMatrix;
         if (model == null)
             return;
+
+        var color = Color.White;
+        {
+            var FadeNear = 200.0f;
+            var FadeFar = 300.0f;
+            float d = Vector3.Distance(camera.Position, entity.Position);
+            float alpha = 1.0f - MathHelper.Clamp((d - FadeFar) / (FadeNear - FadeFar), 0.0f, 1.0f);
+            color.A = (byte)Math.Ceiling(255 * alpha);
+        }
+
+        if (color.A == 255)
+        {
+            if (blendPass)
+                return;
+
+            _graphicsDevice.BlendState = BlendState.Opaque;
+            _graphicsDevice.DepthStencilState = DepthStencilState.Default;
+        }
+        else
+        {
+            if (!blendPass)
+                return;
+
+            _graphicsDevice.BlendState = BlendState.NonPremultiplied;
+            _graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+        }
+        _graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+        _graphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+
+        var view = camera.ViewMatrix;
+        var world = entity.WorldMatrix;
+
         var lp = Vector3.Normalize(Vector3.TransformNormal(LightPosition, view));
 
         Effect effect = _shadowEffect;
@@ -153,11 +179,6 @@ public class ShadowProcessor
         effect.Parameters["ShadowMap"]?.SetValue(_shadowMap);
         effect.Parameters["EdgeFadeScale"]?.SetValue(10.0f);
         effect.Parameters["ShadowMap"]?.SetValue(_shadowMap);
-        effect.Parameters["CameraPosition"].SetValue(camera.Position);
-        effect.Parameters["EntityPosition"].SetValue(entity.Position);
-        effect.Parameters["FadeNear"].SetValue(200.0f);
-        effect.Parameters["FadeFar"].SetValue(300.0f);
-
 
         Matrix[] transforms = new Matrix[model.Bones.Count];
         model.CopyAbsoluteBoneTransformsTo(transforms);

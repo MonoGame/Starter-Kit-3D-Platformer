@@ -416,8 +416,6 @@ public class Player : AnimatedEntity
         _shadowEffect.View = camera.ViewMatrix;
         _shadowEffect.Projection = camera.ProjectionMatrix;
 
-        var blendState = graphicsDevice.BlendState;
-        var depthStencilState = graphicsDevice.DepthStencilState;
         // Set render states for transparency
         graphicsDevice.BlendState = BlendState.AlphaBlend;
         graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
@@ -438,10 +436,6 @@ public class Player : AnimatedEntity
                 0,
                 2);  // 2 triangles in the quad
         }
-
-        // Reset render states
-        graphicsDevice.BlendState = blendState;
-        graphicsDevice.DepthStencilState = depthStencilState;
     }
 
     public override void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)

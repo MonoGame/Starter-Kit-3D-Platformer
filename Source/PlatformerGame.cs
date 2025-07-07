@@ -44,6 +44,8 @@ public class PlatformerGame : Game
     private List<Entity> _entities = new List<Entity>();
     private Queue<Entity> _entitiesToRemove = new Queue<Entity>();
 
+    private List<Entity> _drawList = new List<Entity>();
+
     private Camera _camera;
     private Player _player;
 
@@ -297,42 +299,77 @@ public class PlatformerGame : Game
                 break;
 
             case GameState.MainScene:
-                _shadowProcessor.BeginShadowMapPass();
-                foreach (var entity in _entities)
+
+                // Draw the shadow map.
                 {
-                    if (entity.Model is null)
+                    _drawList.Clear();
+                    _drawList.AddRange(_entities);
+                    _drawList.Add(_player);
+                    _drawList.Add(_dust);
+
+                    _shadowProcessor.BeginShadowMapPass();
+
+                    // Draw closest to the camera first.
+                    var cameraPos = _shadowProcessor.LightPosition;
+                    _drawList.Sort((a, b) =>
                     {
-                        continue;
+                        var dista = Vector3.DistanceSquared(a.Position, cameraPos);
+                        var distb = Vector3.DistanceSquared(b.Position, cameraPos);
+                        return dista.CompareTo(distb);
+                    });
+
+                    foreach (var entity in _drawList)
+                    {
+                        if (entity.Model is null)
+                            continue;
+
+                        _shadowProcessor.DrawEntityToShadowMap(entity);
                     }
-                    _shadowProcessor.DrawEntityToShadowMap(entity, entity.WorldMatrix);
+
+                    _shadowProcessor.EndShadowMapPass();
                 }
-                _shadowProcessor.DrawEntityToShadowMap(_player, _player.WorldMatrix);
-                _shadowProcessor.DrawEntityToShadowMap(_dust, _dust.WorldMatrix);
-                // Set render states
-                _shadowProcessor.EndShadowMapPass();
-                // Draw main scene
+
                 _postProcessor.BeginScene();
-                GraphicsDevice.Clear(_skyColor);
 
-                // Set render states
-                GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-                GraphicsDevice.BlendState = BlendState.AlphaBlend;
-                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-                GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-
-                _shadowProcessor.BeginShadowRender();
-                foreach (var entity in _entities)
+                // Draw main scene
                 {
-                    if (entity.Model is null)
-                    {
-                        continue;
-                    }
-                    _shadowProcessor.DrawModelWithShadow(entity, entity.WorldMatrix, _camera, Color.White);
-                }
-                _player.DrawShadow(GraphicsDevice, _camera);
-                _shadowProcessor.DrawModelWithShadow(_player, _player.WorldMatrix, _camera, Color.White);
-                _dust.Draw(GraphicsDevice, _spriteBatch, _camera);
+                    GraphicsDevice.Clear(_skyColor);
 
+                    _drawList.Clear();
+                    _drawList.AddRange(_entities);
+                    _drawList.Add(_player);
+
+                    // Draw closest to the camera first.
+                    var cameraPos = _camera.Position;
+                    _drawList.Sort((a, b) =>
+                    {
+                        var dista = Vector3.DistanceSquared(a.Position, cameraPos);
+                        var distb = Vector3.DistanceSquared(b.Position, cameraPos);
+                        return dista.CompareTo(distb);
+                    });
+
+                    // First draw the opaque pass.
+                    foreach (var entity in _drawList)
+                    {
+                        if (entity.Model is null)
+                            continue;
+
+                        _shadowProcessor.DrawModelWithShadow(entity, _camera, false);
+                    }
+
+                    // Now draw the transparent objects reversing the list furthest to closest.
+                    _drawList.Reverse();
+                    foreach (var entity in _drawList)
+                    {
+                        if (entity.Model is null)
+                            continue;
+
+                        _shadowProcessor.DrawModelWithShadow(entity, _camera, true);
+                    }
+
+                    _player.DrawShadow(GraphicsDevice, _camera);
+                    _dust.Draw(GraphicsDevice, _spriteBatch, _camera);
+                }
 #if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
                 {
@@ -343,20 +380,24 @@ public class PlatformerGame : Game
                     _player.Draw(GraphicsDevice, _spriteBatch, _camera);
                 }
 #endif
-
-                // Enable alpha blending and disable depth writing (but keep depth testing)
-                GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-                GraphicsDevice.BlendState = BlendState.AlphaBlend;
-                GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-                GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-
-                _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
-                foreach (var entity in _entities)
+                // Draw all 2D particle effects.
                 {
-                    entity.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
+                    // Enable alpha blending and disable depth writing (but keep depth testing)
+                    GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+                    GraphicsDevice.BlendState = BlendState.AlphaBlend;
+                    GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+                    GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+
+                    _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
+                    foreach (var entity in _entities)
+                    {
+                        entity.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
+                    }
+                    _spriteBatch.End();
                 }
-                _spriteBatch.End();
+
                 _postProcessor.EndScene();
+
                 // Draw the score etc.
                 DrawHud(screenRect, uiScale);
 #if DEVMODE

@@ -9,6 +9,7 @@
 
 // used by both shadow and shadow map
 float4x4 ModelToLight;
+
 // used by shadow map only
 float4x4 ModelToView;
 float3x3 NormalToView;
@@ -16,14 +17,10 @@ float4x4 ModelToScreen;
 
 float4 Color;
 float3 LightPosition;
-float3 CameraPosition;
-float3 EntityPosition;
 float SpecularIntensity; // Controls the intensity of specular highlights
 float Shininess; // Controls the size/tightness of specular highlights
 float AmbientIntensity; // Controls the intensity of ambient light
 float EdgeFadeScale;
-float FadeNear; // Distance at which the fade starts
-float FadeFar; // Distance at which the fade ends
 
 static const int ShadowSamples = 64;
 
@@ -76,7 +73,6 @@ struct V2P
     float2 SMPosition : TEXCOORD3;
     float SMDepth : TEXCOORD4;
     float4 Color : COLOR;
-    float3 EntityPosition : TEXCOORD5; // Position of the entity in world space
 };
 
 float2 randomOffset(float4 seed)
@@ -155,22 +151,19 @@ V2P VShader(VSInput input)
     
     output.ViewNormal = mul(input.Normal, NormalToView);
     output.TextureCoords = input.TextureCoords;
-    output.EntityPosition = EntityPosition;
-    
+
     return output;
 }
 
 float4 PSDepthMap(V2PDepth input) : COLOR
 {
-    return float4(input.Depth, 0, 0, 1);
+    // Add a little bias to the final depth to avoid shadow acne.
+    return float4(input.Depth + 0.001, 0, 0, 1);
 }
 
 float4 PShaderTextureColor(V2P input) : COLOR
 {
-    float d = distance(CameraPosition, input.EntityPosition);
-    float alpha = 1.0 - clamp((d - FadeFar) / (FadeNear - FadeFar), 0.0, 1.0);
-    float4 color = Color * tex2D(TextureSampler, input.TextureCoords);
-    color.a *= alpha;
+    float4 color = input.Color * tex2D(TextureSampler, input.TextureCoords);
     return ApplyLightingModel(input, color);
 }
 
