@@ -317,6 +317,7 @@
 
 #being level.json
 /copy:level.json
+/copy:level1.json
 
 #begin Font/hud.spritefont
 /importer:FontDescriptionImporter

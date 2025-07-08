@@ -12,6 +12,7 @@ public class PlatformerGame : Game
     private enum GameState
     {
         SplashScreen,
+        LoadingScreen,
         MainScene
     }
 
@@ -105,14 +106,37 @@ public class PlatformerGame : Game
 
         LoadLevel ();
     }
+    
+    string[] levels = new string[]
+    {
+        "level",
+        "level1",
+        "level2"
+    };
+    int currentLevel = 0;
+
+    private void LoadNextLevel()
+    {
+        currentLevel++;
+        if (currentLevel < levels.Length - 1)
+        {
+            LoadLevel();
+        }
+        else
+        {
+            // Reset to the first level or handle end of game logic
+            currentLevel = 0;
+            LoadLevel();
+        }
+    }
 
     private void LoadLevel()
-    { 
+    {
         _entities.Clear();
         _entitiesToRemove.Clear();
         var loader = new LevelLoader(Content);
         Vector3 lightPosition = new Vector3(100, 200, 100);
-        loader.LoadLevel("level", _entities, ref lightPosition);
+        loader.LoadLevel(levels[currentLevel], _entities, ref lightPosition);
         _shadowProcessor.LightPosition = lightPosition;
         _shadowProcessor.SpecularIntensity = 0.1f;
         _shadowProcessor.Shininess = 0.5f;
@@ -124,10 +148,10 @@ public class PlatformerGame : Game
             UpDirection = Vector3.Up
         };
 
-        var spawnPoint = _entities.Find (e => e is SpawnPoint);
-        _goal = _entities.Find (e => e is Goal) as Goal;
+        var spawnPoint = _entities.Find(e => e is SpawnPoint);
+        _goal = _entities.Find(e => e is Goal) as Goal;
 
-        _player = new Player(GraphicsDevice, Content.Load<Model>("Models/character"),Content)
+        _player = new Player(GraphicsDevice, Content.Load<Model>("Models/character"), Content)
         {
             Position = spawnPoint.Position,
             Rotation = spawnPoint.Rotation,
@@ -186,6 +210,7 @@ public class PlatformerGame : Game
             switch (_currentState)
             {
                 case GameState.SplashScreen:
+                case GameState.LoadingScreen:
                     // Handle splash screen logic
                     _splashTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -246,7 +271,7 @@ public class PlatformerGame : Game
                     {
                         _currentState = GameState.SplashScreen;
                         _splashTimer = 0f; // Reset splash timer
-                        LoadLevel(); // Reload the level
+                        LoadNextLevel(); // Reload the level
                     }
 
                     break;
