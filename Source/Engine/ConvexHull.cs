@@ -2,11 +2,11 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 [ContentSerializerRuntimeType($"{nameof(ConvexHull)}, {GameConstants.AssemblyName}")]
 public class ConvexHull
@@ -17,6 +17,9 @@ public class ConvexHull
         public Vector3 Normal;
         public int[] Indices;
     }
+
+    [ContentSerializer]
+    public Vector3 Center;
 
     [ContentSerializer]
     public Vector3[] Vertices;
@@ -76,6 +79,7 @@ public class ConvexHull
 
         return new ConvexHull
         {
+            Center = offset,
             Vertices = verts.ToArray(),
             Faces = faces.ToArray(),
             AABB = BoundingBox.CreateFromPoints(verts)
@@ -102,6 +106,7 @@ public class ConvexHull
             };
         }
 
+        hull.Center = Center;
         hull.Vertices = Vertices.ToArray();
         hull.AABB = AABB;
 

@@ -46,14 +46,17 @@ internal static class ConvexHullHelper
             foreach (var geometry in mesh.SourceMesh.Geometry)
             {
                 // Grab the mesh verts.
+                var center = Vector3.Zero;
                 var verts = new List<Vector3>();
                 var positionChannel = geometry.Vertices.Positions;
                 for (int i = 0; i < geometry.Vertices.VertexCount; i++)
                 {
                     var v = positionChannel[i];
                     var vv = Vector3.Transform(v, geometry.Parent.Transform);
+                    center += vv;
                     verts.Add(vv);
                 }
+                center /= (float)verts.Count;
 
                 // Remove very similar verts and convert it to the MI vertex format.
                 var miverts = verts.Distinct(new Vector3Comparer()).Select(p => new MIVertex(p)).ToList();
@@ -98,6 +101,7 @@ internal static class ConvexHullHelper
 
                 // Build the final runtime hull.
                 var hull = new ConvexHull();
+                hull.Center = center;
                 hull.Vertices = hverts.ToArray();
                 hull.Faces = hfaces.ToArray();
                 hull.AABB = BoundingBox.CreateFromPoints(hverts);

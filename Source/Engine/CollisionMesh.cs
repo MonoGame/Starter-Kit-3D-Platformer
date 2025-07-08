@@ -82,6 +82,8 @@ public class CollisionMesh
             var h = _hulls[i];
             var wh = _worldHulls[i];
 
+            wh.Center = Vector3.Transform(h.Center, _parent.WorldMatrix);
+
             for (int j = 0; j < h.Vertices.Length; j++)
                 wh.Vertices[j] = Vector3.Transform(h.Vertices[j], _parent.WorldMatrix);
 
