@@ -1,0 +1,98 @@
+[
+    {
+        "name": "Sun.002",
+        "type": "LIGHT",
+        "position": [
+            930.7797241210938,
+            1406.3326416015625,
+            -1629.2666015625
+        ]
+    },
+    {
+        "name": "PlayerSpawn.002",
+        "type": "SPAWNPOINT",
+        "position": [
+            908.9113159179688,
+            155.78334045410156,
+            2.0281872749328613
+        ],
+        "rotation": [
+            0,
+            0,
+            -93
+        ]
+    },
+    {
+        "name": "platform.003",
+        "type": "MESH",
+        "instanceof": "platform",
+        "position": [
+            906.0159912109375,
+            0.0,
+            -0.0
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1,
+            1,
+            1
+        ],
+        "collidable": true
+    },
+    {
+        "name": "platform-grass-large-round.002",
+        "type": "MESH",
+        "instanceof": "platform-grass-large-round",
+        "position": [
+            399.2666320800781,
+            83.755126953125,
+            -88.60740661621094
+        ],
+        "rotation": [
+            0,
+            0,
+            109
+        ],
+        "scale": [
+            1,
+            1,
+            1
+        ],
+        "collidable": true
+    },
+    {
+        "name": "Goal.002",
+        "type": "GOAL",
+        "position": [
+            288.32720947265625,
+            190.554443359375,
+            -53.648948669433594
+        ],
+        "radius": 100.0
+    },
+    {
+        "name": "flag.002",
+        "type": "MESH",
+        "instanceof": "flag",
+        "position": [
+            289.22442626953125,
+            133.7234649658203,
+            -69.93370056152344
+        ],
+        "rotation": [
+            0,
+            0,
+            109
+        ],
+        "scale": [
+            1,
+            1,
+            1
+        ],
+        "collidable": true
+    }
+]

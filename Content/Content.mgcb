@@ -316,8 +316,9 @@
 /build:Sounds/walking.ogg
 
 #being level.json
-/copy:level.json
 /copy:level1.json
+/copy:level2.json
+/copy:level3.json
 
 #begin Font/hud.spritefont
 /importer:FontDescriptionImporter

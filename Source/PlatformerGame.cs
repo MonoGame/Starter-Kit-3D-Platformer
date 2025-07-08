@@ -109,9 +109,9 @@ public class PlatformerGame : Game
     
     string[] levels = new string[]
     {
-        "level",
         "level1",
-        "level2"
+        "level2",
+        "level3"
     };
     int currentLevel = 0;
 
