@@ -75,9 +75,9 @@ public class FallingPlatform : Platform
                     (float)(_random.NextDouble() * 2 - 1) * _shakeAmplitude * 0.5f, // Less vertical shake
                     (float)(_random.NextDouble() * 2 - 1) * _shakeAmplitude
                 );
-                
-                // Apply shake offset from original position
-                Position = _originalPosition + shakeOffset;
+
+                // Apply a visual shake offset from original position
+                WorldMatrix.Translation = _originalPosition + shakeOffset;
             }
         }
     }

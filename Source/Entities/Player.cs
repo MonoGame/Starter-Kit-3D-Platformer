@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 public class Player : AnimatedEntity
 {
     public bool IsJumping = false;
-    public bool IsFalling = true;
+    public bool IsGrounded = false;
 
     public int Score = 0;
     public Vector3 Forward { get; set; } = new Vector3(0, 0, -1); // Default forward is negative Z
@@ -58,7 +58,7 @@ public class Player : AnimatedEntity
 
     public Player(GraphicsDevice graphicsDevice, Model model, ContentManager contentManager) : base(model, contentManager)
     {
-        _collisionMesh.GenerateFromCylinder(new Vector3(0, 40, 0), 30, 80, 8);
+        _collisionMesh.GenerateFromCylinder(new Vector3(0, 40, 0), 30, 80, 6);
 
         Position = new Vector3(0, 0, 0);
         Scale = new Vector3(1, 1, 1);
@@ -119,7 +119,7 @@ public class Player : AnimatedEntity
 
     public override bool CheckCollision(Entity other)
     {
-        bool collision = base.CheckCollision(other);
+        bool collision = base.CheckCollision(other, out var contactNormal, out var penetrationDepth);
         if (collision)
         {
             if (!other.IsBlockingMovement)
@@ -128,72 +128,48 @@ public class Player : AnimatedEntity
                 return false;
             }
 
-            // Calculate centers of both bounding boxes
-            Vector3 thisCenter = (BoundingBox.Min + BoundingBox.Max) / 2;
-            Vector3 otherCenter = (other.BoundingBox.Min + other.BoundingBox.Max) / 2;
+            // TODO: Sometimes this isn't normalized which is weird.            
+            contactNormal = Vector3.Normalize(contactNormal);
 
-            // Calculate penetration depth in all directions
-            float overlapX = Math.Min(
-                BoundingBox.Max.X - other.BoundingBox.Min.X,
-                other.BoundingBox.Max.X - BoundingBox.Min.X);
+            var resolveDirection = contactNormal * penetrationDepth;
+            var upwardPenetration = Vector3.Dot(contactNormal, Vector3.Up);
 
-            float overlapY = Math.Min(
-                BoundingBox.Max.Y - other.BoundingBox.Min.Y,
-                other.BoundingBox.Max.Y - BoundingBox.Min.Y);
-
-            float overlapZ = Math.Min(
-                BoundingBox.Max.Z - other.BoundingBox.Min.Z,
-                other.BoundingBox.Max.Z - BoundingBox.Min.Z);
-
-            //Determine the direction of least penetration
-            Vector3 resolveDirection = Vector3.Zero;
-
-            //The smallest overlap indicates the most efficient resolution direction
-            if (overlapX < overlapY && overlapX < overlapZ)
+            // If we're resolving upward, we're standing on something
+            if (upwardPenetration > 0.75f)
             {
-                // X-axis collision
-                resolveDirection.X = (thisCenter.X < otherCenter.X) ? -overlapX : overlapX;
-            }
-            else if (overlapY < overlapZ)
-            {
-                // Y-axis collision
-                resolveDirection.Y = (thisCenter.Y < otherCenter.Y) ? -overlapY : overlapY;
-
-                // If we're resolving upward, we're standing on something
-                if (resolveDirection.Y > 0)
+                if (IsJumping)
                 {
-                    if (IsJumping)
-                    {
-                        _landSound.Play();
-                        _landVelocity = Math.Max(-_velocity.Y, 0.0f);
-                        IsJumping = false;
-                    }
+                    _landSound.Play();
+                    _landVelocity = Math.Max(-_velocity.Y, 0.0f);
+                    IsJumping = false;
+                }
 
-                    _velocity.Y = 0;
-                    _jumpCount = 0; // Reset jump count when landing
-                    _currentShadowDistance = 0f; // Reset shadow distance when landing                 
-                    IsFalling = false;
-                }
-                // If we're hitting our head on something
-                else if (resolveDirection.Y < 0 && _velocity.Y > 0)
-                {
-                    _velocity.Y = 0;
-                }
-            }
-            else
-            {
-                // Z-axis collision
-                resolveDirection.Z = (thisCenter.Z < otherCenter.Z) ? -overlapZ : overlapZ;
+                _jumpCount = 0; // Reset jump count when landing
+                _currentShadowDistance = 0f; // Reset shadow distance when landing                 
+                IsGrounded = true;
+
+                // This keeps the player from sliding when on
+                // the ground from the collision resolve force.
+                if (MathF.Abs(_velocity.X) < 0.1f)
+                    resolveDirection.X = 0;
+                if (MathF.Abs(_velocity.Z) < 0.1f)
+                    resolveDirection.Z = 0;
             }
 
             // Apply the resolution vector with a small buffer to prevent sticking
             Position += resolveDirection * 1.01f;
 
+            // Remove existing velocity into the contact.
+            float intoSurface = Vector3.Dot(_velocity, contactNormal);
+            if (intoSurface < 0)
+                _velocity -= contactNormal * intoSurface;
+
             // Update the entity's world matrix and bounding box immediately to prevent
             // further collision detection issues in the same frame
             WorldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateFromQuaternion(Rotation) * Matrix.CreateTranslation(Position);
         }
-        // If we're standing on a platform, show shadow
+
+        // If we're over a platform, show shadow
         if (other is Platform)
         {
             // Cast a ray downward to find the exact surface point
@@ -207,14 +183,13 @@ public class Player : AnimatedEntity
             }
         }
 
-        if (_velocity.Y < 0.0f)
-            IsFalling = true;
-
         return collision;
     }
 
     private bool RayIntersectsEntity(Vector3 rayOrigin, Vector3 rayDirection, Entity entity, out float distance)
     {
+        // TODO: Use the convex here!
+
         // Ray-box intersection test
         distance = 0f;
         Ray ray = new Ray(rayOrigin, rayDirection);
@@ -236,8 +211,8 @@ public class Player : AnimatedEntity
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         // Get current keyboard state
-        KeyboardState currentKeyboardState = Keyboard.GetState();
-        GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+        var currentKeyboardState = Keyboard.GetState();
+        var gamePadState = GamePad.GetState(PlayerIndex.One);
 
         var jump = (_previousGamePadState.Buttons.A == ButtonState.Released && gamePadState.Buttons.A == ButtonState.Pressed) || (currentKeyboardState.IsKeyDown(Keys.Space) && !_previousKeyboardState.IsKeyDown(Keys.Space));
         var jumpHeld = gamePadState.Buttons.A == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Space);
@@ -273,21 +248,26 @@ public class Player : AnimatedEntity
         // Normalize direction if we're moving
         if (_moveDirection.LengthSquared() > 0)
         {
-            if (_walkSound.State != SoundState.Playing && !IsFalling && !IsJumping)
+            if (IsGrounded)
             {
-                _walkSound.Play();
+                if (_walkSound.State != SoundState.Playing)
+                    _walkSound.Play();
+
                 PlayAnimation("walk");
             }
+            else
+            {
+                _walkSound.Stop();
+            }
+
             _moveDirection.Normalize();
         }
         else
         {
             _walkSound.Stop();
-            if (!IsJumping)
-            {
 
+            if (IsGrounded)
                 PlayAnimation("idle");
-            }
         }
             
 

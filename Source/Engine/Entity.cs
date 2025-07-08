@@ -79,7 +79,18 @@ public class Entity
         if (_collisionMesh == null || other._collisionMesh == null)
             return false;
 
-        return _collisionMesh.Intersects(other._collisionMesh);
+        return _collisionMesh.Intersects(other._collisionMesh, out var contactNormal, out var penetrationDepth);
+    }
+
+    public bool CheckCollision(Entity other, out Vector3 contactNormal, out float penetrationDepth)
+    {
+        contactNormal = default(Vector3);
+        penetrationDepth = 0;
+
+        if (_collisionMesh == null || other._collisionMesh == null)
+            return false;
+
+        return _collisionMesh.Intersects(other._collisionMesh, out contactNormal, out penetrationDepth);
     }
 
     public virtual bool Dead ()

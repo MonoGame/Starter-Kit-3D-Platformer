@@ -204,6 +204,13 @@ public class PlatformerGame : Game
                     var scaledTime = new GameTime(gameTime.TotalGameTime,
                         TimeSpan.FromSeconds(gameTime.ElapsedGameTime.TotalSeconds * TimeScale));
 
+                    _player.Forward = _camera.ForwardDirection;
+                    _player.Update(scaledTime);
+                    _dust.Update(scaledTime);
+
+                    // TODO: This should be cleaner... maybe a pre-update/collision call?
+                    _player.IsGrounded = false;
+
                     foreach (var entity in _entities)
                     {
                         entity.Update(scaledTime);
@@ -220,17 +227,13 @@ public class PlatformerGame : Game
                         _entities.Remove(entity);
                     }
 
-                    _player.Forward = _camera.ForwardDirection;
-                    _player.Update(scaledTime);
-                    _dust.Update(scaledTime);
-
                     if (_player.Dead())
                     {
                         _currentState = GameState.SplashScreen;
                         _splashTimer = 0f; // Reset splash timer
                         LoadLevel(); // Reload the level
                     }
-                    else if (_player.IsMoving && !_player.IsJumping && !_player.IsFalling)
+                    else if (_player.IsMoving && _player.IsGrounded)
                     {
                         _dust.AddDust(scaledTime, _player.Position);
                     }

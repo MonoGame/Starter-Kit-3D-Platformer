@@ -113,12 +113,21 @@ public class ConvexHull
         return hull;
     }
 
-    private static bool IsSeparatingAxis(Vector3 axis, Vector3[] vertsA, Vector3[] vertsB)
+    private static bool IsSeparatingAxis(Vector3 axisNormal, Vector3[] vertsA, Vector3[] vertsB, out float overlap)
     {
-        ProjectOntoAxis(vertsA, axis, out float minA, out float maxA);
-        ProjectOntoAxis(vertsB, axis, out float minB, out float maxB);
+        const float Epsilon = 0.01f;
 
-        return maxA < minB || maxB < minA;
+        ProjectOntoAxis(vertsA, axisNormal, out float minA, out float maxA);
+        ProjectOntoAxis(vertsB, axisNormal, out float minB, out float maxB);
+
+        if (maxA < (minB - Epsilon) || maxB < (minA - Epsilon))
+        {
+            overlap = 0;
+            return true;
+        }
+
+        overlap = MathF.Min(maxA, maxB) - MathF.Max(minA, minB);
+        return false;
     }
 
     private static void ProjectOntoAxis(Vector3[] vertices, Vector3 axis, out float min, out float max)
@@ -134,23 +143,54 @@ public class ConvexHull
         }
     }
 
-    public static bool Intersects(ConvexHull a, ConvexHull b)
+    public static bool Intersects(ConvexHull a, ConvexHull b, out Vector3 contactNormal, out float penetrationDepth)
     {
-        // Skip the faces when we can.
+        contactNormal = default(Vector3);
+        penetrationDepth = float.MaxValue;
+
         if (!a.AABB.Intersects(b.AABB))
             return false;
 
+        var sweep = b.Center - a.Center;
+
         foreach (var face in a.Faces)
-            if (IsSeparatingAxis(face.Normal, a.Vertices, b.Vertices))
+        {
+            // TODO: Why are these not already normalized?
+            var normal = Vector3.Normalize(face.Normal);
+
+            // Skip backfaces.
+            if (Vector3.Dot(normal, sweep) > 0)
+                continue;
+
+            if (IsSeparatingAxis(normal, a.Vertices, b.Vertices, out float overlap))
                 return false;
+
+            if (overlap < penetrationDepth)
+            {
+                penetrationDepth = overlap;
+                contactNormal = normal;
+            }
+        }
 
         foreach (var face in b.Faces)
-            if (IsSeparatingAxis(face.Normal, a.Vertices, b.Vertices))
+        {
+            // TODO: Why are these not already normalized?
+            var normal = Vector3.Normalize(face.Normal);
+
+            // Skip backfaces.
+            if (Vector3.Dot(normal, sweep) > 0)
+                continue;
+
+            if (IsSeparatingAxis(normal, a.Vertices, b.Vertices, out float overlap))
                 return false;
 
-        // TODO: Edges too?
-
-        // Intersects!
+            if (overlap < penetrationDepth)
+            {
+                penetrationDepth = overlap;
+                contactNormal = normal;
+            }
+        }
+        
         return true;
     }
 }
