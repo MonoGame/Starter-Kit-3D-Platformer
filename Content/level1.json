@@ -709,19 +709,19 @@
         "type": "MESH",
         "instanceof": "jumppad",
         "position": [
-            0.0,
-            0.0,
-            -0.0
+            -594.9156494140625,
+            279.6383972167969,
+            -272.0810852050781
         ],
         "rotation": [
+            -45,
             0,
-            0,
-            0
+            -27
         ],
         "scale": [
-            0,
             1,
-            0
+            1,
+            1
         ],
         "collidable": true,
         "jumpforce": 2.0
@@ -731,19 +731,19 @@
         "type": "MESH",
         "instanceof": "jumppad",
         "position": [
-            0.0,
-            0.0,
-            -0.0
+            -413.11376953125,
+            245.72100830078125,
+            -247.20602416992188
         ],
         "rotation": [
             0,
             0,
-            0
+            12
         ],
         "scale": [
-            0,
             1,
-            0
+            1,
+            1
         ],
         "collidable": true,
         "jumpforce": 2.0

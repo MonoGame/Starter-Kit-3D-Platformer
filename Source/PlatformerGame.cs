@@ -118,7 +118,7 @@ public class PlatformerGame : Game
     private void LoadNextLevel()
     {
         currentLevel++;
-        if (currentLevel < levels.Length - 1)
+        if (currentLevel < levels.Length)
         {
             LoadLevel();
         }
