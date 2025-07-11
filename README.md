@@ -1,3 +1,5 @@
+<p align="center"><img src="icon.png"/></p>
+
 # Starter Kit 3D Platformer
 
 This repository has a basic template for a 3D platformer game.
