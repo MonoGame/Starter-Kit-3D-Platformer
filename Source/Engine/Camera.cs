@@ -8,9 +8,14 @@ using Microsoft.Xna.Framework.Input;
 
 public class Camera
 {
-    private GraphicsDevice _graphicsDevice;
+    private GraphicsDevice _device;
     private Matrix _viewMatrix;
     private Matrix _projectionMatrix;
+
+    private Vector3 _smoothedTarget;
+
+    // Do we warp the camera into position this frame.
+    private bool _warp = true;
 
     // Camera positioning properties
     public Vector3 Position { get; set; }
@@ -26,8 +31,9 @@ public class Camera
 
     public float MinPitch { get; set; } = 0.08f;
     public float MaxPitch { get; set; } = MathHelper.PiOver2 - 0.1f;
-    
+
     // Input sensitivity
+    public float TargetSpeed { get; set; } = 4.0f;
     public float RotationSpeed { get; set; } = 0.05f;
     public float ZoomSpeed { get; set; } = 5f;
     
@@ -44,7 +50,7 @@ public class Camera
 
     public Camera(GraphicsDevice graphicsDevice)
     {
-        _graphicsDevice = graphicsDevice;
+        _device = graphicsDevice;
         _previousKeyboardState = Keyboard.GetState();
         _previousGamePadState = GamePad.GetState(PlayerIndex.One);
         UpdateViewMatrix();
@@ -75,8 +81,9 @@ public class Camera
     public void Update(GameTime gameTime)
     {
         HandleInput(gameTime);
-        UpdateCameraPosition();
+        UpdateCameraPosition(gameTime);
         UpdateViewMatrix();
+        _warp = false;
     }
     
     private void HandleInput(GameTime gameTime)
@@ -124,8 +131,9 @@ public class Camera
         _previousGamePadState = gamePadState;
     }
     
-    private void UpdateCameraPosition()
+    private void UpdateCameraPosition(GameTime gameTime)
     {
+
         // Calculate orbit position based on spherical coordinates
         // In this coordinate system:
         // - Yaw rotates around the Y axis (horizontal orbit)
@@ -134,19 +142,29 @@ public class Camera
         float x = Distance * (float)System.Math.Sin(MathHelper.PiOver2 - Pitch) * (float)System.Math.Cos(Yaw);
         float z = Distance * (float)System.Math.Sin(MathHelper.PiOver2 - Pitch) * (float)System.Math.Sin(Yaw);
         float y = Distance * (float)System.Math.Cos(MathHelper.PiOver2 - Pitch);
-        
+
+        if (_warp)
+            _smoothedTarget = Target;
+        else
+        {
+            // Don't instantly move to the target.
+            var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            var speed = MathHelper.Clamp(deltaTime * TargetSpeed, 0.0f, 1.0f);
+            _smoothedTarget = Vector3.Lerp(_smoothedTarget, Target, speed);
+        }
+
         // Set camera position relative to target (orbit point)
-        Position = Target + new Vector3(x, y, z);
+        Position = _smoothedTarget + new Vector3(x, y, z);
     }
 
     public void UpdateViewMatrix()
     {
-        _viewMatrix = Matrix.CreateLookAt(Position, Target, UpDirection);
+        _viewMatrix = Matrix.CreateLookAt(Position, _smoothedTarget, UpDirection);
     }
 
     public void UpdateProjectionMatrix()
     {
-        float aspectRatio = (float)_graphicsDevice.Viewport.Width / _graphicsDevice.Viewport.Height;
+        float aspectRatio = (float)_device.Viewport.Width / _device.Viewport.Height;
         _projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45f), aspectRatio, 0.1f, 5000f);
     }
 }
