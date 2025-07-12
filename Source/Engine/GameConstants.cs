@@ -39,7 +39,7 @@ public static class GameConstants
     /// </summary>
     public const float PLAYER_JUMP_FORCE = 700.0f;
 
-    public const float PLAYER_MAX_FALL_SPEED = 800.0f;
+    public const float PLAYER_MAX_FALL_SPEED = 1000.0f;
 
     public const float PLAYER_MOVE_SPEED = 360;
 

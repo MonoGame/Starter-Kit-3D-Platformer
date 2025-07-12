@@ -26,6 +26,7 @@ public class Player : AnimatedEntity
     }
 
     private Vector3 _velocity;
+    private Vector3 _physicsForce;
     private KeyboardState _previousKeyboardState;
     private GamePadState _previousGamePadState;
     private int _jumpCount = 0;
@@ -141,7 +142,7 @@ public class Player : AnimatedEntity
                 if (IsJumping)
                 {
                     _landSound.Play();
-                    _landVelocity = Math.Max(-_velocity.Y, 0.0f);
+                    _landVelocity = Math.Max(-(_velocity.Y + _physicsForce.Y), 0.0f);
                     IsJumping = false;
                 }
 
@@ -161,9 +162,12 @@ public class Player : AnimatedEntity
             Position += resolveDirection * 1.01f;
 
             // Remove existing velocity into the contact.
-            float intoSurface = Vector3.Dot(_velocity, contactNormal);
+            float intoSurface = Vector3.Dot(_velocity + _physicsForce, contactNormal);
             if (intoSurface < 0)
-                _velocity -= contactNormal * intoSurface;
+            {
+                _velocity -= contactNormal * Vector3.Dot(_velocity, contactNormal);
+                _physicsForce -= contactNormal * Vector3.Dot(_physicsForce, contactNormal);
+            }
 
             // Update the entity's world matrix and bounding box immediately to prevent
             // further collision detection issues in the same frame
@@ -204,7 +208,9 @@ public class Player : AnimatedEntity
 
     public void AddForce(Vector3 force)
     {
-        _velocity += force;
+        _physicsForce += force;
+        if (_physicsForce.Y > 0)
+            IsGrounded = false;
     }
 
     public override void Update(GameTime gameTime)
@@ -292,8 +298,19 @@ public class Player : AnimatedEntity
         Rotation = Quaternion.CreateFromAxisAngle(Vector3.Up, _currentRotationAngle);
 
         // Apply movement to velocity (maintaining Y velocity for jumps/gravity)
-        _velocity.X = _moveDirection.X * GameConstants.PLAYER_MOVE_SPEED;
-        _velocity.Z = _moveDirection.Z * GameConstants.PLAYER_MOVE_SPEED;
+        var desiredVelocity = _moveDirection * GameConstants.PLAYER_MOVE_SPEED;
+        if (IsGrounded)
+        {
+            _velocity.X = desiredVelocity.X;
+            _velocity.Z = desiredVelocity.Z;
+            _physicsForce = Vector3.Zero;
+        }
+        else
+        {
+            float AirSteeringAmount = 40;
+            _velocity.X = MathHelper.Lerp(_velocity.X, desiredVelocity.X, AirSteeringAmount * deltaTime);
+            _velocity.Z = MathHelper.Lerp(_velocity.Z, desiredVelocity.Z, AirSteeringAmount * deltaTime);
+        }
 
         // Apply the jumps.
         if (jump && _jumpCount < _maxJumps)
@@ -328,13 +345,15 @@ public class Player : AnimatedEntity
         else
         {
             _velocity.Y += GameConstants.PLAYER_FALL_GRAVITY * deltaTime;
-
-            // Keep the player from falling too fast.
-            _velocity.Y = MathHelper.Max(-GameConstants.PLAYER_MAX_FALL_SPEED, _velocity.Y);
         }
 
+        var totalVelocity = _velocity + _physicsForce;
+
         // Apply velocity to position with time-based movement.
-        Position += _velocity * deltaTime;
+        Position += totalVelocity * deltaTime;
+
+        float PhysicsDrag = 0.5f;
+        _physicsForce = Vector3.Lerp(_physicsForce, Vector3.Zero, PhysicsDrag * deltaTime);
 
         // Store current keyboard state for next frame
         _previousKeyboardState = currentKeyboardState;
@@ -358,12 +377,13 @@ public class Player : AnimatedEntity
             }
             else
             {
-                if (Math.Abs(_velocity.Y) < 0.1f)
+                var velocity = _velocity + _physicsForce;
+                if (Math.Abs(velocity.Y) < 0.1f)
                     _scaleAnimation = Vector3.One;
                 else
                 {
                     // When we jump or fall apply a little squash and stretch to the player mesh.
-                    var jumpOrFall = MathHelper.Clamp(-_velocity.Y / GameConstants.PLAYER_JUMP_FORCE, -1.0f, 1.0f);
+                    var jumpOrFall = MathHelper.Clamp(-velocity.Y / GameConstants.PLAYER_JUMP_FORCE, -1.0f, 1.0f);
                     var scaleXZ = 1.0f + ((1.0f - jumpOrFall) * 0.1f);
                     var scaleY = 1.0f + (jumpOrFall * 0.15f);
                     _scaleAnimation = new Vector3(scaleXZ, scaleY, scaleXZ);

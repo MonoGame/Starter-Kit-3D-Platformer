@@ -315,6 +315,15 @@
 /processor:SoundEffectProcessor
 /build:Sounds/walking.ogg
 
+#begin Sounds/pad.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Sounds/pad.wav
+
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Sounds/bright.wav
+
 #being level.json
 /copy:level1.json
 /copy:level2.json

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -56,6 +57,8 @@ public class PlatformerGame : Game
     private PostProcessor _postProcessor;
     private ShadowProcessor _shadowProcessor;
 
+    private SoundEffectInstance _song;
+
     #if DEVMODE
     private DebugFlags _debugFlags = DebugFlags.None;
     #endif
@@ -104,6 +107,11 @@ public class PlatformerGame : Game
         _coinTexture = Content.Load<Texture2D>("Textures/coin");
         _font = Content.Load<SpriteFont>("Font/hud");
         _dust = new Dust(Content.Load<Model>("Models/dust"), Content);
+
+        _song = Content.Load<SoundEffect>("Sounds/bright").CreateInstance();
+        _song.IsLooped = true;
+        _song.Volume = 0.0f;
+        _song.Play();
 
         LoadLevel ();
     }
@@ -162,6 +170,12 @@ public class PlatformerGame : Game
 
     protected override void Update(GameTime gameTime)
     {
+        var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        // Fade in the music volume.
+        if (_song.Volume < 1.0f)
+            _song.Volume = MathF.Min(1.0f, _song.Volume + (deltaTime * 0.5f));
+
         var currentKeyboardState = Keyboard.GetState();
         var gamePadState = GamePad.GetState(PlayerIndex.One);
         if (gamePadState.Buttons.Back == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Escape))
