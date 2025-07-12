@@ -100,7 +100,7 @@ public class PlatformerGame : Game
         _postProcessor.LoadContent(Content);
         _shadowProcessor = new ShadowProcessor(GraphicsDevice, _spriteBatch);
         _shadowProcessor.LoadContent(Content);
-        _shadowProcessor.LightPosition = new Vector3(10, 20, 10);
+        _shadowProcessor.LightDirection = Vector3.Normalize(new Vector3(10, 20, 10));
         _shadowProcessor.SpecularIntensity = 10f;
         _shadowProcessor.Shininess = 160.0f;
         _splashTexture = Content.Load<Texture2D>("splash-screen");
@@ -146,7 +146,7 @@ public class PlatformerGame : Game
         var loader = new LevelLoader(Content);
         Vector3 lightPosition = new Vector3(100, 200, 100);
         loader.LoadLevel(levels[currentLevel], _entities, ref lightPosition);
-        _shadowProcessor.LightPosition = lightPosition;
+        _shadowProcessor.LightDirection = Vector3.Normalize(lightPosition);
         _shadowProcessor.SpecularIntensity = 0.1f;
         _shadowProcessor.Shininess = 0.5f;
 

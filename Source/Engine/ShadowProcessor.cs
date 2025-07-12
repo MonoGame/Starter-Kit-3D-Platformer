@@ -15,7 +15,15 @@ public class ShadowProcessor
     private SpriteBatch _spriteBatch;
     
     // Light properties
-    public Vector3 LightPosition { get; set; }
+    public Vector3 LightDirection { get; set; }
+    public Vector3 LightPosition
+    {
+        get
+        {
+            return TargetPosition + (LightDirection * 800.0f);
+        }
+    }
+
     public float SpecularIntensity { get; set; }
     public float Shininess { get; set; }
     public float SunIntensity { get; set; }
@@ -38,7 +46,7 @@ public class ShadowProcessor
         CreateRenderTargets();
         
         // Set default light properties
-        LightPosition = new Vector3(10, 20, 10);
+        LightDirection = Vector3.Normalize(new Vector3(10, 20, 10));
         SpecularIntensity = 0f;
         Shininess = 0.0f;
         SunColor = new Vector3(1.0f, 0.9f, 0.9f);
