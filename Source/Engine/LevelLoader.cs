@@ -1,6 +1,7 @@
 // MonoGame - Copyright (C) MonoGame Foundation, Inc
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,13 +12,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 public class LevelLoader
 {
-    Dictionary<string, Func<Model, ContentManager, Entity>> _assetMap = new Dictionary<string, Func<Model, ContentManager, Entity>>();
+    Dictionary<string, Func<Model, ContentManager, Entity>> _assetMap = new();
     private readonly ContentManager _content;
 
     public LevelLoader(ContentManager content)
     {
         _content = content;
-        _assetMap = new Dictionary<string, Func<Model, ContentManager, Entity>>
+        _assetMap = new ()
         {
             ["platform-falling"] = (model, content) => new FallingPlatform(model, content),
             ["coin"] = (model, content) => new Coin(model, content),
@@ -35,6 +36,7 @@ public class LevelLoader
     public void LoadLevel(string levelName, List<Entity> entities, ref Vector3 lightPosition)
     {
         using var stream = TitleContainer.OpenStream("Content/" + levelName + ".json");
+
         // Load the level file and create entities based on the data
         // This is a placeholder for actual level loading logic
         // You would typically read the file, parse it, and create entities accordingly
