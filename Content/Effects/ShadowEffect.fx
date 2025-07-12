@@ -17,6 +17,7 @@ float4x4 ModelToScreen;
 
 float4 Color;
 float3 LightPosition;
+float3 LightColor;
 float SpecularIntensity; // Controls the intensity of specular highlights
 float Shininess; // Controls the size/tightness of specular highlights
 float AmbientIntensity; // Controls the intensity of ambient light
@@ -83,7 +84,6 @@ float2 randomOffset(float4 seed)
 
 float4 ApplyLightingModel(V2P input, float4 color)
 {
-    float3 lightColor = float3(1.0f, 1.0f, 1.0f);
     float3 lightVector = normalize(LightPosition);
     float3 normalVector = normalize(input.ViewNormal);
     
@@ -92,13 +92,13 @@ float4 ApplyLightingModel(V2P input, float4 color)
     
     // diffuse color
     float incidence = clamp(dot(normalVector, lightVector), 0.0f, 1.0f);
-    float3 diffuseColor = color.rgb * lightColor * incidence;
+    float3 diffuseColor = color.rgb * LightColor * incidence;
     
     // specular color
     float3 cameraDir = normalize(-input.ViewPosition.xyz);
     float3 reflectVector = reflect(-lightVector, normalVector);
     float specularStrength = clamp(dot(cameraDir, reflectVector), 0.0f, 1.0f);
-    float3 specularColor = lightColor * pow(specularStrength, Shininess) * SpecularIntensity;
+    float3 specularColor = LightColor * pow(specularStrength, Shininess) * SpecularIntensity;
     
     // shadow mappping
     float shadowScalar = 1.0f;
@@ -163,8 +163,8 @@ float4 PSDepthMap(V2PDepth input) : COLOR
 
 float4 PShaderTextureColor(V2P input) : COLOR
 {
-    float4 color = input.Color * tex2D(TextureSampler, input.TextureCoords);
-    return ApplyLightingModel(input, color);
+    float4 diffuse = input.Color * tex2D(TextureSampler, input.TextureCoords);   
+    return ApplyLightingModel(input, diffuse);
 }
 
 technique RenderDepth

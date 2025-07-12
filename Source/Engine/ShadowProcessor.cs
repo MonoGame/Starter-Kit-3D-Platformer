@@ -18,6 +18,8 @@ public class ShadowProcessor
     public Vector3 LightPosition { get; set; }
     public float SpecularIntensity { get; set; }
     public float Shininess { get; set; }
+    public float SunIntensity { get; set; }
+    public Vector3 SunColor { get; set; }
 
     public Vector3 TargetPosition { get; set; }
     public Vector3 UpVector { get; set; } = Vector3.Up;
@@ -39,7 +41,9 @@ public class ShadowProcessor
         LightPosition = new Vector3(10, 20, 10);
         SpecularIntensity = 0f;
         Shininess = 0.0f;
-        
+        SunColor = new Vector3(1.0f, 0.9f, 0.9f);
+        SunIntensity = 1.1f;
+
         // Set up default light matrices
         UpdateLightMatrices();
     }
@@ -172,6 +176,7 @@ public class ShadowProcessor
         Effect effect = _shadowEffect;
         effect.CurrentTechnique = effect.Techniques["RenderTextured"];
         effect.Parameters["LightPosition"]?.SetValue(lp);
+        effect.Parameters["LightColor"]?.SetValue(SunColor * SunIntensity);
         effect.Parameters["AmbientIntensity"]?.SetValue(0.8f);
         effect.Parameters["Color"]?.SetValue(color.ToVector4());
         effect.Parameters["SpecularIntensity"]?.SetValue(entity.SpecularIntensity);
