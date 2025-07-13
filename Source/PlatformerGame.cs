@@ -218,6 +218,17 @@ public class PlatformerGame : Game
                     TimeScale = 0.1f;
                 }
             }
+            if (currentKeyboardState.IsKeyDown(Keys.M) && _previousKeyboardState.IsKeyUp(Keys.M))
+            {
+                if (_song.State == SoundState.Playing)
+                {
+                    _song.Pause();
+                }
+                else
+                {
+                    _song.Resume();
+                }
+            }
         }
 #endif
 
