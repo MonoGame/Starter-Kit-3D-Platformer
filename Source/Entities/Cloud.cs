@@ -15,6 +15,6 @@ public class Cloud : BobingEntity
         SpecularIntensity = 0.1f;
         Shininess = 0.5f;
         BobSpeed = 1f;
-        IsBlockingMovement = false; // Spawn points should not block movement
+        IsBlockingMovement = false; // clouds should not block movement
     }
 }
