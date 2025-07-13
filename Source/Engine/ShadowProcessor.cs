@@ -149,6 +149,7 @@ public class ShadowProcessor
             return;
 
         var color = Color.White;
+        if (entity is not Player)
         {
             var FadeNear = 200.0f;
             var FadeFar = 300.0f;
