@@ -426,12 +426,7 @@ public class PlatformerGame : Game
                 // Draw all 2D particle effects.
                 {
                     // Enable alpha blending and disable depth writing (but keep depth testing)
-                    GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-                    GraphicsDevice.BlendState = BlendState.AlphaBlend;
-                    GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-                    GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-
-                    _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
+                    _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend,SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
                     foreach (var entity in _entities)
                     {
                         entity.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
