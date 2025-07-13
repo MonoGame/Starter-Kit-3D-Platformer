@@ -28,11 +28,14 @@ public class Entity
     public CollisionMesh CollisionMesh => _collisionMesh;
     public Matrix[] MeshTransforms { get; protected set; } = new Matrix[0]; // Transforms for each mesh in the model
 
+    public bool Visible { get; protected set; }
+
     public Entity(Model model, ContentManager contentManager)
     {
         Model = model;
         WorldMatrix = Matrix.Identity;
         Content = contentManager;
+        Visible = true;
 
         if (model != null)
         {

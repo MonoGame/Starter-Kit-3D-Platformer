@@ -107,7 +107,7 @@ public class ShadowProcessor
     public void DrawEntityToShadowMap(Entity entity)
     {
         var model = entity.Model;
-        if (model == null)
+        if (model == null || !entity.Visible)
             return;
 
         // Set the state needed to draw to the shadow map.
@@ -145,7 +145,7 @@ public class ShadowProcessor
     public void DrawModelWithShadow(Entity entity, Camera camera, bool blendPass)
     {
         Model model = entity.Model;
-        if (model == null)
+        if (model == null || !entity.Visible)
             return;
 
         var color = Color.White;

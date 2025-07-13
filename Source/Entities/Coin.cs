@@ -71,16 +71,20 @@ public class Coin : BobingEntity
     
     public override bool Dead()
     {
-        return _collected; // Coin is considered "dead" if collected
+        return _collected && _sparkles.Count == 0; // Coin is considered "dead" if collected
     }
 
     public override bool CheckCollision(Entity other)
     {
+        if (_collected)
+            return false;
+
         // Check for collision with the player
         if (other is Player player)
         {
             if (base.CheckCollision(other))
             {
+                Visible = false;
                 _collected = true; // Mark coin as collected
                 player.Score += Value; // Increase player's score
                 _collectedSound.Play(); // Play the collection sound
