@@ -173,7 +173,7 @@ public class PlatformerGame : Game
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         // Fade in the music volume.
-        if (_song.Volume < 1.0f)
+        if (_song.Volume < 1.0f && _song.State == SoundState.Playing)
             _song.Volume = MathF.Min(1.0f, _song.Volume + (deltaTime * 0.5f));
 
         var currentKeyboardState = Keyboard.GetState();
@@ -226,6 +226,7 @@ public class PlatformerGame : Game
                 }
                 else
                 {
+                    _song.Volume = 0.0f; // Reset volume to 0 before resuming
                     _song.Resume();
                 }
             }
