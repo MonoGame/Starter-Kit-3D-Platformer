@@ -787,5 +787,27 @@
             1.0
         ],
         "collidable": false
+    },
+    {
+        "name": "jumppad.001",
+        "type": "MESH",
+        "instanceof": "jumppad",
+        "position": [
+            295.88037109375,
+            189.8654022216797,
+            -995.2498168945312
+        ],
+        "rotation": [
+            0,
+            45,
+            24
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": true,
+        "jumpforce": 4.0
     }
 ]

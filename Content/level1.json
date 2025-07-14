@@ -705,18 +705,18 @@
         "collidable": true
     },
     {
-        "name": "jumppad.001",
+        "name": "jumppad.002",
         "type": "MESH",
         "instanceof": "jumppad",
         "position": [
-            -594.9156494140625,
-            279.6383972167969,
-            -272.0810852050781
+            -408.6779479980469,
+            247.75372314453125,
+            -262.789306640625
         ],
         "rotation": [
-            -45,
             0,
-            -27
+            0,
+            13
         ],
         "scale": [
             1.0,
@@ -727,25 +727,66 @@
         "jumpforce": 2.0
     },
     {
-        "name": "jumppad.002",
+        "name": "coin.022",
         "type": "MESH",
-        "instanceof": "jumppad",
+        "instanceof": "coin",
         "position": [
-            -413.11376953125,
-            245.72100830078125,
-            -247.20602416992188
+            -412.53466796875,
+            816.3427124023438,
+            -249.63320922851562
         ],
         "rotation": [
             0,
             0,
-            12
+            0
         ],
         "scale": [
             1.0,
             1.0,
             1.0
         ],
-        "collidable": true,
-        "jumpforce": 2.0
+        "collidable": false
+    },
+    {
+        "name": "coin.023",
+        "type": "MESH",
+        "instanceof": "coin",
+        "position": [
+            -412.53466796875,
+            873.064208984375,
+            -249.63320922851562
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": false
+    },
+    {
+        "name": "coin.024",
+        "type": "MESH",
+        "instanceof": "coin",
+        "position": [
+            -412.53466796875,
+            931.7447509765625,
+            -249.63320922851562
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": false
     }
 ]
