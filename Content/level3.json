@@ -5,7 +5,7 @@
         "position": [
             927.1328125,
             1602.5953369140625,
-            -1573.958251953125
+            960.3858032226562
         ]
     },
     {
@@ -101,12 +101,12 @@
         "instanceof": "platform",
         "position": [
             423.3006591796875,
-            240.09140014648438,
+            214.0227508544922,
             -0.0
         ],
         "rotation": [
             0,
-            -45,
+            -22,
             0
         ],
         "scale": [
@@ -149,13 +149,13 @@
         ]
     },
     {
-        "name": "platform-moving.001",
+        "name": "coin.025",
         "type": "MESH",
-        "instanceof": "platform-moving",
+        "instanceof": "coin",
         "position": [
-            661.9198608398438,
-            90.85174560546875,
-            -253.82632446289062
+            171.5495147705078,
+            423.9584045410156,
+            -6.512844562530518
         ],
         "rotation": [
             0,
@@ -167,17 +167,90 @@
             1.0,
             1.0
         ],
-        "collidable": true,
-        "movespeed": 80.0,
-        "minmove": [
-            -200.0,
-            0.0,
-            0.0
+        "collidable": false
+    },
+    {
+        "name": "coin.026",
+        "type": "MESH",
+        "instanceof": "coin",
+        "position": [
+            455.97015380859375,
+            423.427490234375,
+            -6.019869327545166
         ],
-        "maxmove": [
-            200.0,
-            0.0,
-            0.0
-        ]
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": false
+    },
+    {
+        "name": "coin.027",
+        "type": "MESH",
+        "instanceof": "coin",
+        "position": [
+            663.1594848632812,
+            428.26806640625,
+            -11.20887279510498
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": false
+    },
+    {
+        "name": "coin.028",
+        "type": "MESH",
+        "instanceof": "coin",
+        "position": [
+            663.1594848632812,
+            499.84869384765625,
+            -11.20887279510498
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": false
+    },
+    {
+        "name": "coin.029",
+        "type": "MESH",
+        "instanceof": "coin",
+        "position": [
+            663.1594848632812,
+            569.131591796875,
+            -11.20887279510498
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": false
     }
 ]
