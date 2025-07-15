@@ -58,12 +58,12 @@ public class FallingPlatform : Platform
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             _fallTime += deltaTime;
-            
+
             if (_fallTime > _fallDelay)
             {
                 // Apply gravity
                 _velocity.Y += GameConstants.GRAVITY * deltaTime;
-                
+
                 // Apply velocity to position with time-based movement
                 Position += _velocity;
             }

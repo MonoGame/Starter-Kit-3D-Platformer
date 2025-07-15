@@ -16,25 +16,25 @@ public class CollisionMesh
     private Entity _parent;
     private BoundingBox _corseBoundingBox;
     private BoundingBox _worldBoundingBox;
-    
+
     // Debug visualization
     private bool _showCollisionMesh = true;
     private static BasicEffect _debugEffect;
 
-    public Entity Parent 
-    { 
-        get => _parent; 
-        set => _parent = value; 
+    public Entity Parent
+    {
+        get => _parent;
+        set => _parent = value;
     }
-    
-    public bool ShowCollisionMesh 
-    { 
+
+    public bool ShowCollisionMesh
+    {
         get => _showCollisionMesh;
-        set => _showCollisionMesh = value; 
+        set => _showCollisionMesh = value;
     }
 
     public BoundingBox WorldBoundingBox => _worldBoundingBox;
-    
+
     public CollisionMesh(Entity parent, Model model, List<ConvexHull> collisionData, BoundingBox boundingBox)
     {
         _parent = parent;
@@ -49,7 +49,7 @@ public class CollisionMesh
         _hulls.Add(ConvexHull.CreateCylinder(offset, radius, height, segments));
 
         _corseBoundingBox = new BoundingBox(
-            offset + new Vector3(-radius, -height / 2f, -radius), 
+            offset + new Vector3(-radius, -height / 2f, -radius),
             offset + new Vector3(radius, height / 2f, radius));
 
         _worldHulls = new List<ConvexHull>();
@@ -62,7 +62,7 @@ public class CollisionMesh
     private void GenerateFromModel(Model model, List<ConvexHull> collisionData, BoundingBox boundingBox)
     {
         _hulls = collisionData;
-       
+
         _corseBoundingBox = boundingBox;
 
         _worldHulls = new List<ConvexHull>();
@@ -74,7 +74,7 @@ public class CollisionMesh
         // Initialize world-space boxes
         UpdateWorldCollisionMesh();
     }
-    
+
     public void UpdateWorldCollisionMesh()
     {
         for (int i = 0; i < _hulls.Count; i++)
@@ -103,7 +103,7 @@ public class CollisionMesh
         }
         _worldBoundingBox = new BoundingBox(min, max);
     }
-    
+
     public bool Intersects(CollisionMesh other, out Vector3 contactNormal, out float penetrationDepth)
     {
         contactNormal = default(Vector3);
@@ -127,18 +127,18 @@ public class CollisionMesh
 
         return false;
     }
-        
+
     public void Draw(GraphicsDevice graphicsDevice, Camera camera)
     {
-        if (!_showCollisionMesh) 
+        if (!_showCollisionMesh)
             return;
-            
+
         if (_debugEffect == null)
         {
             _debugEffect = new BasicEffect(graphicsDevice);
             _debugEffect.VertexColorEnabled = true;
         }
-        
+
         _debugEffect.View = camera.ViewMatrix;
         _debugEffect.Projection = camera.ProjectionMatrix;
         _debugEffect.World = Matrix.Identity;
@@ -150,7 +150,7 @@ public class CollisionMesh
 
         // Get the corners of the bounding box
         Vector3[] corners = _worldBoundingBox.GetCorners();
-        
+
         // Define the 12 edges of the bounding box cube
         // The corners array contains 8 points, ordered:
         // 0: Near bottom left, 1: Near bottom right
@@ -181,7 +181,7 @@ public class CollisionMesh
         }
 
     }
-    
+
     private void DrawHull(GraphicsDevice graphicsDevice, ConvexHull hull, Color color)
     {
         // TODO: We could cache the debug rendering hulls
@@ -196,7 +196,7 @@ public class CollisionMesh
             for (var i = 0; i < face.Indices.Length; i++)
             {
                 var v1 = face.Indices[i];
-                var v2 = face.Indices[(i+1) % face.Indices.Length];
+                var v2 = face.Indices[(i + 1) % face.Indices.Length];
 
                 lines.Add(new VertexPositionColor(hull.Vertices[v1], color));
                 lines.Add(new VertexPositionColor(hull.Vertices[v2], color));

@@ -95,7 +95,7 @@ internal static class ConvexHullHelper
                     hfaces.Add(new ConvexHull.Face
                     {
                         Normal = Vector3.Normalize(ToVector3(f.Normal)),
-                        Indices = ii.ToArray()                        
+                        Indices = ii.ToArray()
                     });
                 }
 
@@ -108,7 +108,7 @@ internal static class ConvexHullHelper
                 hulls.Add(hull);
             }
         }
-        
+
         return hulls;
     }
 }

@@ -10,13 +10,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 public class Goal : Entity
 {
-    public bool Complete = false; 
+    public bool Complete = false;
 
     private float _goalDelay = 3f; // Duration before the goal is completed
     private float _goalTime = 0f; // Time since the goal was activated
     public bool GoalReached = false; // Flag to check if the goal was hit
 
-    public float Radius {
+    public float Radius
+    {
         get => _goalBoundingSphere.Radius;
         set
         {
@@ -42,7 +43,8 @@ public class Goal : Entity
 
     public override bool CheckCollision(Entity other)
     {
-        if (!(other is Player)) {
+        if (!(other is Player))
+        {
             return false;
         }
         var collision = _goalBoundingSphere.Intersects(other.BoundingBox);
@@ -67,11 +69,11 @@ public class Goal : Entity
                 _goalTime = 0.0f; // Reset the timer
             }
         }
-        
+
     }
 
     public override void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
     {
-       // Draw nothing.
+        // Draw nothing.
     }
 }

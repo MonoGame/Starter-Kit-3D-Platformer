@@ -22,7 +22,7 @@ public class Camera
     public Vector3 Position { get; set; }
     public Vector3 Target { get; set; }
     public Vector3 UpDirection { get; set; } = Vector3.Up;
-    
+
     // Camera rotation and zoom properties
     public float Yaw { get; private set; } = 0f;
     public float Pitch { get; private set; } = 0.5f; // Slight downward angle
@@ -37,10 +37,10 @@ public class Camera
     public float TargetSpeed { get; set; } = 4.0f;
     public float RotationSpeed { get; set; } = 0.05f;
     public float ZoomSpeed { get; set; } = 5f;
-    
+
     // Camera direction vector
     public Vector3 ForwardDirection => Vector3.Normalize(Target - Position);
-    
+
     // Previous input states
     private KeyboardState _previousKeyboardState;
     private GamePadState _previousGamePadState;
@@ -62,10 +62,10 @@ public class Camera
     {
         Yaw += yawChange;
         Pitch += pitchChange;
-        
+
         // Constrain pitch to prevent flipping
         Pitch = MathHelper.Clamp(Pitch, MinPitch, MaxPitch);
-        
+
         // Keep yaw within 0 to 2π range
         if (Yaw > MathHelper.TwoPi)
             Yaw -= MathHelper.TwoPi;
@@ -78,7 +78,7 @@ public class Camera
         Distance -= amount * ZoomSpeed;
         Distance = MathHelper.Clamp(Distance, MinDistance, MaxDistance);
     }
-    
+
     public void Update(GameTime gameTime)
     {
         HandleInput(gameTime);
@@ -86,7 +86,7 @@ public class Camera
         UpdateViewMatrix();
         _warp = false;
     }
-    
+
     private void HandleInput(GameTime gameTime)
     {
         KeyboardState keyboardState = Keyboard.GetState();
@@ -116,22 +116,22 @@ public class Camera
             _cameraRotation.X = MathHelper.Lerp(_cameraRotation.X, 0f, RotationSpeed * 5f);
             _cameraRotation.Y = MathHelper.Lerp(_cameraRotation.Y, 0f, RotationSpeed * 5f);
         }
-        
+
         // Handle zoom (example using keyboard)
         if (keyboardState.IsKeyDown(Keys.OemComma))
             Zoom(1f);
         if (keyboardState.IsKeyDown(Keys.OemPeriod))
             Zoom(-1f);
-            
+
         // Handle zoom with gamepad triggers
         float triggerDifference = gamePadState.Triggers.Left - gamePadState.Triggers.Right;
         if (triggerDifference != 0)
             Zoom(triggerDifference);
-            
+
         _previousKeyboardState = keyboardState;
         _previousGamePadState = gamePadState;
     }
-    
+
     private void UpdateCameraPosition(GameTime gameTime)
     {
 

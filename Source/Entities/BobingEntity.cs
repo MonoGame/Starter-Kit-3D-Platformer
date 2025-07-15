@@ -32,7 +32,7 @@ public class BobingEntity : Entity
     }
 
     public BobingEntity(Model model, ContentManager contentManager) : base(model, contentManager)
-    {   
+    {
         // Randomize the starting phase so entities don't all bob in sync
         _timeAccumulator = new System.Random().Next(0, 628) / 100f; // Random value between 0 and 2π
     }
@@ -44,14 +44,14 @@ public class BobingEntity : Entity
             _initialPosition = Position;
         // Update the time accumulator
         _timeAccumulator += (float)gameTime.ElapsedGameTime.TotalSeconds * _bobSpeed;
-        
+
         // Calculate new Y position using a sine wave
         Position = new Vector3(
             Position.X,
             _initialPosition.Y + _bobAmplitude * (float)Math.Sin(_timeAccumulator),
             Position.Z
         );
-        
+
         base.Update(gameTime);
     }
 }

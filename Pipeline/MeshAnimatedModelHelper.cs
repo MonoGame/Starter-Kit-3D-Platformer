@@ -177,8 +177,8 @@ internal static class MeshAnimatedModelHelper
             }
         }
     }
-    
-    static Matrix FindAbsoluteTransform (NodeContent node, string name)
+
+    static Matrix FindAbsoluteTransform(NodeContent node, string name)
     {
         if (node.Name == name)
             return node.AbsoluteTransform;

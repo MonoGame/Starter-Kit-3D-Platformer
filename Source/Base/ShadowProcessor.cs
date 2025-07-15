@@ -13,7 +13,7 @@ public class ShadowProcessor
     private RenderTarget2D _shadowMap;
     private Effect _shadowEffect;
     private SpriteBatch _spriteBatch;
-    
+
     // Light properties
     public Vector3 LightDirection { get; set; }
     public Vector3 LightPosition
@@ -31,11 +31,11 @@ public class ShadowProcessor
 
     public Vector3 TargetPosition { get; set; }
     public Vector3 UpVector { get; set; } = Vector3.Up;
-    
+
     // Matrices
     private Matrix _lightViewMatrix;
     private Matrix _lightProjectionMatrix;
-    
+
     // Shadow map resolution
     private int _shadowMapSize = 2048;
 
@@ -44,7 +44,7 @@ public class ShadowProcessor
         _graphicsDevice = graphicsDevice;
         _spriteBatch = spriteBatch;
         CreateRenderTargets();
-        
+
         // Set default light properties
         LightDirection = Vector3.Normalize(new Vector3(10, 20, 10));
         SpecularIntensity = 0f;
@@ -66,12 +66,12 @@ public class ShadowProcessor
             SurfaceFormat.Single, // Use Single for higher precision depth values
             DepthFormat.Depth24);
     }
-    
+
     public void LoadContent(Microsoft.Xna.Framework.Content.ContentManager content)
     {
         _shadowEffect = content.Load<Effect>("Effects/ShadowEffect");
     }
-    
+
     private void UpdateLightMatrices()
     {
         // Create view matrix from light's perspective
@@ -79,17 +79,17 @@ public class ShadowProcessor
             LightPosition,
             TargetPosition, // look at target
             UpVector);
-        
+
         // Create orthographic projection for directional light
         _lightProjectionMatrix = Matrix.CreateOrthographic(
             2048, 2048, 0.1f, 5000f);
     }
-    
+
     public void BeginShadowMapPass()
     {
         // Update light matrices based on current light position.
         UpdateLightMatrices();
-       
+
         // Set render target to shadow map.
         _graphicsDevice.SetRenderTarget(_shadowMap);
 
@@ -98,7 +98,7 @@ public class ShadowProcessor
 
         _shadowEffect.CurrentTechnique = _shadowEffect.Techniques["RenderDepth"];
     }
-    
+
     public void EndShadowMapPass()
     {
         _graphicsDevice.SetRenderTarget(null);
@@ -124,7 +124,7 @@ public class ShadowProcessor
         model.CopyAbsoluteBoneTransformsTo(transforms);
         foreach (ModelMesh mesh in model.Meshes)
         {
-            var meshWorld =  transforms[mesh.ParentBone.Index] * entity.MeshTransforms[mesh.ParentBone.Index] * world;
+            var meshWorld = transforms[mesh.ParentBone.Index] * entity.MeshTransforms[mesh.ParentBone.Index] * world;
 
             modelToLight.SetValue(meshWorld * _lightViewMatrix * _lightProjectionMatrix);
 
@@ -233,7 +233,7 @@ public class ShadowProcessor
             }
         }
     }
-    
+
     // Optional: Utility method to visualize the shadow map for debugging
     public void DebugDrawShadowMap(Rectangle destination)
     {

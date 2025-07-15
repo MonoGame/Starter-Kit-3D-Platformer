@@ -15,7 +15,7 @@ public class Dust : Entity
         public Vector3 Position;
         public float Age = -1f;
 
-        public DustParticle() {}
+        public DustParticle() { }
     }
     DustParticle[] _dustParticles = new DustParticle[50];
     private const float DustScale = 1f; // Adjust the scale as needed
@@ -44,8 +44,8 @@ public class Dust : Entity
         {
             if (_dustParticles[i].Age < 0)
             {
-                position.X += Random.Shared.NextSingle () * 10f - 5f; // Randomize X position
-                position.Y += Random.Shared.NextSingle () * 10f - 5f; // Randomize Y position
+                position.X += Random.Shared.NextSingle() * 10f - 5f; // Randomize X position
+                position.Y += Random.Shared.NextSingle() * 10f - 5f; // Randomize Y position
                 _dustParticles[i] = new DustParticle() { Position = position, Age = 0f };
                 lastDustAddedTime = 0f;
                 return;
@@ -84,7 +84,7 @@ public class Dust : Entity
             // Apply rotation based on age
             //var rotation = Quaternion.CreateFromAxisAngle(Vector3.Up, DustRotationSpeed * particle.Age);
             //worldMatrix *= Matrix.CreateFromQuaternion(rotation);
-            
+
             // Draw the dust particle
             Matrix[] transforms = new Matrix[Model.Bones.Count];
             Model.CopyAbsoluteBoneTransformsTo(transforms);

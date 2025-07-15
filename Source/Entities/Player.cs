@@ -276,7 +276,7 @@ public class Player : AnimatedEntity
             if (IsGrounded)
                 PlayAnimation("idle");
         }
-            
+
 
         // Update the target rotation angle when moving
         if (_moveDirection != Vector3.Zero)

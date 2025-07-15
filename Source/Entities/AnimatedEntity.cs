@@ -16,7 +16,7 @@ public class AnimatedEntity : Entity
     bool isLooping = true;
 
     Pose[] keyFrameTransforms;
-    
+
     // Animation blending properties
     private TimeSpan animationTransitionDuration = TimeSpan.FromMilliseconds(200);
     private TimeSpan transitionElapsedTime;
@@ -66,7 +66,8 @@ public class AnimatedEntity : Entity
     /// <summary>
     /// Gets or sets the current animation clip being played by this entity.
     /// </summary>
-    public AnimationClip CurrentClip {
+    public AnimationClip CurrentClip
+    {
         get => currentClip;
         set
         {
@@ -79,7 +80,7 @@ public class AnimatedEntity : Entity
                 previousClip = currentClip;
                 previousTimeValue = currentTimeValue;
                 Array.Copy(keyFrameTransforms, previousFrameTransforms, keyFrameTransforms.Length);
-                
+
                 isTransitioning = true;
                 transitionElapsedTime = TimeSpan.Zero;
             }
@@ -119,16 +120,16 @@ public class AnimatedEntity : Entity
     private Pose GetInterpolatedPose(int boneIndex, TimeSpan time, AnimationClip clip)
     {
         var keyframes = clip.Keyframes;
-        
+
         // Find the keyframes that bracket the current time
         Keyframe previousKeyframe = null;
         Keyframe nextKeyframe = null;
-        
+
         for (int i = 0; i < keyframes.Count; i++)
         {
             var keyframe = keyframes[i];
             if (keyframe.Index != boneIndex) continue;
-            
+
             if (keyframe.Time <= time)
             {
                 previousKeyframe = keyframe;
@@ -139,13 +140,13 @@ public class AnimatedEntity : Entity
                 break;
             }
         }
-        
+
         // If we only have one keyframe or no keyframes, return identity or the single keyframe
         if (previousKeyframe == null && nextKeyframe == null)
         {
             return Pose.Identity;
         }
-        
+
         if (previousKeyframe != null && nextKeyframe == null)
         {
             // Only previous keyframe exists
@@ -156,7 +157,7 @@ public class AnimatedEntity : Entity
                 Scale = previousKeyframe.Scale
             };
         }
-        
+
         if (previousKeyframe == null && nextKeyframe != null)
         {
             // Only next keyframe exists
@@ -167,31 +168,31 @@ public class AnimatedEntity : Entity
                 Scale = nextKeyframe.Scale
             };
         }
-        
+
         // Both keyframes exist - interpolate between them
         var timeDifference = nextKeyframe.Time - previousKeyframe.Time;
         var timeProgress = time - previousKeyframe.Time;
-        
-        float blendFactor = timeDifference.TotalMilliseconds > 0 
-            ? (float)(timeProgress.TotalMilliseconds / timeDifference.TotalMilliseconds) 
+
+        float blendFactor = timeDifference.TotalMilliseconds > 0
+            ? (float)(timeProgress.TotalMilliseconds / timeDifference.TotalMilliseconds)
             : 0f;
-        
+
         blendFactor = MathHelper.Clamp(blendFactor, 0f, 1f);
-        
+
         var prevPose = new Pose
         {
             Translation = previousKeyframe.Translation,
             Rotation = previousKeyframe.Orientation,
             Scale = previousKeyframe.Scale
         };
-        
+
         var nextPose = new Pose
         {
             Translation = nextKeyframe.Translation,
             Rotation = nextKeyframe.Orientation,
             Scale = nextKeyframe.Scale
         };
-        
+
         return Pose.Slerp(prevPose, nextPose, blendFactor);
     }
 
@@ -240,7 +241,7 @@ public class AnimatedEntity : Entity
         {
             // Update transition time
             transitionElapsedTime += time - (currentTimeValue - time);
-            
+
             if (transitionElapsedTime >= animationTransitionDuration)
             {
                 // Transition complete
@@ -252,14 +253,14 @@ public class AnimatedEntity : Entity
                 // Calculate blend factor (0 = fully previous, 1 = fully current)
                 float blendFactor = (float)(transitionElapsedTime.TotalMilliseconds / animationTransitionDuration.TotalMilliseconds);
                 blendFactor = MathHelper.Clamp(blendFactor, 0f, 1f);
-                
+
                 // Get poses from previous animation
                 var previousPoses = new Pose[keyFrameTransforms.Length];
                 for (int i = 0; i < previousPoses.Length; i++)
                 {
                     previousPoses[i] = GetInterpolatedPose(i, previousTimeValue, previousClip);
                 }
-                
+
                 // Blend between previous and current poses
                 for (int i = 0; i < keyFrameTransforms.Length; i++)
                 {

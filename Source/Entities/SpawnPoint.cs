@@ -14,6 +14,6 @@ public class SpawnPoint : Entity
 
     public override void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
     {
-       // Draw nothing for spawn points
+        // Draw nothing for spawn points
     }
 }

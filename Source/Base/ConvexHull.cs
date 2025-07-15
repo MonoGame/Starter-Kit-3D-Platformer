@@ -190,7 +190,7 @@ public class ConvexHull
                 contactNormal = normal;
             }
         }
-        
+
         return true;
     }
 }

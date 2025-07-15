@@ -43,7 +43,7 @@ public class Entity
             var modelData = model.Tag as ModelData;
             if (modelData?.CollisionData?.Count > 0)
                 _collisionMesh = new CollisionMesh(this, model, modelData.CollisionData, modelData.BoundingBox);
-            
+
             MeshTransforms = new Matrix[model.Bones.Count];
             for (int i = 0; i < model.Bones.Count; i++)
                 MeshTransforms[i] = Matrix.Identity;
@@ -72,7 +72,7 @@ public class Entity
     {
         // Update the world matrix based on position, rotation, and scale
         WorldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateFromQuaternion(Rotation) * Matrix.CreateTranslation(Position);
-        
+
         // Update the world bounding box
         if (_collisionMesh != null)
             _collisionMesh.UpdateWorldCollisionMesh();
@@ -97,7 +97,7 @@ public class Entity
         return _collisionMesh.Intersects(other._collisionMesh, out contactNormal, out penetrationDepth);
     }
 
-    public virtual bool Dead ()
+    public virtual bool Dead()
     {
         // Check if the entity is dead (e.g., out of bounds)
         return Position.Y < -1000; // Example threshold for "dead"
@@ -109,7 +109,7 @@ public class Entity
             return;
 
         if (_collisionMesh != null)
-            _collisionMesh.Draw(graphicsDevice, camera);        
+            _collisionMesh.Draw(graphicsDevice, camera);
     }
 
     public virtual void DrawBillboards(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)

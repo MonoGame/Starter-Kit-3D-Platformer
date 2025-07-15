@@ -16,7 +16,7 @@ public class JumpPad : AnimatedEntity
 
     private SoundEffect _sound;
 
-    public JumpPad(Model model, ContentManager content) 
+    public JumpPad(Model model, ContentManager content)
         : base(model, content)
     {
         IsBlockingMovement = false;

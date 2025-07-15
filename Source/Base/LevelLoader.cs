@@ -18,7 +18,7 @@ public class LevelLoader
     public LevelLoader(ContentManager content)
     {
         _content = content;
-        _assetMap = new ()
+        _assetMap = new()
         {
             ["platform-falling"] = (model, content) => new FallingPlatform(model, content),
             ["platform-moving"] = (model, content) => new MovingPlatform(model, content),

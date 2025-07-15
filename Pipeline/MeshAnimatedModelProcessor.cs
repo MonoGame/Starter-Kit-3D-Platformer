@@ -18,7 +18,7 @@ class MeshAnimatedModelProcessor : ModelProcessor
     {
         MeshAnimatedModelHelper.FlattenAnimationKeyframes(input);
 
-        var content = base.Process(input, context); 
+        var content = base.Process(input, context);
 
         var clips = MeshAnimatedModelHelper.ProcessNodeAnimations(input, content.Bones);
 
@@ -30,7 +30,7 @@ class MeshAnimatedModelProcessor : ModelProcessor
         {
             foreach (var vertex in hull.Vertices)
             {
-                 allVertices.Add(vertex);
+                allVertices.Add(vertex);
             }
         }
         // create a coarse bounding box from all vertices

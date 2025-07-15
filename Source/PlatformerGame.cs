@@ -28,8 +28,8 @@ public class PlatformerGame : Game
         ShowMetrics = 1 << 2,
         ShowAll = ShowCollisionMesh | ShowRenderTargets | ShowMetrics
     }
-    #endif
-    
+#endif
+
     private GameState _currentState = GameState.SplashScreen;
     private Texture2D _splashTexture;
     private Texture2D _coinTexture;
@@ -38,7 +38,7 @@ public class PlatformerGame : Game
     private readonly Color _skyColor = new Color(0.752941f, 0.776471f, 0.827451f);
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    
+
     /// <summary>
     /// A scale to gameplay time for debugging.
     /// </summary>
@@ -56,15 +56,15 @@ public class PlatformerGame : Game
     private Player _player;
 
     private Goal _goal;
-    private Dust _dust; 
+    private Dust _dust;
     private PostProcessor _postProcessor;
     private ShadowProcessor _shadowProcessor;
 
     private SoundEffectInstance _song;
 
-    #if DEVMODE
+#if DEVMODE
     private DebugFlags _debugFlags = DebugFlags.None;
-    #endif
+#endif
 
     private KeyboardState _previousKeyboardState = new KeyboardState();
 
@@ -93,7 +93,7 @@ public class PlatformerGame : Game
     protected override void Initialize()
     {
         base.Initialize();
-        
+
     }
 
     protected override void LoadContent()
@@ -117,9 +117,9 @@ public class PlatformerGame : Game
         _song.Volume = 0.0f;
         _song.Play();
 
-        LoadLevel ();
+        LoadLevel();
     }
-    
+
     string[] levels = new string[]
     {
         "level1",
@@ -184,7 +184,7 @@ public class PlatformerGame : Game
         var gamePadState = GamePad.GetState(PlayerIndex.One);
         if (gamePadState.Buttons.Back == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Escape))
             Exit();
-            
+
         if (currentKeyboardState.IsKeyDown(Keys.LeftAlt))
         {
             if (currentKeyboardState.IsKeyDown(Keys.Enter) && _previousKeyboardState.IsKeyUp(Keys.Enter))
@@ -241,76 +241,76 @@ public class PlatformerGame : Game
         }
 #endif
 
-            // TODO: Add your update logic here
-            switch (_currentState)
-            {
-                case GameState.SplashScreen:
-                case GameState.LoadingScreen:
-                    // Handle splash screen logic
-                    _splashTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        // TODO: Add your update logic here
+        switch (_currentState)
+        {
+            case GameState.SplashScreen:
+            case GameState.LoadingScreen:
+                // Handle splash screen logic
+                _splashTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-                    // Transition to main scene after SplashDuration seconds
-                    if (_splashTimer >= SplashDurationInSeconds)
+                // Transition to main scene after SplashDuration seconds
+                if (_splashTimer >= SplashDurationInSeconds)
+                {
+                    _currentState = GameState.MainScene;
+                }
+                break;
+
+            case GameState.MainScene:
+                // Handle main scene logic
+                // 
+
+                // We use a scaled time here mostly for testing/debugging.
+                var scaledTime = new GameTime(gameTime.TotalGameTime,
+                    TimeSpan.FromSeconds(gameTime.ElapsedGameTime.TotalSeconds * TimeScale));
+
+                _player.Forward = _camera.ForwardDirection;
+                _player.Update(scaledTime);
+                _dust.Update(scaledTime);
+
+                // TODO: This should be cleaner... maybe a pre-update/collision call?
+                _player.IsGrounded = false;
+
+                foreach (var entity in _entities)
+                {
+                    entity.Update(scaledTime);
+                    entity.CheckCollision(_player);
+                    _player.CheckCollision(entity);
+                    if (entity.Dead())
                     {
-                        _currentState = GameState.MainScene;
+                        _entitiesToRemove.Enqueue(entity);
                     }
-                    break;
+                }
+                while (_entitiesToRemove.Count > 0)
+                {
+                    var entity = _entitiesToRemove.Dequeue();
+                    _entities.Remove(entity);
+                }
 
-                case GameState.MainScene:
-                    // Handle main scene logic
-                    // 
+                if (_player.Dead())
+                {
+                    _currentState = GameState.SplashScreen;
+                    _splashTimer = 0f; // Reset splash timer
+                    LoadLevel(); // Reload the level
+                }
+                else if (_player.IsMoving && _player.IsGrounded)
+                {
+                    _dust.AddDust(scaledTime, _player.Position);
+                }
 
-                    // We use a scaled time here mostly for testing/debugging.
-                    var scaledTime = new GameTime(gameTime.TotalGameTime,
-                        TimeSpan.FromSeconds(gameTime.ElapsedGameTime.TotalSeconds * TimeScale));
+                _camera.Target = _player.Position;
+                _camera.Update(scaledTime);
+                _shadowProcessor.TargetPosition = _player.Position;
 
-                    _player.Forward = _camera.ForwardDirection;
-                    _player.Update(scaledTime);
-                    _dust.Update(scaledTime);
+                if (_goal.Complete)
+                {
+                    _currentState = GameState.SplashScreen;
+                    _splashTimer = 0f; // Reset splash timer
+                    LoadNextLevel(); // Reload the level
+                }
 
-                    // TODO: This should be cleaner... maybe a pre-update/collision call?
-                    _player.IsGrounded = false;
-
-                    foreach (var entity in _entities)
-                    {
-                        entity.Update(scaledTime);
-                        entity.CheckCollision(_player);
-                        _player.CheckCollision(entity);
-                        if (entity.Dead())
-                        {
-                            _entitiesToRemove.Enqueue(entity);
-                        }
-                    }
-                    while (_entitiesToRemove.Count > 0)
-                    {
-                        var entity = _entitiesToRemove.Dequeue();
-                        _entities.Remove(entity);
-                    }
-
-                    if (_player.Dead())
-                    {
-                        _currentState = GameState.SplashScreen;
-                        _splashTimer = 0f; // Reset splash timer
-                        LoadLevel(); // Reload the level
-                    }
-                    else if (_player.IsMoving && _player.IsGrounded)
-                    {
-                        _dust.AddDust(scaledTime, _player.Position);
-                    }
-
-                    _camera.Target = _player.Position;
-                    _camera.Update(scaledTime);
-                    _shadowProcessor.TargetPosition = _player.Position;
-
-                    if (_goal.Complete)
-                    {
-                        _currentState = GameState.SplashScreen;
-                        _splashTimer = 0f; // Reset splash timer
-                        LoadNextLevel(); // Reload the level
-                    }
-
-                    break;
-            }
+                break;
+        }
 
         base.Update(gameTime);
 
@@ -324,7 +324,7 @@ public class PlatformerGame : Game
         // The scale is based on the original resolution of 1280x720.
         _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(scale.X, scale.Y, 0f) * Matrix.CreateTranslation(new Vector3(rect.X, rect.Y, 0)));
 
-        _spriteBatch.Draw (_coinTexture, new Rectangle (10, 10, 100, 100), Color.White);
+        _spriteBatch.Draw(_coinTexture, new Rectangle(10, 10, 100, 100), Color.White);
         _spriteBatch.DrawString(_font, $"{_player.Score}", new Vector2(110, 30), Color.White);
         if (_goal.GoalReached)
         {
@@ -459,7 +459,7 @@ public class PlatformerGame : Game
                 // Draw all 2D particle effects.
                 {
                     // Enable alpha blending and disable depth writing (but keep depth testing)
-                    _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend,SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
+                    _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
                     foreach (var entity in _entities)
                     {
                         entity.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
