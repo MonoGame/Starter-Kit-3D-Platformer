@@ -196,20 +196,20 @@ public class PlatformerGame : Game
 
         // Handle debug flags toggling
 #if DEVMODE
-        if (currentKeyboardState.IsKeyDown(Keys.F1) && _previousKeyboardState.IsKeyUp(Keys.F1))
-        {
-            _debugFlags ^= DebugFlags.ShowCollisionMesh;
-        }
-        if (currentKeyboardState.IsKeyDown(Keys.F2) && _previousKeyboardState.IsKeyUp(Keys.F2))
-        {
-            _debugFlags ^= DebugFlags.ShowRenderTargets;
-        }
-        if (currentKeyboardState.IsKeyDown(Keys.F3) && _previousKeyboardState.IsKeyUp(Keys.F3))
-        {
-            _debugFlags ^= DebugFlags.ShowMetrics;
-        }
         if (currentKeyboardState.IsKeyDown(Keys.LeftControl) || currentKeyboardState.IsKeyDown(Keys.RightControl))
         {
+            if (currentKeyboardState.IsKeyDown(Keys.F1) && _previousKeyboardState.IsKeyUp(Keys.F1))
+            {
+                _debugFlags ^= DebugFlags.ShowCollisionMesh;
+            }
+            if (currentKeyboardState.IsKeyDown(Keys.F2) && _previousKeyboardState.IsKeyUp(Keys.F2))
+            {
+                _debugFlags ^= DebugFlags.ShowRenderTargets;
+            }
+            if (currentKeyboardState.IsKeyDown(Keys.F3) && _previousKeyboardState.IsKeyUp(Keys.F3))
+            {
+                _debugFlags ^= DebugFlags.ShowMetrics;
+            }
             if (currentKeyboardState.IsKeyDown(Keys.OemPlus) && _previousKeyboardState.IsKeyUp(Keys.OemPlus))
             {
                 TimeScale += 0.1f; // Increase time scale by 0.1x
