@@ -25,6 +25,8 @@ public class PlatformerGame : Game
         None = 0,
         ShowCollisionMesh = 1 << 0,
         ShowRenderTargets = 1 << 1,
+        ShowMetrics = 1 << 2,
+        ShowAll = ShowCollisionMesh | ShowRenderTargets | ShowMetrics
     }
     #endif
     
@@ -43,6 +45,7 @@ public class PlatformerGame : Game
     public static float TimeScale = 1f;
 
     private SpriteFont _font;
+    private SpriteFont _debugFont;
 
     private List<Entity> _entities = new List<Entity>();
     private Queue<Entity> _entitiesToRemove = new Queue<Entity>();
@@ -106,6 +109,7 @@ public class PlatformerGame : Game
         _splashTexture = Content.Load<Texture2D>("splash-screen");
         _coinTexture = Content.Load<Texture2D>("Textures/coin");
         _font = Content.Load<SpriteFont>("Font/hud");
+        _debugFont = Content.Load<SpriteFont>("Font/debug");
         _dust = new Dust(Content.Load<Model>("Models/dust"), Content);
 
         _song = Content.Load<SoundEffect>("Sounds/bright").CreateInstance();
@@ -199,6 +203,10 @@ public class PlatformerGame : Game
         if (currentKeyboardState.IsKeyDown(Keys.F2) && _previousKeyboardState.IsKeyUp(Keys.F2))
         {
             _debugFlags ^= DebugFlags.ShowRenderTargets;
+        }
+        if (currentKeyboardState.IsKeyDown(Keys.F3) && _previousKeyboardState.IsKeyUp(Keys.F3))
+        {
+            _debugFlags ^= DebugFlags.ShowMetrics;
         }
         if (currentKeyboardState.IsKeyDown(Keys.LeftControl) || currentKeyboardState.IsKeyDown(Keys.RightControl))
         {
@@ -309,7 +317,7 @@ public class PlatformerGame : Game
         _previousKeyboardState = currentKeyboardState;
     }
 
-    void DrawHud(Rectangle rect, Vector2 scale)
+    void DrawHud(GameTime gameTime, Rectangle rect, Vector2 scale)
     {
         // Apply a globl scale to make sure all the HUD elements are scaled correctly
         // This is useful for different screen resolutions and aspect ratios.
@@ -323,6 +331,19 @@ public class PlatformerGame : Game
             var textSize = _font.MeasureString("Level Complete!");
             _spriteBatch.DrawString(_font, "Level Complete!", new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), (GameConstants.BASE_RESOLUTION_HEIGHT / 2) - (textSize.Y / 2)), Color.White);
         }
+#if DEVMODE
+        if (_debugFlags.HasFlag(DebugFlags.ShowMetrics))
+        {
+            // Draw any additional metrics here
+            _spriteBatch.DrawString(_debugFont, $"FPS: {1f / (float)gameTime.ElapsedGameTime.TotalSeconds:0.00}", new Vector2(10, 110), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Time Scale: {TimeScale:0.00}", new Vector2(10, 130), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Entities: {_entities.Count}", new Vector2(10, 150), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Clear: {GraphicsDevice.Metrics.ClearCount}", new Vector2(10, 170), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Draw: {GraphicsDevice.Metrics.DrawCount}", new Vector2(10, 190), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Primitives: {GraphicsDevice.Metrics.PrimitiveCount}", new Vector2(10, 210), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Sprites: {GraphicsDevice.Metrics.SpriteCount}", new Vector2(10, 230), Color.White);
+        }
+#endif
         _spriteBatch.End();
     }
 
@@ -449,7 +470,7 @@ public class PlatformerGame : Game
                 _postProcessor.EndScene();
 
                 // Draw the score etc.
-                DrawHud(screenRect, uiScale);
+                DrawHud(gameTime, screenRect, uiScale);
 #if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowRenderTargets))
                 {
