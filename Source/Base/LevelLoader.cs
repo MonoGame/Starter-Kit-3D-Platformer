@@ -21,6 +21,7 @@ public class LevelLoader
         _assetMap = new ()
         {
             ["platform-falling"] = (model, content) => new FallingPlatform(model, content),
+            ["platform-moving"] = (model, content) => new MovingPlatform(model, content),
             ["coin"] = (model, content) => new Coin(model, content),
             ["platform"] = (model, content) => new Platform(model, content),
             ["platform-medium"] = (model, content) => new Platform(model, content),
