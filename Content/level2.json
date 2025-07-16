@@ -808,6 +808,6 @@
             1.0
         ],
         "collidable": true,
-        "jumpforce": 4.0
+        "jumpforce": 4.5
     }
 ]

@@ -724,7 +724,7 @@
             1.0
         ],
         "collidable": true,
-        "jumpforce": 2.0
+        "jumpforce": 2.2
     },
     {
         "name": "coin.022",

@@ -142,13 +142,15 @@ public class Player : AnimatedEntity
                 if (IsJumping)
                 {
                     _landSound.Play();
-                    _landVelocity = Math.Max(-(_velocity.Y + _physicsForce.Y), 0.0f);
+                    _landVelocity = Math.Clamp(-(_velocity.Y + _physicsForce.Y), 0.0f, GameConstants.PLAYER_MAX_FALL_SPEED);
                     IsJumping = false;
                 }
 
                 _jumpCount = 0; // Reset jump count when landing
                 _currentShadowDistance = 0f; // Reset shadow distance when landing                 
                 IsGrounded = true;
+                _velocity.Y = 0.0f;
+                _physicsForce.Y = 0.0f;
 
                 // This keeps the player from sliding when on
                 // the ground from the collision resolve force.
@@ -209,8 +211,14 @@ public class Player : AnimatedEntity
     public void AddForce(Vector3 force)
     {
         _physicsForce += force;
+
         if (_physicsForce.Y > 0)
+        {
+            _velocity.Y = 0.0f;
             IsGrounded = false;
+            PlayAnimation("jump");
+            IsJumping = true;
+        }
     }
 
     public override void Update(GameTime gameTime)
@@ -324,6 +332,9 @@ public class Player : AnimatedEntity
             _velocity.Y = Math.Max(_velocity.Y, 0) + GameConstants.PLAYER_JUMP_FORCE;
             _landVelocity = 0.0f;
 
+            // A jump reduces the physics force by 50%.
+            _physicsForce *= 0.5f;
+
             IsJumping = true;
             _jumpCount++;
             PlayAnimation("jump");
@@ -352,7 +363,8 @@ public class Player : AnimatedEntity
         // Apply velocity to position with time-based movement.
         Position += totalVelocity * deltaTime;
 
-        float PhysicsDrag = 0.5f;
+        // Remove out the physics forces over time.
+        float PhysicsDrag = 0.75f;
         _physicsForce = Vector3.Lerp(_physicsForce, Vector3.Zero, PhysicsDrag * deltaTime);
 
         // Store current keyboard state for next frame
