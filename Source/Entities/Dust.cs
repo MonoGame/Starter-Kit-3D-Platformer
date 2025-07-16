@@ -22,7 +22,7 @@ public class Dust : Entity
     private const float DustRotationSpeed = 0.1f; // Adjust the rotation speed as needed
     private const float DustLifetime = 1.0f; // Lifetime in seconds
     private float lastDustAddedTime = 0f;
-    private const float DustInterval = 0.08f; // Time interval between dust particles
+    private const float DustInterval = 0.05f; // Time interval between dust particles
     public Dust(Model model, ContentManager contentManager) : base(model, contentManager)
     {
         // Initialize dust particles
@@ -44,8 +44,9 @@ public class Dust : Entity
         {
             if (_dustParticles[i].Age < 0)
             {
-                position.X += Random.Shared.NextSingle() * 10f - 5f; // Randomize X position
-                position.Y += Random.Shared.NextSingle() * 10f - 5f; // Randomize Y position
+                position.X += Random.Shared.NextSingle() * 20f - 10f;
+                position.Y += Random.Shared.NextSingle() * 10f - 5f;
+                position.Z += Random.Shared.NextSingle() * 20f - 10f;
                 _dustParticles[i] = new DustParticle() { Position = position, Age = 0f };
                 lastDustAddedTime = 0f;
                 return;
