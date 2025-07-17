@@ -44,11 +44,6 @@ public class Player : AnimatedEntity
     // Used to animate the player scale during jumps, falls, and landings.
     private Vector3 _scaleAnimation = Vector3.One;
 
-    // 3D shadow quad resources
-    private VertexBuffer _shadowVertexBuffer;
-    private IndexBuffer _shadowIndexBuffer;
-    private BasicEffect _shadowEffect;
-
     private GraphicsDevice _graphicsDevice;
 
     public Player(GraphicsDevice graphicsDevice, Model model, ContentManager contentManager) : base(model, contentManager)
