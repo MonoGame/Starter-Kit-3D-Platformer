@@ -11,6 +11,7 @@ Includes features like;
 - Collectable coins and falling platforms
 - Camera controls (rotate, zoom)
 - Gamepad support
+- Basic Convex Hull Collision System
 - Uses Blender for Level Editing
 - Sprites and 3D Models _(CC0 licensed)_
 - Sound effects _(CC0 licensed)_
