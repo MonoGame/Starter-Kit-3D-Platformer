@@ -10,17 +10,32 @@ using Microsoft.Xna.Framework.Graphics;
 public class ShadowProcessor
 {
     private GraphicsDevice _graphicsDevice;
-    private RenderTarget2D _shadowMap;
     private Effect _shadowEffect;
     private SpriteBatch _spriteBatch;
+    private readonly RenderTarget2D[] _shadowMaps = new RenderTarget2D[2];
 
     // Light properties
     public Vector3 LightDirection { get; set; }
-    public Vector3 LightPosition
+
+    /// <summary>
+    /// The sun light position.
+    /// </summary>
+    public Vector3 LightPosition0
     {
         get
         {
             return TargetPosition + (LightDirection * 800.0f);
+        }
+    }
+
+    /// <summary>
+    /// The placement light position used for players/enemies/coins.
+    /// </summary>
+    public Vector3 LightPosition1
+    {
+        get
+        {
+            return TargetPosition + (Vector3.Up * 800.0f);
         }
     }
 
@@ -33,8 +48,10 @@ public class ShadowProcessor
     public Vector3 UpVector { get; set; } = Vector3.Up;
 
     // Matrices
-    private Matrix _lightViewMatrix;
+    private readonly Matrix[] _lightViewMatrix = new Matrix[2];
     private Matrix _lightProjectionMatrix;
+
+    private int _shadowIndex;
 
     // Shadow map resolution
     private int _shadowMapSize = 2048;
@@ -51,19 +68,24 @@ public class ShadowProcessor
         Shininess = 0.0f;
         SunColor = new Vector3(1.0f, 0.9f, 0.9f);
         SunIntensity = 1.1f;
-
-        // Set up default light matrices
-        UpdateLightMatrices();
     }
 
     private void CreateRenderTargets()
     {
-        _shadowMap = new RenderTarget2D(
+        _shadowMaps[0] = new RenderTarget2D(
             _graphicsDevice,
             _shadowMapSize,
             _shadowMapSize,
             false,
-            SurfaceFormat.Single, // Use Single for higher precision depth values
+            SurfaceFormat.Single,
+            DepthFormat.Depth24);
+
+        _shadowMaps[1] = new RenderTarget2D(
+            _graphicsDevice,
+            _shadowMapSize,
+            _shadowMapSize,
+            false,
+            SurfaceFormat.Single,
             DepthFormat.Depth24);
     }
 
@@ -75,23 +97,30 @@ public class ShadowProcessor
     private void UpdateLightMatrices()
     {
         // Create view matrix from light's perspective
-        _lightViewMatrix = Matrix.CreateLookAt(
-            LightPosition,
+        _lightViewMatrix[0] = Matrix.CreateLookAt(
+            LightPosition0,
             TargetPosition, // look at target
             UpVector);
+
+        _lightViewMatrix[1] = Matrix.CreateLookAt(
+            LightPosition1,
+            TargetPosition,
+            Vector3.Forward);
 
         // Create orthographic projection for directional light
         _lightProjectionMatrix = Matrix.CreateOrthographic(
             2048, 2048, 0.1f, 5000f);
     }
 
-    public void BeginShadowMapPass()
+    public void BeginShadowMapPass(int index)
     {
+        _shadowIndex = index;
+
         // Update light matrices based on current light position.
         UpdateLightMatrices();
 
         // Set render target to shadow map.
-        _graphicsDevice.SetRenderTarget(_shadowMap);
+        _graphicsDevice.SetRenderTargets(_shadowMaps[index]);
 
         // Clear with white (meaning far depth).
         _graphicsDevice.Clear(Color.White);
@@ -111,13 +140,13 @@ public class ShadowProcessor
             return;
 
         // Set the state needed to draw to the shadow map.
-        _graphicsDevice.BlendState = BlendState.Opaque;
         _graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
         _graphicsDevice.DepthStencilState = DepthStencilState.Default;
+        _graphicsDevice.BlendState = BlendState.Opaque;
 
         var world = entity.WorldMatrix;
 
-        var modelToLight = _shadowEffect.Parameters["ModelToLight"];
+        var modelToLight = _shadowEffect.Parameters["ModelToLight0"];
         var passes = _shadowEffect.CurrentTechnique.Passes;
 
         Matrix[] transforms = new Matrix[model.Bones.Count];
@@ -126,7 +155,7 @@ public class ShadowProcessor
         {
             var meshWorld = transforms[mesh.ParentBone.Index] * entity.MeshTransforms[mesh.ParentBone.Index] * world;
 
-            modelToLight.SetValue(meshWorld * _lightViewMatrix * _lightProjectionMatrix);
+            modelToLight.SetValue(meshWorld * _lightViewMatrix[_shadowIndex] * _lightProjectionMatrix);
 
             foreach (ModelMeshPart part in mesh.MeshParts)
             {
@@ -180,19 +209,28 @@ public class ShadowProcessor
         var view = camera.ViewMatrix;
         var world = entity.WorldMatrix;
 
-        var lp = Vector3.Normalize(Vector3.TransformNormal(LightPosition, view));
+        var lp0 = Vector3.Normalize(Vector3.TransformNormal(LightPosition0, view));
+        var lp1 = Vector3.Normalize(Vector3.TransformNormal(LightPosition1, view));
 
         Effect effect = _shadowEffect;
         effect.CurrentTechnique = effect.Techniques["RenderTextured"];
-        effect.Parameters["LightPosition"]?.SetValue(lp);
+        effect.Parameters["LightPosition0"]?.SetValue(lp0);
+        effect.Parameters["LightPosition1"]?.SetValue(lp1);
         effect.Parameters["LightColor"]?.SetValue(SunColor * SunIntensity);
         effect.Parameters["AmbientIntensity"]?.SetValue(0.8f);
         effect.Parameters["Color"]?.SetValue(color.ToVector4());
         effect.Parameters["SpecularIntensity"]?.SetValue(entity.SpecularIntensity);
         effect.Parameters["Shininess"]?.SetValue(entity.Shininess);
-        effect.Parameters["ShadowMap"]?.SetValue(_shadowMap);
+        effect.Parameters["ShadowMap0"]?.SetValue(_shadowMaps[0]);
+        effect.Parameters["ShadowMap1"]?.SetValue(_shadowMaps[1]);
         effect.Parameters["EdgeFadeScale"]?.SetValue(10.0f);
-        effect.Parameters["ShadowMap"]?.SetValue(_shadowMap);
+
+        // Don't render placement shadows on to an entity that
+        // is casting a placement shadow... it looks odd.
+        var shadowMask = Vector2.One;
+        if (entity.CastPlacementShadow)
+            shadowMask.Y = 0;
+        effect.Parameters["ShadowMask"]?.SetValue(shadowMask);
 
         Matrix[] transforms = new Matrix[model.Bones.Count];
         model.CopyAbsoluteBoneTransformsTo(transforms);
@@ -204,7 +242,8 @@ public class ShadowProcessor
             // Calculate all the necessary matrices
             Matrix worldViewMatrix = meshWorld * view;
             Matrix worldViewProjMatrix = meshWorld * view * camera.ProjectionMatrix;
-            Matrix lightWorldViewProjMatrix = meshWorld * _lightViewMatrix * _lightProjectionMatrix;
+            Matrix lightWorldViewProjMatrix0 = meshWorld * _lightViewMatrix[0] * _lightProjectionMatrix;
+            Matrix lightWorldViewProjMatrix1 = meshWorld * _lightViewMatrix[1] * _lightProjectionMatrix;
 
             // Calculate normal matrix (inverse transpose of the world-view matrix)
             Matrix temp = worldViewMatrix;
@@ -213,7 +252,8 @@ public class ShadowProcessor
 
             effect.Parameters["NormalToView"]?.SetValue(worldViewIT);
             effect.Parameters["ModelToScreen"]?.SetValue(worldViewProjMatrix);
-            effect.Parameters["ModelToLight"]?.SetValue(lightWorldViewProjMatrix);
+            effect.Parameters["ModelToLight0"]?.SetValue(lightWorldViewProjMatrix0);
+            effect.Parameters["ModelToLight1"]?.SetValue(lightWorldViewProjMatrix1);
             effect.Parameters["ModelToView"]?.SetValue(worldViewMatrix);
 
             foreach (ModelMeshPart part in mesh.MeshParts)
@@ -237,8 +277,10 @@ public class ShadowProcessor
     // Optional: Utility method to visualize the shadow map for debugging
     public void DebugDrawShadowMap(Rectangle destination)
     {
-        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-        _spriteBatch.Draw(_shadowMap, destination, Color.White);
+        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+        _spriteBatch.Draw(_shadowMaps[0], destination, Color.White);
+        destination.Offset(destination.Width + 10, 0);
+        _spriteBatch.Draw(_shadowMaps[1], destination, Color.White);
         _spriteBatch.End();
     }
 }

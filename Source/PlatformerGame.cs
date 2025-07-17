@@ -383,10 +383,8 @@ public class PlatformerGame : Game
                     _drawList.Add(_player);
                     _drawList.Add(_dust);
 
-                    _shadowProcessor.BeginShadowMapPass();
-
                     // Draw closest to the camera first.
-                    var cameraPos = _shadowProcessor.LightPosition;
+                    var cameraPos = _shadowProcessor.LightPosition0;
                     _drawList.Sort((a, b) =>
                     {
                         var dista = Vector3.DistanceSquared(a.Position, cameraPos);
@@ -394,13 +392,14 @@ public class PlatformerGame : Game
                         return dista.CompareTo(distb);
                     });
 
+                    _shadowProcessor.BeginShadowMapPass(0);
                     foreach (var entity in _drawList)
-                    {
-                        if (entity.Model is null)
-                            continue;
-
-                        _shadowProcessor.DrawEntityToShadowMap(entity);
-                    }
+                        if (!entity.CastPlacementShadow)
+                            _shadowProcessor.DrawEntityToShadowMap(entity);
+                    _shadowProcessor.BeginShadowMapPass(1);
+                    foreach (var entity in _drawList)
+                        if (entity.CastPlacementShadow)
+                            _shadowProcessor.DrawEntityToShadowMap(entity);
 
                     _shadowProcessor.EndShadowMapPass();
                 }
@@ -443,7 +442,6 @@ public class PlatformerGame : Game
                         _shadowProcessor.DrawModelWithShadow(entity, _camera, true);
                     }
 
-                    _player.DrawShadow(GraphicsDevice, _camera);
                     _dust.Draw(GraphicsDevice, _spriteBatch, _camera);
                 }
 #if DEVMODE

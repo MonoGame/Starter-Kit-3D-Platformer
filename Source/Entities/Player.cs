@@ -37,13 +37,6 @@ public class Player : AnimatedEntity
     private SoundEffect _jumpSound;
     private SoundEffectInstance _landSound;
     private SoundEffectInstance _walkSound;
-    private Texture2D _shadowTexture;
-    private float _maxShadowDistance = 200f; // Maximum distance to cast ray for shadow
-    private Vector3 _shadowPosition = Vector3.Zero;
-    private float _shadowSize = 10.0f; // Base shadow size
-    private float _minShadowSize = 10.0f; // Minimum shadow size when far away
-    private float _maxShadowSize = 5.0f; // Maximum shadow size when close
-    private float _currentShadowDistance = 0f; // Current distance to the surface below
 
     // Used to do effects when the player lands from a fall/jump.
     private float _landVelocity = 0.0f;
@@ -67,8 +60,8 @@ public class Player : AnimatedEntity
         Rotation = Quaternion.Identity;
         _previousKeyboardState = Keyboard.GetState();
         _graphicsDevice = graphicsDevice;
-        // Initialize 3D shadow resources
-        InitializeShadowQuad();
+
+        CastPlacementShadow = true;
     }
 
     override protected void LoadContent()
@@ -78,45 +71,6 @@ public class Player : AnimatedEntity
         _jumpSound = Content.Load<SoundEffect>("Sounds/jump");
         _landSound = Content.Load<SoundEffect>("Sounds/land").CreateInstance();
         _walkSound = Content.Load<SoundEffect>("Sounds/walking").CreateInstance();
-        _shadowTexture = Content.Load<Texture2D>("Textures/blob_shadow");
-    }
-
-    private void InitializeShadowQuad()
-    {
-        // Create a BasicEffect for the shadow quad
-        _shadowEffect = new BasicEffect(_graphicsDevice);
-        _shadowEffect.TextureEnabled = true;
-        _shadowEffect.Texture = _shadowTexture;
-
-        // Enable alpha blending for transparency
-        _shadowEffect.Alpha = 0.5f;
-
-        // Create a quad on the X/Z plane
-        VertexPositionTexture[] vertices = new VertexPositionTexture[4];
-        float halfSize = _shadowSize / 2.0f;
-
-        // Create quad vertices on the XZ plane (Y = 0)
-        vertices[0] = new VertexPositionTexture(new Vector3(-halfSize, 0, -halfSize), new Vector2(0, 0));
-        vertices[1] = new VertexPositionTexture(new Vector3(halfSize, 0, -halfSize), new Vector2(1, 0));
-        vertices[2] = new VertexPositionTexture(new Vector3(-halfSize, 0, halfSize), new Vector2(0, 1));
-        vertices[3] = new VertexPositionTexture(new Vector3(halfSize, 0, halfSize), new Vector2(1, 1));
-
-        // Create vertex buffer
-        _shadowVertexBuffer = new VertexBuffer(
-            _graphicsDevice,
-            typeof(VertexPositionTexture),
-            4,
-            BufferUsage.WriteOnly);
-        _shadowVertexBuffer.SetData(vertices);
-
-        // Create index buffer (two triangles forming a quad)
-        short[] indices = { 0, 1, 2, 2, 1, 3 };
-        _shadowIndexBuffer = new IndexBuffer(
-            _graphicsDevice,
-            IndexElementSize.SixteenBits,
-            6,
-            BufferUsage.WriteOnly);
-        _shadowIndexBuffer.SetData(indices);
     }
 
     public override bool CheckCollision(Entity other)
@@ -147,7 +101,6 @@ public class Player : AnimatedEntity
                 }
 
                 _jumpCount = 0; // Reset jump count when landing
-                _currentShadowDistance = 0f; // Reset shadow distance when landing                 
                 IsGrounded = true;
                 _velocity.Y = 0.0f;
                 _physicsForce.Y = 0.0f;
@@ -176,36 +129,7 @@ public class Player : AnimatedEntity
             WorldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateFromQuaternion(Rotation) * Matrix.CreateTranslation(Position);
         }
 
-        // If we're over a platform, show shadow
-        if (other is Platform)
-        {
-            // Cast a ray downward to find the exact surface point
-            Vector3 rayStart = Position;
-            Vector3 rayDirection = Vector3.Down;
-
-            if (IsJumping && RayIntersectsEntity(rayStart, rayDirection, other, out float distance))
-            {
-                _shadowPosition = rayStart + rayDirection * distance;
-                _currentShadowDistance = distance; // Store the distance for shadow sizing
-            }
-        }
-
         return collision;
-    }
-
-    private bool RayIntersectsEntity(Vector3 rayOrigin, Vector3 rayDirection, Entity entity, out float distance)
-    {
-        // TODO: Use the convex here!
-
-        // Ray-box intersection test
-        distance = 0f;
-        Ray ray = new Ray(rayOrigin, rayDirection);
-        var bb = entity.BoundingBox;
-        var d = ray.Intersects(bb);
-        if (!d.HasValue)
-            return false;
-        distance = d.Value;
-        return distance <= _maxShadowDistance;
     }
 
     public void AddForce(Vector3 force)
@@ -406,56 +330,5 @@ public class Player : AnimatedEntity
         }
 
         base.Update(gameTime);
-    }
-
-    public void DrawShadow(GraphicsDevice graphicsDevice, Camera camera)
-    {
-        if (!IsJumping)
-            return;
-
-        // Calculate shadow size based on distance
-        // The closer to the surface, the smaller the shadow, we want is to disappear when its close to the surface
-        float distanceFactor = MathHelper.Clamp(1.0f - (_currentShadowDistance / _maxShadowDistance), 0.0f, 1.0f);
-        float dynamicShadowSize = MathHelper.Lerp(_minShadowSize, _maxShadowSize, distanceFactor);
-
-        // Create a world matrix that positions the shadow quad where the ray hit
-        // Add a small Y offset to prevent Z-fighting with the platform
-        Vector3 shadowPos = _shadowPosition + new Vector3(0, 0.05f, 0);
-        Matrix shadowWorld = Matrix.CreateScale(dynamicShadowSize) * Matrix.CreateTranslation(shadowPos);
-
-        // Set up the effect with camera matrices
-        _shadowEffect.World = shadowWorld;
-        _shadowEffect.View = camera.ViewMatrix;
-        _shadowEffect.Projection = camera.ProjectionMatrix;
-
-        // Set render states for transparency
-        graphicsDevice.BlendState = BlendState.AlphaBlend;
-        graphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-
-        // Apply the effect for rendering
-        foreach (EffectPass pass in _shadowEffect.CurrentTechnique.Passes)
-        {
-            pass.Apply();
-
-            // Set the vertex and index buffers
-            graphicsDevice.SetVertexBuffer(_shadowVertexBuffer);
-            graphicsDevice.Indices = _shadowIndexBuffer;
-
-            // Draw the quad
-            graphicsDevice.DrawIndexedPrimitives(
-                PrimitiveType.TriangleList,
-                0,
-                0,
-                2);  // 2 triangles in the quad
-        }
-    }
-
-    public override void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
-    {
-        // Draw the shadow (needs to be drawn before the model for proper transparency)
-        DrawShadow(graphicsDevice, camera);
-
-        // Draw the model
-        base.Draw(graphicsDevice, spriteBatch, camera);
     }
 }

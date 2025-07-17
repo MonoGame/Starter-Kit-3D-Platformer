@@ -56,7 +56,7 @@ public class Coin : BobingEntity
         TimeAccumilator = 0f;
         BobAmplitude = 20f;
         BobSpeed = 4f; // Speed of bobbing
-
+        CastPlacementShadow = true;
         //Shininess = 10f;
         //SpecularIntensity = 0.5f;
     }

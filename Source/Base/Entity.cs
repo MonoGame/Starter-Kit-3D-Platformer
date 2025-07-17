@@ -22,6 +22,11 @@ public class Entity
     public float SpecularIntensity = 0.5f; // Intensity of specular highlights
     public float Shininess = 16f; // Power of the specular highlights
 
+    /// <summary>
+    /// Render this entity into the top down shadow instead of the world shadow.
+    /// </summary>
+    public bool CastPlacementShadow;
+
     public BoundingBox BoundingBox => _collisionMesh.WorldBoundingBox; // World space bounding box
 
     protected ContentManager Content;
