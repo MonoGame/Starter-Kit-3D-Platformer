@@ -9,3 +9,4 @@ bin
 *.userprefs
 .DS_Store
 .mgstats
+.artifacts
