@@ -24,7 +24,7 @@ public class ShadowProcessor
     {
         get
         {
-            return TargetPosition + (LightDirection * 800.0f);
+            return TargetPosition + (LightDirection * 1500.0f);
         }
     }
 
@@ -35,7 +35,7 @@ public class ShadowProcessor
     {
         get
         {
-            return TargetPosition + (Vector3.Up * 800.0f);
+            return TargetPosition + (Vector3.Up * 1500.0f);
         }
     }
 
