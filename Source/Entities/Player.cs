@@ -161,26 +161,29 @@ public class Player : AnimatedEntity
         // Process movement inputs and convert to world-relative movement
         _moveDirection = Vector3.Zero;
 
-        var thumbstickLeft = gamePadState.ThumbSticks.Left;
-        if (thumbstickLeft.LengthSquared() > 0)
+        if (deltaTime > 0f)
         {
-            // Movement along the right vector
-            _moveDirection -= right * thumbstickLeft.X;
-            // Movement along the forward vector
-            _moveDirection += forward * thumbstickLeft.Y;
+            var thumbstickLeft = gamePadState.ThumbSticks.Left;
+            if (thumbstickLeft.LengthSquared() > 0)
+            {
+                // Movement along the right vector
+                _moveDirection -= right * thumbstickLeft.X;
+                // Movement along the forward vector
+                _moveDirection += forward * thumbstickLeft.Y;
+            }
+
+            if (currentKeyboardState.IsKeyDown(Keys.A))
+                _moveDirection += right;
+            if (currentKeyboardState.IsKeyDown(Keys.D))
+                _moveDirection -= right;
+            if (currentKeyboardState.IsKeyDown(Keys.W))
+                _moveDirection += forward;
+            if (currentKeyboardState.IsKeyDown(Keys.S))
+                _moveDirection -= forward;
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.A))
-            _moveDirection += right;
-        if (currentKeyboardState.IsKeyDown(Keys.D))
-            _moveDirection -= right;
-        if (currentKeyboardState.IsKeyDown(Keys.W))
-            _moveDirection += forward;
-        if (currentKeyboardState.IsKeyDown(Keys.S))
-            _moveDirection -= forward;
-
         // Normalize direction if we're moving
-        if (_moveDirection.LengthSquared() > 0)
+        if (_moveDirection.LengthSquared() > 0f)
         {
             if (IsGrounded)
             {
