@@ -104,10 +104,11 @@ public class CollisionMesh
         _worldBoundingBox = new BoundingBox(min, max);
     }
 
-    public bool Intersects(CollisionMesh other, out Vector3 contactNormal, out float penetrationDepth)
+    public bool Intersects(CollisionMesh other, out Contact contact)
     {
-        contactNormal = default(Vector3);
-        penetrationDepth = 0;
+        contact.point = default(Vector3);
+        contact.normal = default(Vector3);
+        contact.depth = 0;
 
         if (other == null)
             return false;
@@ -120,7 +121,7 @@ public class CollisionMesh
         {
             foreach (var hull2 in other._worldHulls)
             {
-                if (ConvexHull.Intersects(hull, hull2, out contactNormal, out penetrationDepth))
+                if (ConvexHull.Intersects(hull, hull2, out contact))
                     return true;
             }
         }

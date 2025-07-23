@@ -143,10 +143,28 @@ public class ConvexHull
         }
     }
 
-    public static bool Intersects(ConvexHull a, ConvexHull b, out Vector3 contactNormal, out float penetrationDepth)
+    static Vector3 GetSupportPoint(Vector3[] vertices, Vector3 direction)
     {
-        contactNormal = default(Vector3);
-        penetrationDepth = float.MaxValue;
+        float maxDot = float.NegativeInfinity;
+        Vector3 best = vertices[0];
+
+        foreach (var v in vertices)
+        {
+            float d = Vector3.Dot(v, direction);
+            if (d > maxDot)
+            {
+                maxDot = d;
+                best = v;
+            }
+        }
+        return best;
+    }
+
+    public static bool Intersects(ConvexHull a, ConvexHull b, out Contact contact)
+    {
+        contact.point = Vector3.Zero;
+        contact.normal = Vector3.Zero;
+        contact.depth = float.MaxValue;
 
         if (!a.AABB.Intersects(b.AABB))
             return false;
@@ -165,10 +183,10 @@ public class ConvexHull
             if (IsSeparatingAxis(normal, a.Vertices, b.Vertices, out float overlap))
                 return false;
 
-            if (overlap < penetrationDepth)
+            if (overlap < contact.depth)
             {
-                penetrationDepth = overlap;
-                contactNormal = normal;
+                contact.depth = overlap;
+                contact.normal = normal;
             }
         }
 
@@ -184,12 +202,17 @@ public class ConvexHull
             if (IsSeparatingAxis(normal, a.Vertices, b.Vertices, out float overlap))
                 return false;
 
-            if (overlap < penetrationDepth)
+            if (overlap < contact.depth)
             {
-                penetrationDepth = overlap;
-                contactNormal = normal;
+                contact.depth = overlap;
+                contact.normal = normal;
             }
         }
+
+        // Get the approximate contact point.
+        var pointOnA = GetSupportPoint(a.Vertices, -contact.normal);
+        var pointOnB = GetSupportPoint(b.Vertices, contact.normal);
+        contact.point = (pointOnA + pointOnB) * 0.5f;
 
         return true;
     }

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 public class Player : AnimatedEntity
@@ -27,6 +28,7 @@ public class Player : AnimatedEntity
     }
 
     private Platform _platform;
+    private readonly List<Contact> _contacts = new List<Contact>();
 
     private Vector3 _velocity;
     private Vector3 _physicsForce;
@@ -73,7 +75,7 @@ public class Player : AnimatedEntity
 
     public override bool CheckCollision(Entity other)
     {
-        bool collision = base.CheckCollision(other, out var contactNormal, out var penetrationDepth);
+        bool collision = base.CheckCollision(other, out var contact);
         if (collision)
         {
             if (!other.IsBlockingMovement)
@@ -83,10 +85,12 @@ public class Player : AnimatedEntity
             }
 
             // TODO: Sometimes this isn't normalized which is weird.            
-            contactNormal = Vector3.Normalize(contactNormal);
+            contact.normal = Vector3.Normalize(contact.normal);
 
-            var resolveDirection = contactNormal * penetrationDepth;
-            var upwardPenetration = Vector3.Dot(contactNormal, Vector3.Up);
+            _contacts.Add(contact);
+
+            var resolveDirection = contact.normal * contact.depth;
+            var upwardPenetration = Vector3.Dot(contact.normal, Vector3.Up);
 
             // If we're resolving upward, we're standing on something
             if (upwardPenetration > 0.75f)
@@ -116,11 +120,11 @@ public class Player : AnimatedEntity
             Position += resolveDirection * 1.01f;
 
             // Remove existing velocity into the contact.
-            float intoSurface = Vector3.Dot(_velocity + _physicsForce, contactNormal);
+            float intoSurface = Vector3.Dot(_velocity + _physicsForce, contact.normal);
             if (intoSurface < 0)
             {
-                _velocity -= contactNormal * Vector3.Dot(_velocity, contactNormal);
-                _physicsForce -= contactNormal * Vector3.Dot(_physicsForce, contactNormal);
+                _velocity -= contact.normal * Vector3.Dot(_velocity, contact.normal);
+                _physicsForce -= contact.normal * Vector3.Dot(_physicsForce, contact.normal);
             }
 
             // Update the entity's world matrix and bounding box immediately to prevent
@@ -148,6 +152,7 @@ public class Player : AnimatedEntity
     {
         IsGrounded = false;
         _platform = null;
+        _contacts.Clear();
     }
 
     public override void Update(GameTime gameTime)
