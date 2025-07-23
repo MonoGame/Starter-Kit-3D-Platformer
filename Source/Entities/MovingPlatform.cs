@@ -5,7 +5,6 @@
 using System;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,6 +15,7 @@ public class MovingPlatform : Platform
     private Vector3 _maxMove;
     private Vector3 _direction;
     private Vector3 _destination;
+
     public MovingPlatform(Model model, ContentManager contentManager) : base(model, contentManager)
     {
     }
@@ -36,9 +36,12 @@ public class MovingPlatform : Platform
     {
         base.Update(gameTime);
 
+        Velocity = _direction * _moveSpeed;
+
         // Move the platform back and forth between min and max positions
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        Position += _direction * _moveSpeed * deltaTime;
+        Position += Velocity * deltaTime;
+
         // Check if we need to reverse direction
         if (Vector3.DistanceSquared(Position, _destination) < 1f)
         {

@@ -13,4 +13,6 @@ public class Platform : Entity
         SpecularIntensity = 0.1f;
         Shininess = 0.5f;
     }
+
+    public Vector3 Velocity { get; protected set; }
 }

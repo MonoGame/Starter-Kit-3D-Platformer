@@ -297,12 +297,13 @@ public class PlatformerGame : Game
                 var scaledTime = new GameTime(gameTime.TotalGameTime,
                     TimeSpan.FromSeconds(deltaTime * TimeScale));
 
+                // TODO: Shoukd the player really update before the world?
                 _player.Forward = _camera.ForwardDirection;
                 _player.Update(scaledTime);
                 _dust.Update(scaledTime);
 
-                // TODO: This should be cleaner... maybe a pre-update/collision call?
-                _player.IsGrounded = false;
+                // TODO: Maybe all entities should have this callback?
+                _player.PreCollision();
 
                 foreach (var entity in _entities)
                 {

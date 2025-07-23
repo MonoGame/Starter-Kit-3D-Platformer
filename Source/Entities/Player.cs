@@ -2,12 +2,13 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Runtime.InteropServices;
 
 public class Player : AnimatedEntity
 {
@@ -24,6 +25,8 @@ public class Player : AnimatedEntity
             return _moveDirection != Vector3.Zero;
         }
     }
+
+    private Platform _platform;
 
     private Vector3 _velocity;
     private Vector3 _physicsForce;
@@ -97,6 +100,7 @@ public class Player : AnimatedEntity
 
                 _jumpCount = 0; // Reset jump count when landing
                 IsGrounded = true;
+                _platform = other as Platform;
                 _velocity.Y = 0.0f;
                 _physicsForce.Y = 0.0f;
 
@@ -138,6 +142,12 @@ public class Player : AnimatedEntity
             PlayAnimation("jump");
             IsJumping = true;
         }
+    }
+
+    public void PreCollision()
+    {
+        IsGrounded = false;
+        _platform = null;
     }
 
     public override void Update(GameTime gameTime)
@@ -233,13 +243,20 @@ public class Player : AnimatedEntity
         {
             _velocity.X = desiredVelocity.X;
             _velocity.Z = desiredVelocity.Z;
+
+            if (_platform != null)
+                _velocity += _platform.Velocity;
+
             _physicsForce = Vector3.Zero;
         }
         else
         {
             float AirSteeringAmount = 40;
-            _velocity.X = MathHelper.Lerp(_velocity.X, desiredVelocity.X, AirSteeringAmount * deltaTime);
-            _velocity.Z = MathHelper.Lerp(_velocity.Z, desiredVelocity.Z, AirSteeringAmount * deltaTime);
+            if (desiredVelocity.X != 0 && desiredVelocity.Z != 0)
+            {
+                _velocity.X = MathHelper.Lerp(_velocity.X, desiredVelocity.X, AirSteeringAmount * deltaTime);
+                _velocity.Z = MathHelper.Lerp(_velocity.Z, desiredVelocity.Z, AirSteeringAmount * deltaTime);
+            }
         }
 
         // Apply the jumps.
