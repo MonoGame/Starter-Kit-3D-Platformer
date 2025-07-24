@@ -3,6 +3,7 @@
 // file 'LICENSE.md', which is part of this source code package.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -26,6 +27,8 @@ public class Goal : Entity
         }
     } // Radius of the goal area
 
+    private CollisionMesh _collisionMesh;
+
     private BoundingSphere _goalBoundingSphere = new BoundingSphere(Vector3.Zero, 1f);
 
     public Goal(Model model, ContentManager content) : base(model, content)
@@ -39,6 +42,16 @@ public class Goal : Entity
     {
         base.SetProperties(data);
         Radius = data.GetProperty("radius").GetSingle();
+
+        _collisionMesh = new CollisionMesh(this, Model, new List<ConvexHull>(), GetBoundingBox());
+        _collisionMesh.GenerateFromSphere(Position, Radius, 6);
+    }
+
+    BoundingBox GetBoundingBox()
+    {
+        return new BoundingBox(
+            Position - new Vector3(Radius, Radius, Radius),
+            Position + new Vector3(Radius, Radius, Radius));
     }
 
     public override bool CheckCollision(Entity other)
@@ -75,5 +88,7 @@ public class Goal : Entity
     public override void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
     {
         // Draw nothing.
+        if (_collisionMesh != null)
+            _collisionMesh.Draw(graphicsDevice, camera, Color.Azure);
     }
 }

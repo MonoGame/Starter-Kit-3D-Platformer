@@ -30,6 +30,57 @@ public class ConvexHull
     [ContentSerializer]
     public BoundingBox AABB;
 
+    public static ConvexHull CreateSphere(Vector3 offset, float radius, int segments)
+    {
+        var verts = new List<Vector3>();
+        var faces = new List<Face>();
+
+        for (int i = 0; i < segments; i++)
+        {
+            float theta = MathHelper.Pi * i / (segments - 1);
+            for (int j = 0; j < segments; j++)
+            {
+                float phi = MathHelper.TwoPi * j / (segments - 1);
+                float x = radius * (float)(Math.Sin(theta) * Math.Cos(phi));
+                float y = radius * (float)Math.Cos(theta);
+                float z = radius * (float)(Math.Sin(theta) * Math.Sin(phi));
+                verts.Add(offset + new Vector3(x, y, z));
+            }
+        }
+
+        // Create faces
+        for (int i = 0; i < segments - 1; i++)
+        {
+            for (int j = 0; j < segments - 1; j++)
+            {
+                int a = i * segments + j;
+                int b = a + segments;
+                int c = a + 1;
+                int d = b + 1;
+
+                faces.Add(new Face
+                {
+                    Indices = new[] { a, b, c },
+                    Normal = Vector3.Normalize(Vector3.Cross(verts[b] - verts[a], verts[c] - verts[a]))
+                });
+
+                faces.Add(new Face
+                {
+                    Indices = new[] { b, d, c },
+                    Normal = Vector3.Normalize(Vector3.Cross(verts[d] - verts[b], verts[c] - verts[b]))
+                });
+            }
+        }
+
+        return new ConvexHull
+        {
+            Center = offset,
+            Vertices = verts.ToArray(),
+            Faces = faces.ToArray(),
+            AABB = BoundingBox.CreateFromPoints(verts)
+        };
+    }
+
     public static ConvexHull CreateCylinder(Vector3 offset, float radius, float height, int segments)
     {
         var verts = new List<Vector3>();

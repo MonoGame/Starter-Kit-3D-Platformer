@@ -8,6 +8,22 @@ using Microsoft.Xna.Framework;
 
 static public class JsonHelper
 {
+    public static Vector3[] ReadSplineFromJson(this JsonElement splineElement)
+    {
+        if (splineElement.ValueKind != JsonValueKind.Array)
+            return null;
+
+        var points = new Vector3[splineElement.GetArrayLength()];
+        int index = 0;
+
+        foreach (var point in splineElement.EnumerateArray())
+        {
+            points[index++] = point.GetProperty("point").ReadVector3FromJson();
+        }
+
+        return points;
+    }
+
     public static Vector3 ReadVector3FromJson(this JsonElement positionElement)
     {
         if (positionElement.ValueKind != JsonValueKind.Array)

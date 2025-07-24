@@ -43,6 +43,22 @@ public class CollisionMesh
         UpdateWorldCollisionMesh();
     }
 
+    public void GenerateFromSphere(Vector3 offset, float radius, int segments)
+    {
+        _hulls = new List<ConvexHull>();
+        _hulls.Add(ConvexHull.CreateSphere(offset, radius, segments));
+
+        _corseBoundingBox = new BoundingBox(
+            offset + new Vector3(-radius),
+            offset + new Vector3(radius));
+
+        _worldHulls = new List<ConvexHull>();
+        foreach (var hull in _hulls)
+            _worldHulls.Add(hull.Clone());
+
+        UpdateWorldCollisionMesh();
+    }
+
     public void GenerateFromCylinder(Vector3 offset, float radius, float height, int segments)
     {
         _hulls = new List<ConvexHull>();
@@ -129,7 +145,7 @@ public class CollisionMesh
         return false;
     }
 
-    public void Draw(GraphicsDevice graphicsDevice, Camera camera)
+    public void Draw(GraphicsDevice graphicsDevice, Camera camera, Color? color = null)
     {
         if (!_showCollisionMesh)
             return;
@@ -171,7 +187,7 @@ public class CollisionMesh
         VertexPositionColor[] vertices = new VertexPositionColor[indices.Length];
         for (int i = 0; i < indices.Length; i++)
         {
-            vertices[i] = new VertexPositionColor(corners[indices[i]], Color.Red);
+            vertices[i] = new VertexPositionColor(corners[indices[i]], color ?? Color.Red);
         }
 
         // Draw the lines
