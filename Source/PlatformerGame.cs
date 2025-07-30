@@ -136,7 +136,7 @@ public class PlatformerGame : Game
 
     string[] levels = new string[]
     {
-        "level1",
+        "level3",
         "level2",
         "level3"
     };
@@ -520,6 +520,12 @@ public class PlatformerGame : Game
                     {
                         entity.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
                     }
+
+#if DEVMODE
+                    if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
+                        _player.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
+
+#endif
                     _spriteBatch.End();
                 }
 

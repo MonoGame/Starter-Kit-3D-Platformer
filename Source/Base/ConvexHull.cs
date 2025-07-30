@@ -211,6 +211,18 @@ public class ConvexHull
         return best;
     }
 
+    static float MaxExtentAlong(Vector3 normal, Vector3[] verts, Vector3 center)
+    {
+        float max = float.NegativeInfinity;
+        foreach (var v in verts)
+        {
+            float d = Vector3.Dot(v - center, normal);
+            if (d > max)
+                max = d;
+        }
+        return max;
+    }
+
     public static bool Intersects(ConvexHull a, ConvexHull b, out Contact contact)
     {
         contact.point = Vector3.Zero;
@@ -261,9 +273,12 @@ public class ConvexHull
         }
 
         // Get the approximate contact point.
-        var pointOnA = GetSupportPoint(a.Vertices, -contact.normal);
-        var pointOnB = GetSupportPoint(b.Vertices, contact.normal);
-        contact.point = (pointOnA + pointOnB) * 0.5f;
+        //
+        // TOOD: This is not as good as i would like it.
+        // But it works for now.
+        //
+        float extentA = MaxExtentAlong(-contact.normal, a.Vertices, a.Center);
+        contact.point = a.Center + (-contact.normal * (extentA - 0.5f * contact.depth));
 
         return true;
     }

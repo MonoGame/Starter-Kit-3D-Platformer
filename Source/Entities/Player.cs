@@ -2,14 +2,14 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+
 
 public class Player : AnimatedEntity
 {
@@ -48,6 +48,7 @@ public class Player : AnimatedEntity
 
     // Used to animate the player scale during jumps, falls, and landings.
     private Vector3 _scaleAnimation = Vector3.One;
+    private Vector3 _squish = Vector3.Zero;
 
     private GraphicsDevice _graphicsDevice;
 
@@ -60,6 +61,7 @@ public class Player : AnimatedEntity
         Rotation = Quaternion.Identity;
         _previousKeyboardState = Keyboard.GetState();
         _graphicsDevice = graphicsDevice;
+        _squish = Vector3.Zero;
 
         CastPlacementShadow = true;
     }
@@ -153,6 +155,17 @@ public class Player : AnimatedEntity
         IsGrounded = false;
         _platform = null;
         _contacts.Clear();
+    }
+
+    public override bool Dead()
+    {
+        // If we're too squished then we're dead!
+        if (_squish.X > 0.35f ||
+            _squish.Y > 0.35f ||
+            _squish.Z > 0.35f)
+           return true;
+
+        return base.Dead();
     }
 
     public override void Update(GameTime gameTime)
@@ -315,6 +328,65 @@ public class Player : AnimatedEntity
         _previousKeyboardState = currentKeyboardState;
         _previousGamePadState = gamePadState;
 
+        // Do the squish check... we look at the distance between
+        // the contact points and the center of the bounds to get
+        // our squish factor.
+        {
+            _squish = Vector3.Zero;
+
+            // We need at least 2 contacts.
+            if (_contacts.Count > 1)
+            {
+                // TODO: Maybe this needs to eventually be in local space?
+
+                var axes = new Vector3[] { Vector3.UnitX, Vector3.UnitY, Vector3.UnitZ };
+                var min = new Vector3(float.PositiveInfinity);
+                var max = new Vector3(float.NegativeInfinity);
+                var extents = BoundingBox.Max - BoundingBox.Min;
+
+                foreach (var contact in _contacts)
+                {
+                    for (var axis = 0; axis < 3; axis++)
+                    {
+                        float dot = Vector3.Dot(contact.normal, axes[axis]);
+                        float proj = Vector3.Dot(contact.point, axes[axis]);
+
+                        if (dot > 0.5f)
+                        {
+                            if (proj > max.GetAxis(axis))
+                                MathHelpers.SetAxis(ref max, axis, proj);
+                        }
+                        else if (dot < -0.5f)
+                        {
+                            if (proj < min.GetAxis(axis))
+                                MathHelpers.SetAxis(ref min, axis, proj);
+                        }
+                    }
+                }
+
+                var squish = Vector3.Zero;
+
+                for (int axis = 0; axis < 3; axis++)
+                {
+                    float axisExtent = extents.GetAxis(axis);
+
+                    var mmin = min.GetAxis(axis);
+                    var mmax = max.GetAxis(axis);
+
+                    if (    mmin < float.PositiveInfinity &&
+                            mmax > float.NegativeInfinity)
+                    {
+                        var span = Math.Abs(mmax - mmin);
+                        var compression = 1.0f - (span / axisExtent);
+                        compression = Math.Clamp(compression, 0.0f, 1.0f);
+                        MathHelpers.SetAxis(ref squish, axis, compression);
+                    }
+                }
+
+                _squish = squish;
+            }
+        }
+
         // Animate the player scale.
         {
             if (_landVelocity > 0.0f)
@@ -347,8 +419,19 @@ public class Player : AnimatedEntity
             }
 
             Scale = Vector3.Lerp(Scale, _scaleAnimation, 1f - (float)Math.Exp(10.0f * -deltaTime));
+            Scale *= Vector3.One - _squish;
         }
 
         base.Update(gameTime);
+    }
+
+    public override void DrawBillboards(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
+    {
+        base.DrawBillboards(graphicsDevice, spriteBatch, camera);
+
+        foreach (var contact in _contacts)
+        {
+            spriteBatch.DrawSquare(contact.point, 10, camera.ProjectionMatrix, camera.ViewMatrix, Color.Red);
+        }
     }
 }
