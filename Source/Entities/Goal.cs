@@ -27,8 +27,6 @@ public class Goal : Entity
         }
     } // Radius of the goal area
 
-    private CollisionMesh _collisionMesh;
-
     private BoundingSphere _goalBoundingSphere = new BoundingSphere(Vector3.Zero, 1f);
 
     public Goal(Model model, ContentManager content) : base(model, content)

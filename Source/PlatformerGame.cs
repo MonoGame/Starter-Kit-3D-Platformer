@@ -35,6 +35,7 @@ public class PlatformerGame : Game
     private GameState _currentState = GameState.SplashScreen;
     private Texture2D _splashTexture;
     private Texture2D _coinTexture;
+    private Texture2D _overlayTexture;
     private float _splashTimer = 0f;
     private float _loadingTimer = 0f;
     private const float SplashDurationInSeconds = 3f;
@@ -71,6 +72,9 @@ public class PlatformerGame : Game
 #endif
 
     private KeyboardState _previousKeyboardState = new KeyboardState();
+
+    private Menu _mainMenu;
+    private Menu _pauseMenu;
 
     public PlatformerGame()
     {
@@ -109,6 +113,8 @@ public class PlatformerGame : Game
         _shadowProcessor.LightDirection = Vector3.Normalize(new Vector3(10, 20, 10));
         _shadowProcessor.SpecularIntensity = 10f;
         _shadowProcessor.Shininess = 160.0f;
+        _overlayTexture = new Texture2D(_spriteBatch.GraphicsDevice, 1, 1);
+        _overlayTexture.SetData(new[] { Color.Black });
         _splashTexture = Content.Load<Texture2D>("splash-screen");
         _font = Content.Load<SpriteFont>("Font/hud");
         _coinTexture = Content.Load<Texture2D>("Textures/coin");
@@ -121,8 +127,18 @@ public class PlatformerGame : Game
         _song = Content.Load<SoundEffect>("Sounds/bright").CreateInstance();
         _song.IsLooped = true;
         _song.Volume = 0.0f;
+#if !DEVMODE
         _song.Play();
-
+#endif
+        _mainMenu = new Menu(_font, Exit);
+        _mainMenu.AddItem("Start Game", () => _currentState = GameState.MainScene);
+        _mainMenu.AddItem("Quit", Exit);
+        _pauseMenu = new Menu(_font, () => _currentState = GameState.MainScene);
+        _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
+        _pauseMenu.AddItem("Main Menu", () => {
+            _currentState = GameState.MenuScreen;
+            _mainMenu.Activate();
+        });
         LoadLevel();
     }
 
@@ -196,17 +212,38 @@ public class PlatformerGame : Game
 
         var currentKeyboardState = Keyboard.GetState();
         var gamePadState = GamePad.GetState(PlayerIndex.One);
-        if (gamePadState.Buttons.Back == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Escape))
-            Exit();
-
-        if (currentKeyboardState.IsKeyDown(Keys.LeftAlt))
+        if (gamePadState.Buttons.Back == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Escape) && _previousKeyboardState.IsKeyUp(Keys.Escape))
         {
-            if (currentKeyboardState.IsKeyDown(Keys.Enter) && _previousKeyboardState.IsKeyUp(Keys.Enter))
+            switch (_currentState)
             {
-                // Toggle fullscreen mode
-                _graphics.ToggleFullScreen();
+                case GameState.MainScene:
+                    // Pause the game
+                    _currentState = GameState.PauseScreen;
+                    _pauseMenu.Activate();
+                    break;
+
+                case GameState.PauseScreen:
+                    // Resume the game
+                    _currentState = GameState.MainScene;
+                    break;
+
+                case GameState.MenuScreen:
+                case GameState.SplashScreen:
+                case GameState.LoadingScreen:
+                    // Exit to desktop or main menu
+                    Exit();
+                    break;
             }
         }
+
+        if (currentKeyboardState.IsKeyDown(Keys.LeftAlt))
+            {
+                if (currentKeyboardState.IsKeyDown(Keys.Enter) && _previousKeyboardState.IsKeyUp(Keys.Enter))
+                {
+                    // Toggle fullscreen mode
+                    _graphics.ToggleFullScreen();
+                }
+            }
 
         // Handle debug flags toggling
 #if DEVMODE
@@ -223,10 +260,6 @@ public class PlatformerGame : Game
             if (currentKeyboardState.IsKeyDown(Keys.F3) && _previousKeyboardState.IsKeyUp(Keys.F3))
             {
                 _debugFlags ^= DebugFlags.ShowMetrics;
-            }
-            if (currentKeyboardState.IsKeyDown(Keys.P) && _previousKeyboardState.IsKeyUp(Keys.P))
-            {
-                _currentState = _currentState == GameState.PauseScreen ? GameState.MainScene : GameState.PauseScreen;
             }
             if (currentKeyboardState.IsKeyDown(Keys.OemPlus) && _previousKeyboardState.IsKeyUp(Keys.OemPlus))
             {
@@ -270,7 +303,8 @@ public class PlatformerGame : Game
                 if (_splashTimer >= SplashDurationInSeconds)
                 {
                     _splashTimer = 0f; // Reset splash timer
-                    _currentState = GameState.MainScene;
+                    _currentState = GameState.MenuScreen;
+                    _mainMenu.Activate();
                 }
                 break;
 
@@ -285,10 +319,12 @@ public class PlatformerGame : Game
 
             case GameState.MenuScreen:
                 // TODO: Handle menu screen logic
+                _mainMenu.Update(gameTime, currentKeyboardState, gamePadState);
                 break;
 
             case GameState.PauseScreen:
                 deltaTime = 0f; // Pause the game logic
+                _pauseMenu.Update(gameTime, currentKeyboardState, gamePadState);
                 goto case GameState.MainScene; // Pause screen logic is handled in the main scene update
             case GameState.MainScene:
                 // Handle main scene logic
@@ -354,7 +390,7 @@ public class PlatformerGame : Game
         // Apply a globl scale to make sure all the HUD elements are scaled correctly
         // This is useful for different screen resolutions and aspect ratios.
         // The scale is based on the original resolution of 1280x720.
-        _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(scale.X, scale.Y, 0f) * Matrix.CreateTranslation(new Vector3(rect.X, rect.Y, 0)));
+        _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(new Vector3(rect.X, rect.Y, 0)) * Matrix.CreateScale(scale.X, scale.Y, 0f));
 
         _spriteBatch.Draw(_coinTexture, new Rectangle(10, 10, 100, 100), Color.White);
         _spriteBatch.DrawString(_font, $"{_player.Score}", new Vector2(110, 30), Color.White);
@@ -429,6 +465,11 @@ public class PlatformerGame : Game
                 break;
 
             case GameState.MenuScreen:
+                GraphicsDevice.Clear(_skyColor);
+                var offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f, 0f);
+                _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(offset) * Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _mainMenu.Draw(_spriteBatch);
+                _spriteBatch.End();
                 break;
 
             case GameState.PauseScreen:
@@ -542,7 +583,15 @@ public class PlatformerGame : Game
 #endif
                 if (_currentState == GameState.PauseScreen)
                 {
-                    // TODO: Draw a pause overlay
+                    // Draw semi-transparent overlay
+                    offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _pauseMenu.GetMenuWidth() / 2f, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _pauseMenu.GetMenuHeight() / 2f, 0f);
+                    _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(offset) * Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                    _spriteBatch.Draw(_overlayTexture,
+                        new Rectangle(-(int)offset.X, -(int)offset.Y, (int)GameConstants.BASE_RESOLUTION_WIDTH, (int)GameConstants.BASE_RESOLUTION_HEIGHT),
+                        Color.Black * 0.5f);
+                    // Draw the pause menu centered horizontally
+                    _pauseMenu.Draw(_spriteBatch);
+                    _spriteBatch.End();
                 }
                 break;
         }

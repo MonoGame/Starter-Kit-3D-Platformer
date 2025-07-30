@@ -45,4 +45,10 @@ public static class GameConstants
 
     // Controls how quickly the player rotates
     public const float PLAYER_ROTATION_SPEED = 6.0f;
+
+    // Menu based constants.
+    public const float INPUT_COOLDOWN_TIME = 0.15f; // Prevents rapid input
+    public const float SCALE_SPEED = 5.0f; // Speed of oscillation
+    public const float MIN_SCALE = 1.0f;   // Minimum scale
+    public const float MAX_SCALE = 1.05f;   // Maximum scale
 }
