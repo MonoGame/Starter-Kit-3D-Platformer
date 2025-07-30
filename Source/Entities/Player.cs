@@ -383,6 +383,13 @@ public class Player : AnimatedEntity
                     }
                 }
 
+                if (squish.Y > 0)
+                {
+                    // When squished vertically get fatter!
+                    squish.X = squish.Y * -0.25f;
+                    squish.Z = squish.Y * -0.25f;
+                }
+
                 _squish = squish;
             }
         }
