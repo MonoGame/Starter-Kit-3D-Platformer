@@ -165,7 +165,7 @@ public class PlatformerGame : Game
 
     string[] levels = new string[]
     {
-        "level3",
+        "level1",
         "level2",
         "level3"
     };
