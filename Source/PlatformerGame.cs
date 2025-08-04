@@ -66,6 +66,9 @@ public class PlatformerGame : Game
     private ShadowProcessor _shadowProcessor;
 
     private SoundEffectInstance _song;
+    private SoundEffectInstance _playerDied;
+
+    private float _resetTimer;
 
 #if DEVMODE
     private DebugFlags _debugFlags = DebugFlags.None;
@@ -130,6 +133,9 @@ public class PlatformerGame : Game
 #if !DEVMODE
         _song.Play();
 #endif
+
+        _playerDied = Content.Load<SoundEffect>("Sounds/burst").CreateInstance();
+
         _mainMenu = new Menu(_font, Exit);
         _mainMenu.AddItem("Start Game", () => _currentState = GameState.MainScene);
         _mainMenu.AddItem("Quit", Exit);
@@ -199,13 +205,15 @@ public class PlatformerGame : Game
             Position = spawnPoint.Position,
             Rotation = spawnPoint.Rotation,
         };
+
+        _resetTimer = 0;
     }
 
 
     protected override void Update(GameTime gameTime)
     {
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+        
         // Fade in the music volume.
             if (_song != null && _song.Volume < 1.0f && _song.State == SoundState.Playing)
                 _song.Volume = MathF.Min(1.0f, _song.Volume + (deltaTime * 0.5f));
@@ -333,13 +341,17 @@ public class PlatformerGame : Game
                 var scaledTime = new GameTime(gameTime.TotalGameTime,
                     TimeSpan.FromSeconds(deltaTime * TimeScale));
 
-                // TODO: Shoukd the player really update before the world?
-                _player.Forward = _camera.ForwardDirection;
-                _player.Update(scaledTime);
-                _dust.Update(scaledTime);
+                if (!_player.IsDead)
+                {
+                    // TODO: Shoukd the player really update before the world?
+                    _player.Forward = _camera.ForwardDirection;
+                    _player.Update(scaledTime);
 
-                // TODO: Maybe all entities should have this callback?
-                _player.PreCollision();
+                    // TODO: Maybe all entities should have this callback?
+                    _player.PreCollision();
+                }
+
+                _dust.Update(scaledTime);
 
                 foreach (var entity in _entities)
                 {
@@ -357,24 +369,42 @@ public class PlatformerGame : Game
                     _entities.Remove(entity);
                 }
 
-                if (_player.Dead())
+                // If not dead.
+                if (!_player.IsDead)
                 {
-                    _currentState = GameState.LoadingScreen;
-                    LoadLevel(); // Reload the level
-                }
-                else if (_player.IsMoving && _player.IsGrounded)
-                {
-                    _dust.AddDust(scaledTime, _player.Position);
+                    // Check to see if the player has died.
+                    if (_player.Dead())
+                    {
+                        _playerDied.Play();
+                        _resetTimer = 1.5f;
+                    }
+                    else
+                    {
+                        if (_player.IsMoving && _player.IsGrounded)
+                        {
+                            _dust.AddDust(scaledTime, _player.Position);
+                        }
+
+                        _camera.Target = _player.Position;
+                        _camera.Update(scaledTime);
+                        _shadowProcessor.TargetPosition = _player.Position;
+
+                        if (_goal.Complete)
+                        {
+                            _currentState = GameState.LoadingScreen;
+                            LoadNextLevel(); // Reload the level
+                        }
+                    }
                 }
 
-                _camera.Target = _player.Position;
-                _camera.Update(scaledTime);
-                _shadowProcessor.TargetPosition = _player.Position;
-
-                if (_goal.Complete)
+                if (_resetTimer > 0)
                 {
-                    _currentState = GameState.LoadingScreen;
-                    LoadNextLevel(); // Reload the level
+                    _resetTimer -= deltaTime * TimeScale;
+                    if (_resetTimer < 0)
+                    {
+                        _currentState = GameState.LoadingScreen;
+                        LoadLevel(); // Reload the level
+                    }
                 }
 
                 break;
@@ -479,7 +509,8 @@ public class PlatformerGame : Game
                 {
                     _drawList.Clear();
                     _drawList.AddRange(_entities);
-                    _drawList.Add(_player);
+                    if (!_player.IsDead)
+                        _drawList.Add(_player);
                     _drawList.Add(_dust);
 
                     // Draw closest to the camera first.
@@ -511,7 +542,8 @@ public class PlatformerGame : Game
 
                     _drawList.Clear();
                     _drawList.AddRange(_entities);
-                    _drawList.Add(_player);
+                    if (!_player.IsDead)
+                        _drawList.Add(_player);
 
                     // Draw closest to the camera first.
                     var cameraPos = _camera.Position;

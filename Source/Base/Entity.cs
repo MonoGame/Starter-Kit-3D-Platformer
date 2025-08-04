@@ -33,6 +33,8 @@ public class Entity
     public CollisionMesh CollisionMesh => _collisionMesh;
     public Matrix[] MeshTransforms { get; protected set; } = new Matrix[0]; // Transforms for each mesh in the model
 
+    public bool IsDead { get; protected set; }
+
     public bool Visible { get; protected set; }
 
     public Entity(Model model, ContentManager contentManager)
@@ -85,7 +87,7 @@ public class Entity
 
     public virtual bool CheckCollision(Entity other)
     {
-        if (_collisionMesh == null || other._collisionMesh == null)
+        if (_collisionMesh == null || other._collisionMesh == null || other.IsDead)
             return false;
 
         return _collisionMesh.Intersects(other._collisionMesh, out var contact);
@@ -106,7 +108,13 @@ public class Entity
     public virtual bool Dead()
     {
         // Check if the entity is dead (e.g., out of bounds)
-        return Position.Y < -1000; // Example threshold for "dead"
+        // Example threshold for "dead"
+        var dead = Position.Y < -1000;
+
+        if (dead && !IsDead)
+            IsDead = true;
+
+        return IsDead;
     }
 
     public virtual void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)

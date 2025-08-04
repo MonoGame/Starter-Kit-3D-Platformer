@@ -77,6 +77,10 @@ public class Player : AnimatedEntity
 
     public override bool CheckCollision(Entity other)
     {
+        // No collision once dead.
+        if (IsDead)
+            return false;
+
         bool collision = base.CheckCollision(other, out var contact);
         if (collision)
         {
@@ -159,17 +163,28 @@ public class Player : AnimatedEntity
 
     public override bool Dead()
     {
+        var dead = IsDead;
+        if (dead)
+            return true;
+
         // If we're too squished then we're dead!
         if (_squish.X > 0.35f ||
             _squish.Y > 0.35f ||
             _squish.Z > 0.35f)
-           return true;
-
+        {
+            IsDead = true;
+            return true;
+        }
+       
         return base.Dead();
     }
 
     public override void Update(GameTime gameTime)
     {
+        // No updates once dead!
+        if (IsDead)
+            return;
+
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         // Get current keyboard state

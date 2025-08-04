@@ -395,3 +395,7 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Color
 /build:Models/jumppad.fbx
+
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Sounds/burst.wav
