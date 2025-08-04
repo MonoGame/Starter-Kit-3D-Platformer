@@ -23,11 +23,21 @@ public class Scene
     private Camera _camera;
     private Player _player;
     private Dust _dust;
-    private Color _skyColor = Color.CornflowerBlue;
+    private Color _skyColor = new Color(0.752941f, 0.776471f, 0.827451f);
 
     public List<Entity> Entities => _entities;
     public Camera Camera => _camera;
     public Vector3 LightDirection => Vector3.Normalize(LightPosition);
+    public Player Player => _player;
+    public Dust Dust => _dust;
+    public Goal Goal
+    {
+        get
+        {
+            return _entities.Find(e => e is Goal) as Goal;
+        }
+    }
+    public float ResetTimer { get; set; } = 0.0f;
 
     public Scene(GraphicsDevice graphicsDevice, ContentManager contentManager)
     {
@@ -36,22 +46,63 @@ public class Scene
         // The camera will be used to view the scene and the player will represent the main character
         // in the game. The content manager is used to load assets for the entities in the scene.
         _camera = new Camera(graphicsDevice);
-        _player = new Player(null, null, contentManager);
+        _player = new Player(graphicsDevice, contentManager.Load<Model>("Models/character"), contentManager)
+        {
+            Position = Vector3.Zero,
+            Rotation = Quaternion.Identity
+        };
         _dust = new Dust(contentManager.Load<Model>("Models/dust"), contentManager);
     }
 
     public void Update(GameTime gameTime)
     {
-        _camera.Update(gameTime);
+        if (!_player.IsDead)
+        {
+            // TODO: Shoukd the player really update before the world?
+            _player.Forward = _camera.ForwardDirection;
+            _player.Update(gameTime);
+
+            // TODO: Maybe all entities should have this callback?
+            _player.PreCollision();
+        }
+
+        _dust.Update(gameTime);
+
         foreach (var entity in _entities)
         {
             entity.Update(gameTime);
+            entity.CheckCollision(_player);
+            _player.CheckCollision(entity);
+            if (entity.Dead())
+            {
+                _entitiesToRemove.Enqueue(entity);
+            }
         }
-
-        // Remove entities marked for deletion
         while (_entitiesToRemove.Count > 0)
         {
-            _entities.Remove(_entitiesToRemove.Dequeue());
+            var entity = _entitiesToRemove.Dequeue();
+            _entities.Remove(entity);
+        }
+
+        // If not dead.
+        if (!_player.IsDead)
+        {
+            // Check to see if the player has died.
+            if (_player.Dead())
+            {
+                _player.Die();
+                ResetTimer = 1.5f;
+            }
+            else
+            {
+                if (_player.IsMoving && _player.IsGrounded)
+                {
+                    _dust.AddDust(gameTime, _player.Position);
+                }
+
+                _camera.Target = _player.Position;
+                _camera.Update(gameTime);
+            }
         }
     }
 
@@ -61,6 +112,7 @@ public class Scene
         postProcessor.BeginScene();
         graphicsDevice.Clear(_skyColor);
         DrawScene(shadowProcessor, spriteBatch);
+        DrawBillboards(spriteBatch);
         postProcessor.EndScene();
     }
 
@@ -68,11 +120,11 @@ public class Scene
     {
         _drawList.Clear();
         _drawList.AddRange(_entities);
-        _drawList.Add(_player);
+        if (!_player.IsDead)
+            _drawList.Add(_player);
         _drawList.Add(_dust);
 
         // Draw closest to the camera first.
-        shadowProcessor.LightDirection = Vector3.Normalize(LightPosition);
         var cameraPos = shadowProcessor.LightPosition0;
         _drawList.Sort((a, b) =>
         {
@@ -97,7 +149,8 @@ public class Scene
     {
         _drawList.Clear();
         _drawList.AddRange(_entities);
-        _drawList.Add(_player);
+        if (!_player.IsDead)
+            _drawList.Add(_player);
 
         // Draw closest to the camera first.
         var cameraPos = _camera.Position;
@@ -128,5 +181,24 @@ public class Scene
         }
 
         _dust.Draw(_graphicsDevice, spriteBatch, _camera);
+    }
+
+    public void DrawCollisionMeshs(SpriteBatch spriteBatch)
+    {
+        foreach (var entity in _entities)
+        {
+            entity.Draw(_graphicsDevice, spriteBatch, _camera);
+        }
+        _player.Draw(_graphicsDevice, spriteBatch, _camera);
+    }
+
+    public void DrawBillboards(SpriteBatch spriteBatch)
+    {
+        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
+        foreach (var entity in _entities)
+        {
+            entity.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
+        }
+        spriteBatch.End();
     }
 }

@@ -42,6 +42,7 @@ public class Player : AnimatedEntity
     private SoundEffect _jumpSound;
     private SoundEffectInstance _landSound;
     private SoundEffectInstance _walkSound;
+    private SoundEffectInstance _playerDied;
 
     // Used to do effects when the player lands from a fall/jump.
     private float _landVelocity = 0.0f;
@@ -73,6 +74,7 @@ public class Player : AnimatedEntity
         _jumpSound = Content.Load<SoundEffect>("Sounds/jump");
         _landSound = Content.Load<SoundEffect>("Sounds/land").CreateInstance();
         _walkSound = Content.Load<SoundEffect>("Sounds/walking").CreateInstance();
+        _playerDied = Content.Load<SoundEffect>("Sounds/burst").CreateInstance();
     }
 
     public override bool CheckCollision(Entity other)
@@ -177,6 +179,11 @@ public class Player : AnimatedEntity
         }
        
         return base.Dead();
+    }
+
+    public void Die()
+    {
+        _playerDied.Play();
     }
 
     public override void Update(GameTime gameTime)
@@ -388,7 +395,7 @@ public class Player : AnimatedEntity
                     var mmin = min.GetAxis(axis);
                     var mmax = max.GetAxis(axis);
 
-                    if (    mmin < float.PositiveInfinity &&
+                    if (mmin < float.PositiveInfinity &&
                             mmax > float.NegativeInfinity)
                     {
                         var span = Math.Abs(mmax - mmin);

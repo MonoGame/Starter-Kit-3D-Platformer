@@ -56,23 +56,10 @@ public class PlatformerGame : Game
     private SpriteFont _font;
     private SpriteFont _debugFont;
 
-    private List<Entity> _entities = new List<Entity>();
-    private Queue<Entity> _entitiesToRemove = new Queue<Entity>();
-
-    private List<Entity> _drawList = new List<Entity>();
-
-    private Camera _camera;
-    private Player _player;
-
-    private Goal _goal;
-    private Dust _dust;
     private PostProcessor _postProcessor;
     private ShadowProcessor _shadowProcessor;
 
     private SoundEffectInstance _song;
-    private SoundEffectInstance _playerDied;
-
-    private float _resetTimer;
 
 #if DEVMODE
     private DebugFlags _debugFlags = DebugFlags.None;
@@ -83,7 +70,11 @@ public class PlatformerGame : Game
     private Menu<GameState> _mainMenu;
     private Menu<GameState> _pauseMenu;
 
-    private ContentManager _levelContent;
+    private SceneLoader _sceneLoader;
+
+    private Scene _menuScene;
+    private Scene _loadingScene;
+    private Scene _currentScene;
 
     public PlatformerGame()
     {
@@ -122,6 +113,7 @@ public class PlatformerGame : Game
         _shadowProcessor.LightDirection = Vector3.Normalize(new Vector3(10, 20, 10));
         _shadowProcessor.SpecularIntensity = 10f;
         _shadowProcessor.Shininess = 160.0f;
+        _sceneLoader = new SceneLoader(GraphicsDevice, Content);
         _overlayTexture = new Texture2D(_spriteBatch.GraphicsDevice, 1, 1);
         _overlayTexture.SetData(new[] { Color.Black });
         _splashTexture = Content.Load<Texture2D>("splash-screen");
@@ -133,12 +125,6 @@ public class PlatformerGame : Game
         Content.Load<Model>("Models/platform-large");
         Content.Load<Model>("Models/cloud");
         Content.Load<Model>("Models/character");
-        _dust = new Dust(Content.Load<Model>("Models/dust"), Content);
-        _player = new Player(GraphicsDevice, Content.Load<Model>("Models/character"), Content)
-        {
-            Position = Vector3.Zero,
-            Rotation = Quaternion.Identity
-        };
 
         _song = Content.Load<SoundEffect>("Sounds/bright").CreateInstance();
         _song.IsLooped = true;
@@ -146,7 +132,6 @@ public class PlatformerGame : Game
 #if !DEVMODE
         _song.Play();
 #endif
-        _playerDied = Content.Load<SoundEffect>("Sounds/burst").CreateInstance();
         _mainMenu = new Menu<GameState>(_font, Exit);
         _mainMenu.AddItem("Start Game", () =>
         {
@@ -161,6 +146,8 @@ public class PlatformerGame : Game
             _currentState = GameState.MenuScreen;
             _mainMenu.Activate();
         });
+
+        _menuScene = _sceneLoader.LoadScene("menu");
     }
 
     string[] levels = new string[]
@@ -188,42 +175,13 @@ public class PlatformerGame : Game
 
     private void LoadLevel(string level)
     {
-        _entities.Clear();
-        _entitiesToRemove.Clear();
-        var loader = new SceneLoader(GraphicsDevice, Content);
         Vector3 lightPosition = new Vector3(100, 200, 100);
-        loader.LoadScene(level, _entities, ref lightPosition);
-        _shadowProcessor.LightDirection = Vector3.Normalize(lightPosition);
+        _currentScene = _sceneLoader.LoadScene(level);
+        _shadowProcessor.LightDirection = Vector3.Normalize(_currentScene.LightPosition);
         _shadowProcessor.SpecularIntensity = 0.1f;
         _shadowProcessor.Shininess = 0.5f;
-
-        _camera = new Camera(GraphicsDevice)
-        {
-            Position = new Vector3(0, 0, 0),
-            Target = Vector3.Zero,
-            UpDirection = Vector3.Up
-        };
-
-        var spawnPoint = _entities.Find(e => e is SpawnPoint);
-        _goal = _entities.Find(e => e is Goal) as Goal;
-        _goal.Complete = false;
-
-        _player.Position = spawnPoint.Position;
-        _player.Rotation = spawnPoint.Rotation;
-        _player.PlayAnimation("idle");
-
-         _resetTimer = 0;
+        _currentScene.ResetTimer = 0;
     }
-
-    private void UnLoadLevel()
-    {
-        if (_levelContent == null)
-            return;
-        _levelContent.Unload();
-        _levelContent.Dispose();
-        _levelContent = null;
-    }
-
 
     protected override void Update(GameTime gameTime)
     {
@@ -360,66 +318,20 @@ public class PlatformerGame : Game
                 var scaledTime = new GameTime(gameTime.TotalGameTime,
                     TimeSpan.FromSeconds(deltaTime * TimeScale));
 
-                if (!_player.IsDead)
-                {
-                    // TODO: Shoukd the player really update before the world?
-                    _player.Forward = _camera.ForwardDirection;
-                    _player.Update(scaledTime);
+                _currentScene.Update(scaledTime);
 
-                    // TODO: Maybe all entities should have this callback?
-                    _player.PreCollision();
+                _shadowProcessor.TargetPosition = _currentScene.Player.Position;
+
+                if (_currentScene.Goal.Complete)
+                {
+                    _currentState = GameState.LoadingScreen;
+                    LoadNextLevel(); // Reload the level
                 }
 
-                _dust.Update(scaledTime);
-
-                foreach (var entity in _entities)
+                if (_currentScene.ResetTimer > 0)
                 {
-                    entity.Update(scaledTime);
-                    entity.CheckCollision(_player);
-                    _player.CheckCollision(entity);
-                    if (entity.Dead())
-                    {
-                        _entitiesToRemove.Enqueue(entity);
-                    }
-                }
-                while (_entitiesToRemove.Count > 0)
-                {
-                    var entity = _entitiesToRemove.Dequeue();
-                    _entities.Remove(entity);
-                }
-
-                // If not dead.
-                if (!_player.IsDead)
-                {
-                    // Check to see if the player has died.
-                    if (_player.Dead())
-                    {
-                        _playerDied.Play();
-                        _resetTimer = 1.5f;
-                    }
-                    else
-                    {
-                        if (_player.IsMoving && _player.IsGrounded)
-                        {
-                            _dust.AddDust(scaledTime, _player.Position);
-                        }
-
-                        _camera.Target = _player.Position;
-                        _camera.Update(scaledTime);
-                        _shadowProcessor.TargetPosition = _player.Position;
-
-                        if (_goal.Complete)
-                        {
-                            _currentState = GameState.LoadingScreen;
-                            LoadNextLevel(); // Reload the level
-                        }
-                    }
-                }
-
-                if (_resetTimer > 0)
-                {
-                    _resetTimer -= deltaTime * TimeScale;
-                    if (_resetTimer < 0)
+                    _currentScene.ResetTimer -= deltaTime * TimeScale;
+                    if (_currentScene.ResetTimer < 0)
                     {
                         _currentState = GameState.LoadingScreen;
                         LoadLevel(levels[currentLevel]); // Reload the level
@@ -434,7 +346,7 @@ public class PlatformerGame : Game
         _previousKeyboardState = currentKeyboardState;
     }
 
-    void DrawHud(GameTime gameTime, Rectangle rect, Vector2 scale)
+    private void DrawHud(GameTime gameTime, Rectangle rect, Vector2 scale)
     {
         // Apply a globl scale to make sure all the HUD elements are scaled correctly
         // This is useful for different screen resolutions and aspect ratios.
@@ -442,8 +354,8 @@ public class PlatformerGame : Game
         _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(new Vector3(rect.X, rect.Y, 0)) * Matrix.CreateScale(scale.X, scale.Y, 0f));
 
         _spriteBatch.Draw(_coinTexture, new Rectangle(10, 10, 100, 100), Color.White);
-        _spriteBatch.DrawString(_font, $"{_player.Score}", new Vector2(110, 30), Color.White);
-        if (_goal.GoalReached)
+        _spriteBatch.DrawString(_font, $"{_currentScene.Player.Score}", new Vector2(110, 30), Color.White);
+        if (_currentScene.Goal.GoalReached)
         {
             var textSize = _font.MeasureString("Level Complete!");
             _spriteBatch.DrawString(_font, "Level Complete!", new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), (GameConstants.BASE_RESOLUTION_HEIGHT / 2) - (textSize.Y / 2)), Color.White);
@@ -543,105 +455,20 @@ public class PlatformerGame : Game
             case GameState.PauseScreen:
             case GameState.MainScene:
 
-                // Draw the shadow map.
-                {
-                    _drawList.Clear();
-                    _drawList.AddRange(_entities);
-                    if (!_player.IsDead)
-                        _drawList.Add(_player);
-                    _drawList.Add(_dust);
-
-                    // Draw closest to the camera first.
-                    var cameraPos = _shadowProcessor.LightPosition0;
-                    _drawList.Sort((a, b) =>
-                    {
-                        var dista = Vector3.DistanceSquared(a.Position, cameraPos);
-                        var distb = Vector3.DistanceSquared(b.Position, cameraPos);
-                        return dista.CompareTo(distb);
-                    });
-
-                    _shadowProcessor.BeginShadowMapPass(0);
-                    foreach (var entity in _drawList)
-                        if (!entity.CastPlacementShadow)
-                            _shadowProcessor.DrawEntityToShadowMap(entity);
-                    _shadowProcessor.BeginShadowMapPass(1);
-                    foreach (var entity in _drawList)
-                        if (entity.CastPlacementShadow)
-                            _shadowProcessor.DrawEntityToShadowMap(entity);
-
-                    _shadowProcessor.EndShadowMapPass();
-                }
-
-                _postProcessor.BeginScene();
-
-                // Draw main scene
-                {
-                    GraphicsDevice.Clear(_skyColor);
-
-                    _drawList.Clear();
-                    _drawList.AddRange(_entities);
-                    if (!_player.IsDead)
-                        _drawList.Add(_player);
-
-                    // Draw closest to the camera first.
-                    var cameraPos = _camera.Position;
-                    _drawList.Sort((a, b) =>
-                    {
-                        var dista = Vector3.DistanceSquared(a.Position, cameraPos);
-                        var distb = Vector3.DistanceSquared(b.Position, cameraPos);
-                        return dista.CompareTo(distb);
-                    });
-
-                    // First draw the opaque pass.
-                    foreach (var entity in _drawList)
-                    {
-                        if (entity.Model is null)
-                            continue;
-
-                        _shadowProcessor.DrawModelWithShadow(entity, _camera, false);
-                    }
-
-                    // Now draw the transparent objects reversing the list furthest to closest.
-                    _drawList.Reverse();
-                    foreach (var entity in _drawList)
-                    {
-                        if (entity.Model is null)
-                            continue;
-
-                        _shadowProcessor.DrawModelWithShadow(entity, _camera, true);
-                    }
-
-                    _dust.Draw(GraphicsDevice, _spriteBatch, _camera);
-                }
+                // Draw the scene
+                _currentScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
 #if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
                 {
-                    foreach (var entity in _entities)
-                    {
-                        entity.Draw(GraphicsDevice, _spriteBatch, _camera);
-                    }
-                    _player.Draw(GraphicsDevice, _spriteBatch, _camera);
+                    _currentScene.DrawCollisionMeshs(_spriteBatch);
                 }
 #endif
-                // Draw all 2D particle effects.
-                {
-                    // Enable alpha blending and disable depth writing (but keep depth testing)
-                    _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
-                    foreach (var entity in _entities)
-                    {
-                        entity.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
-                    }
-
 #if DEVMODE
-                    if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
-                        _player.DrawBillboards(GraphicsDevice, _spriteBatch, _camera);
-
+                _spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
+                if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
+                    _currentScene.Player.DrawBillboards(GraphicsDevice, _spriteBatch, _currentScene.Camera);
+                _spriteBatch.End();
 #endif
-                    _spriteBatch.End();
-                }
-
-                _postProcessor.EndScene();
-
                 // Draw the score etc.
                 DrawHud(gameTime, screenRect, uiScale);
 #if DEVMODE

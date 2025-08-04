@@ -36,8 +36,9 @@ public class SceneLoader
     }
 
 
-    public void LoadScene(string sceneName, List<Entity> entities, ref Vector3 lightPosition)
+    public Scene LoadScene(string sceneName)
     {
+        var scene = new Scene(_graphicsDevice, _content);
         using var stream = TitleContainer.OpenStream("Content/" + sceneName + ".json");
 
         // Load the level file and create entities based on the data
@@ -57,29 +58,28 @@ public class SceneLoader
                 var cameraPosition = entityData.GetProperty("position").ReadVector3FromJson();
                 var cameraTarget = entityData.GetProperty("target").ReadVector3FromJson();
                 var cameraUp = entityData.GetProperty("up").ReadVector3FromJson(Vector3.Up);
-                var camera = new Camera(_graphicsDevice);
-                camera.Position = cameraPosition;
-                camera.Target = cameraTarget;
-                camera.UpDirection = cameraUp;
+                scene.Camera.Position = cameraPosition;
+                scene.Camera.Target = cameraTarget;
+                scene.Camera.UpDirection = cameraUp;
                 continue;
             }
             else if (typeName.Equals("SPAWNPOINT"))
             {
-                var spawnPoint = new SpawnPoint(null, _content);
-                spawnPoint.SetProperties(entityData);
-                entities.Add(spawnPoint);
+                var sp = new SpawnPoint(null, _content);
+                sp.SetProperties(entityData);
+                scene.Entities.Add(sp);
                 continue;
             }
             else if (typeName.Equals("LIGHT"))
             {
-                lightPosition = entityData.GetProperty("position").ReadVector3FromJson();
+                scene.LightPosition = entityData.GetProperty("position").ReadVector3FromJson();
                 continue;
             }
             else if (typeName.Equals("GOAL"))
             {
                 var goal = new Goal(null, _content);
                 goal.SetProperties(entityData);
-                entities.Add(goal);
+                scene.Entities.Add(goal);
                 continue;
             }
             else if (typeName.Equals("MESH"))
@@ -93,8 +93,18 @@ public class SceneLoader
 
                 var entity = entityFactory(_content.Load<Model>($"Models/{instanceOf}"), _content);
                 entity.SetProperties(entityData);
-                entities.Add(entity);
+                scene.Entities.Add(entity);
             }
         }
+
+        var spawnPoint = scene.Entities.Find(e => e is SpawnPoint);
+        var _goal = scene.Entities.Find(e => e is Goal) as Goal;
+        if (_goal != null)
+            _goal.Complete = false;
+
+        scene.Player.Position = spawnPoint?.Position ?? Vector3.Zero;
+        scene.Player.Rotation = spawnPoint?.Rotation ?? Quaternion.Identity;
+        scene.Player.PlayAnimation("idle");
+        return scene;
     }
 }
