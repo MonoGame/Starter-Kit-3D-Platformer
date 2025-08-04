@@ -24,10 +24,10 @@ static public class JsonHelper
         return points;
     }
 
-    public static Vector3 ReadVector3FromJson(this JsonElement positionElement)
+    public static Vector3 ReadVector3FromJson(this JsonElement positionElement, Vector3 defaultValue = default)
     {
-        if (positionElement.ValueKind != JsonValueKind.Array)
-            return Vector3.Zero;
+        if (positionElement.ValueKind == JsonValueKind.Null)
+            return defaultValue;
 
         var array = positionElement.EnumerateArray();
         float x = 0, y = 0, z = 0;

@@ -11,24 +11,17 @@ using Microsoft.Xna.Framework.Input;
 /// <summary>
 /// Represents a single menu item with text and selection state.
 /// </summary>
-public class MenuItem
+public class MenuItem<T> where T : System.Enum
 {
     public string Text { get; set; }
     public bool IsSelected { get; set; }
-    public Color TextColor { get; set; } = Color.White;
-    public Color SelectedColor { get; set; } = Color.Yellow;
-    public object Tag { get; set; } // Optional tag for identifying menu items
+    public T Status { get; set; }
     public Action Action { get; internal set; }
 
-    public MenuItem(string text, object tag = null)
+    public MenuItem(string text, T status = default)
     {
         Text = text;
-        Tag = tag;
-    }
-
-    public Color GetCurrentColor()
-    {
-        return IsSelected ? SelectedColor : TextColor;
+        Status = status;
     }
 }
 
@@ -36,9 +29,9 @@ public class MenuItem
 /// A simple menu system that supports keyboard and gamepad navigation.
 /// Uses state-based selection rather than events.
 /// </summary>
-public class Menu
+public class Menu<T> where T : System.Enum
 {
-    private readonly List<MenuItem> _menuItems;
+    private readonly List<MenuItem<T>> _menuItems;
     private int _selectedIndex;
     private KeyboardState _previousKeyboardState;
     private GamePadState _previousGamePadState;
@@ -53,9 +46,12 @@ public class Menu
 
     // State properties
     public int SelectedIndex => _selectedIndex;
-    public MenuItem SelectedItem => _menuItems.Count > 0 ? _menuItems[_selectedIndex] : null;
+    public MenuItem<T> SelectedItem => _menuItems.Count > 0 ? _menuItems[_selectedIndex] : null;
     public int ItemCount => _menuItems.Count;
     public bool HasItems => _menuItems.Count > 0;
+
+    public Color TextColor { get; set; } = new Color(255,182,0);
+    public Color SelectedColor { get; set; } = Color.Yellow;
 
     /// <summary>
     /// Initializes a new instance of the Menu class.
@@ -64,7 +60,7 @@ public class Menu
     /// <param name="cancelAction">Optional action to perform when the menu is canceled by hitting the Escape Key.</param>
     public Menu(SpriteFont font, Action cancelAction = null)
     {
-        _menuItems = new List<MenuItem>();
+        _menuItems = new List<MenuItem<T>>();
         Font = font;
         _selectedIndex = 0;
         _previousKeyboardState = Keyboard.GetState();
@@ -76,9 +72,9 @@ public class Menu
     /// <summary>
     /// Adds a menu item to the menu.
     /// </summary>
-    public void AddItem(string text, Action action, object tag = null)
+    public void AddItem(string text, Action action, T status = default )
     {
-        var item = new MenuItem(text, tag);
+        var item = new MenuItem<T>(text, status);
         _menuItems.Add(item);
         item.Action = action;
 
@@ -93,7 +89,7 @@ public class Menu
     /// <summary>
     /// Adds a menu item to the menu.
     /// </summary>
-    public void AddItem(MenuItem item)
+    public void AddItem(MenuItem<T> item)
     {
         _menuItems.Add(item);
         
@@ -132,7 +128,7 @@ public class Menu
     /// <summary>
     /// Removes a menu item by reference.
     /// </summary>
-    public bool RemoveItem(MenuItem item)
+    public bool RemoveItem(MenuItem<T> item)
     {
         int index = _menuItems.IndexOf(item);
         return index >= 0 && RemoveItemAt(index);
@@ -159,7 +155,7 @@ public class Menu
     /// <summary>
     /// Gets a menu item by index.
     /// </summary>
-    public MenuItem GetItem(int index)
+    public MenuItem<T> GetItem(int index)
     {
         if (index < 0 || index >= _menuItems.Count)
             return null;
@@ -319,12 +315,12 @@ public class Menu
                 var origin = textSize * 0.5f; // Center the scaling
                 var scaledPosition = itemPosition + origin; // Adjust position to account for origin
 
-                spriteBatch.DrawString(Font, item.Text, scaledPosition, item.GetCurrentColor(), 0f, origin, scale, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(Font, item.Text, scaledPosition, SelectedColor, 0f, origin, scale, SpriteEffects.None, 0f);
             }
             else
             {
                 // Draw normal item without scaling
-                spriteBatch.DrawString(Font, item.Text, itemPosition, item.GetCurrentColor());
+                spriteBatch.DrawString(Font, item.Text, itemPosition, TextColor);
             }
         }
     }

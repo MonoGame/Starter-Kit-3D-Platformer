@@ -10,14 +10,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-public class LevelLoader
+public class SceneLoader
 {
     Dictionary<string, Func<Model, ContentManager, Entity>> _assetMap = new();
     private readonly ContentManager _content;
+    private readonly GraphicsDevice _graphicsDevice;
 
-    public LevelLoader(ContentManager content)
+    public SceneLoader(GraphicsDevice graphicsDevice, ContentManager content)
     {
         _content = content;
+        _graphicsDevice = graphicsDevice;
         _assetMap = new()
         {
             ["platform-falling"] = (model, content) => new FallingPlatform(model, content),
@@ -34,9 +36,9 @@ public class LevelLoader
     }
 
 
-    public void LoadLevel(string levelName, List<Entity> entities, ref Vector3 lightPosition)
+    public void LoadScene(string sceneName, List<Entity> entities, ref Vector3 lightPosition)
     {
-        using var stream = TitleContainer.OpenStream("Content/" + levelName + ".json");
+        using var stream = TitleContainer.OpenStream("Content/" + sceneName + ".json");
 
         // Load the level file and create entities based on the data
         // This is a placeholder for actual level loading logic
@@ -50,7 +52,18 @@ public class LevelLoader
 
             var typeName = type.GetString();
 
-            if (typeName.Equals("SPAWNPOINT"))
+            if (typeName.Equals("CAMERA"))
+            {
+                var cameraPosition = entityData.GetProperty("position").ReadVector3FromJson();
+                var cameraTarget = entityData.GetProperty("target").ReadVector3FromJson();
+                var cameraUp = entityData.GetProperty("up").ReadVector3FromJson(Vector3.Up);
+                var camera = new Camera(_graphicsDevice);
+                camera.Position = cameraPosition;
+                camera.Target = cameraTarget;
+                camera.UpDirection = cameraUp;
+                continue;
+            }
+            else if (typeName.Equals("SPAWNPOINT"))
             {
                 var spawnPoint = new SpawnPoint(null, _content);
                 spawnPoint.SetProperties(entityData);

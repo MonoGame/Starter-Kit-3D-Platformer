@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -36,11 +37,14 @@ public class PlatformerGame : Game
     private Texture2D _splashTexture;
     private Texture2D _coinTexture;
     private Texture2D _overlayTexture;
+    private Texture2D _menuBackgroundTexture;
+    private Texture2D _logoTexture;
     private float _splashTimer = 0f;
     private float _loadingTimer = 0f;
     private const float SplashDurationInSeconds = 3f;
     private const float LoadingDurationInSeconds = 5f;
     private readonly Color _skyColor = new Color(0.752941f, 0.776471f, 0.827451f);
+    private readonly Color _menuColor = new Color(255,182,0);
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
@@ -76,8 +80,10 @@ public class PlatformerGame : Game
 
     private KeyboardState _previousKeyboardState = new KeyboardState();
 
-    private Menu _mainMenu;
-    private Menu _pauseMenu;
+    private Menu<GameState> _mainMenu;
+    private Menu<GameState> _pauseMenu;
+
+    private ContentManager _levelContent;
 
     public PlatformerGame()
     {
@@ -119,13 +125,20 @@ public class PlatformerGame : Game
         _overlayTexture = new Texture2D(_spriteBatch.GraphicsDevice, 1, 1);
         _overlayTexture.SetData(new[] { Color.Black });
         _splashTexture = Content.Load<Texture2D>("splash-screen");
+        _menuBackgroundTexture = Content.Load<Texture2D>("Textures/menu");
+        _logoTexture = Content.Load<Texture2D>("Textures/logo");
         _font = Content.Load<SpriteFont>("Font/hud");
         _coinTexture = Content.Load<Texture2D>("Textures/coin");
         _debugFont = Content.Load<SpriteFont>("Font/debug");
         Content.Load<Model>("Models/platform-large");
         Content.Load<Model>("Models/cloud");
         Content.Load<Model>("Models/character");
-         _dust = new Dust(Content.Load<Model>("Models/dust"), Content);
+        _dust = new Dust(Content.Load<Model>("Models/dust"), Content);
+        _player = new Player(GraphicsDevice, Content.Load<Model>("Models/character"), Content)
+        {
+            Position = Vector3.Zero,
+            Rotation = Quaternion.Identity
+        };
 
         _song = Content.Load<SoundEffect>("Sounds/bright").CreateInstance();
         _song.IsLooped = true;
@@ -133,28 +146,22 @@ public class PlatformerGame : Game
 #if !DEVMODE
         _song.Play();
 #endif
-
         _playerDied = Content.Load<SoundEffect>("Sounds/burst").CreateInstance();
-
-        _mainMenu = new Menu(_font, Exit);
-        _mainMenu.AddItem("Start Game", () => _currentState = GameState.MainScene);
+        _mainMenu = new Menu<GameState>(_font, Exit);
+        _mainMenu.AddItem("Start Game", () =>
+        {
+            LoadLevel("level1");
+            _currentState = GameState.MainScene;
+        });
         _mainMenu.AddItem("Quit", Exit);
-        _pauseMenu = new Menu(_font, () => _currentState = GameState.MainScene);
+        _pauseMenu = new Menu<GameState>(_font, () => _currentState = GameState.MainScene);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
-        _pauseMenu.AddItem("Main Menu", () => {
+        _pauseMenu.AddItem("Main Menu", () =>
+        {
             _currentState = GameState.MenuScreen;
             _mainMenu.Activate();
         });
-        LoadLevel();
     }
-
-    string[] loadingText = 
-    {
-        "Loading",
-        "Loading.",
-        "Loading..",
-        "Loading...",
-    };
 
     string[] levels = new string[]
     {
@@ -169,23 +176,23 @@ public class PlatformerGame : Game
         currentLevel++;
         if (currentLevel < levels.Length)
         {
-            LoadLevel();
+            LoadLevel(levels[currentLevel]);
         }
         else
         {
             // Reset to the first level or handle end of game logic
             currentLevel = 0;
-            LoadLevel();
+            LoadLevel(levels[currentLevel]);
         }
     }
-    
-    private void LoadLevel()
+
+    private void LoadLevel(string level)
     {
         _entities.Clear();
         _entitiesToRemove.Clear();
-        var loader = new LevelLoader(Content);
+        var loader = new SceneLoader(GraphicsDevice, Content);
         Vector3 lightPosition = new Vector3(100, 200, 100);
-        loader.LoadLevel(levels[currentLevel], _entities, ref lightPosition);
+        loader.LoadScene(level, _entities, ref lightPosition);
         _shadowProcessor.LightDirection = Vector3.Normalize(lightPosition);
         _shadowProcessor.SpecularIntensity = 0.1f;
         _shadowProcessor.Shininess = 0.5f;
@@ -199,14 +206,22 @@ public class PlatformerGame : Game
 
         var spawnPoint = _entities.Find(e => e is SpawnPoint);
         _goal = _entities.Find(e => e is Goal) as Goal;
+        _goal.Complete = false;
 
-        _player = new Player(GraphicsDevice, Content.Load<Model>("Models/character"), Content)
-        {
-            Position = spawnPoint.Position,
-            Rotation = spawnPoint.Rotation,
-        };
+        _player.Position = spawnPoint.Position;
+        _player.Rotation = spawnPoint.Rotation;
+        _player.PlayAnimation("idle");
 
-        _resetTimer = 0;
+         _resetTimer = 0;
+    }
+
+    private void UnLoadLevel()
+    {
+        if (_levelContent == null)
+            return;
+        _levelContent.Unload();
+        _levelContent.Dispose();
+        _levelContent = null;
     }
 
 
@@ -215,8 +230,8 @@ public class PlatformerGame : Game
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         
         // Fade in the music volume.
-            if (_song != null && _song.Volume < 1.0f && _song.State == SoundState.Playing)
-                _song.Volume = MathF.Min(1.0f, _song.Volume + (deltaTime * 0.5f));
+        if (_song != null && _song.Volume < 1.0f && _song.State == SoundState.Playing)
+            _song.Volume = MathF.Min(1.0f, _song.Volume + (deltaTime * 0.5f));
 
         var currentKeyboardState = Keyboard.GetState();
         var gamePadState = GamePad.GetState(PlayerIndex.One);
@@ -245,13 +260,13 @@ public class PlatformerGame : Game
         }
 
         if (currentKeyboardState.IsKeyDown(Keys.LeftAlt))
+        {
+            if (currentKeyboardState.IsKeyDown(Keys.Enter) && _previousKeyboardState.IsKeyUp(Keys.Enter))
             {
-                if (currentKeyboardState.IsKeyDown(Keys.Enter) && _previousKeyboardState.IsKeyUp(Keys.Enter))
-                {
-                    // Toggle fullscreen mode
-                    _graphics.ToggleFullScreen();
-                }
+                // Toggle fullscreen mode
+                _graphics.ToggleFullScreen();
             }
+        }
 
         // Handle debug flags toggling
 #if DEVMODE
@@ -268,6 +283,10 @@ public class PlatformerGame : Game
             if (currentKeyboardState.IsKeyDown(Keys.F3) && _previousKeyboardState.IsKeyUp(Keys.F3))
             {
                 _debugFlags ^= DebugFlags.ShowMetrics;
+            }
+            if (currentKeyboardState.IsKeyDown(Keys.P) && _previousKeyboardState.IsKeyUp(Keys.P))
+            {
+                // TODO: print screen.
             }
             if (currentKeyboardState.IsKeyDown(Keys.OemPlus) && _previousKeyboardState.IsKeyUp(Keys.OemPlus))
             {
@@ -336,7 +355,7 @@ public class PlatformerGame : Game
                 goto case GameState.MainScene; // Pause screen logic is handled in the main scene update
             case GameState.MainScene:
                 // Handle main scene logic
-                
+
                 // We use a scaled time here mostly for testing/debugging.
                 var scaledTime = new GameTime(gameTime.TotalGameTime,
                     TimeSpan.FromSeconds(deltaTime * TimeScale));
@@ -403,7 +422,7 @@ public class PlatformerGame : Game
                     if (_resetTimer < 0)
                     {
                         _currentState = GameState.LoadingScreen;
-                        LoadLevel(); // Reload the level
+                        LoadLevel(levels[currentLevel]); // Reload the level
                     }
                 }
 
@@ -432,20 +451,34 @@ public class PlatformerGame : Game
 #if DEVMODE
         if (_debugFlags.HasFlag(DebugFlags.ShowMetrics))
         {
-            // Draw any additional metrics here
-            _spriteBatch.DrawString(_debugFont, $"FPS: {1f / (float)gameTime.ElapsedGameTime.TotalSeconds:0.00}", new Vector2(10, 110), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Time Scale: {TimeScale:0.00}", new Vector2(10, 130), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Entities: {_entities.Count}", new Vector2(10, 150), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Clear: {GraphicsDevice.Metrics.ClearCount}", new Vector2(10, 170), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Draw: {GraphicsDevice.Metrics.DrawCount}", new Vector2(10, 190), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Primitives: {GraphicsDevice.Metrics.PrimitiveCount}", new Vector2(10, 210), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Sprites: {GraphicsDevice.Metrics.SpriteCount}", new Vector2(10, 230), Color.White);
+            DrawMetrics(gameTime);
         }
 #endif
         _spriteBatch.End();
     }
-    
-    
+
+    private void DrawMetrics(GameTime gameTime)
+    {
+        if (_debugFlags.HasFlag(DebugFlags.ShowMetrics))
+        {
+            // Draw any additional metrics here
+            _spriteBatch.DrawString(_debugFont, $"FPS: {1f / (float)gameTime.ElapsedGameTime.TotalSeconds:0.00}", new Vector2(10, 110), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Time Scale: {TimeScale:0.00}", new Vector2(10, 130), Color.White);
+            //_spriteBatch.DrawString(_debugFont, $"Entities: {_entities.Count}", new Vector2(10, 150), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Clear: {GraphicsDevice.Metrics.ClearCount}", new Vector2(10, 170), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Draw: {GraphicsDevice.Metrics.DrawCount}", new Vector2(10, 190), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Primitives: {GraphicsDevice.Metrics.PrimitiveCount}", new Vector2(10, 210), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"Sprites: {GraphicsDevice.Metrics.SpriteCount}", new Vector2(10, 230), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"GC Gen 0: {GC.CollectionCount(0)}", new Vector2(10, 250), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"GC Gen 1: {GC.CollectionCount(1)}", new Vector2(10, 270), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"GC Gen 2: {GC.CollectionCount(2)}", new Vector2(10, 290), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"GC Total: {GC.CollectionCount(3)}", new Vector2(10, 310), Color.White);
+            var gcMemoryInfo = GC.GetGCMemoryInfo();
+            _spriteBatch.DrawString(_debugFont, $"GC Memory: {gcMemoryInfo.TotalAvailableMemoryBytes / (1024 * 1024):0.00} MB", new Vector2(10, 350), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"GC Fragmentation: {gcMemoryInfo.FragmentedBytes / (1024 * 1024):0.00} MB", new Vector2(10, 370), Color.White);
+            _spriteBatch.DrawString(_debugFont, $"GC Heap Size: {gcMemoryInfo.HeapSizeBytes / (1024 * 1024):0.00} MB", new Vector2(10, 390), Color.White);
+        }
+    }
 
     protected override void Draw(GameTime gameTime)
     {
@@ -477,7 +510,7 @@ public class PlatformerGame : Game
             case GameState.LoadingScreen:
                 // Draw splash screen
                 GraphicsDevice.Clear(Color.Black);
-
+                _postProcessor.BeginScene();
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
 
                 // Draw splash texture centered on screen
@@ -488,18 +521,23 @@ public class PlatformerGame : Game
                     _splashTexture.Height);
 
                 _spriteBatch.Draw(_splashTexture, destinationRectangle, Color.White);
-                
-                _spriteBatch.DrawString(_font, loadingText[(int)(_loadingTimer / 0.5f) % loadingText.Length], new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - 50, GameConstants.BASE_RESOLUTION_HEIGHT - 100), Color.Purple);
 
                 _spriteBatch.End();
+                _postProcessor.EndScene();
                 break;
 
             case GameState.MenuScreen:
                 GraphicsDevice.Clear(_skyColor);
-                var offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f, 0f);
+                _postProcessor.BeginScene();
+                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _spriteBatch.Draw(_menuBackgroundTexture, new Rectangle(0, 0, (int)GameConstants.BASE_RESOLUTION_WIDTH, (int)GameConstants.BASE_RESOLUTION_HEIGHT), Color.White);
+                _spriteBatch.Draw(_logoTexture, new Rectangle(50, 50, _logoTexture.Width / 2, _logoTexture.Height / 2), Color.White);
+                _spriteBatch.End();
+                var offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 350, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 100, 0f);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(offset) * Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _mainMenu.Draw(_spriteBatch);
                 _spriteBatch.End();
+                _postProcessor.EndScene();
                 break;
 
             case GameState.PauseScreen:
