@@ -285,7 +285,7 @@ public class Player : AnimatedEntity
         else
         {
             float AirSteeringAmount = 40;
-            if (desiredVelocity.X != 0 && desiredVelocity.Z != 0)
+            if (desiredVelocity.X != 0 || desiredVelocity.Z != 0)
             {
                 _velocity.X = MathHelper.Lerp(_velocity.X, desiredVelocity.X, AirSteeringAmount * deltaTime);
                 _velocity.Z = MathHelper.Lerp(_velocity.Z, desiredVelocity.Z, AirSteeringAmount * deltaTime);
