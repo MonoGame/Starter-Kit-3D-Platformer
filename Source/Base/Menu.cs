@@ -8,22 +8,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-/// <summary>
-/// Represents a single menu item with text and selection state.
-/// </summary>
-public class MenuItem<T> where T : System.Enum
-{
-    public string Text { get; set; }
-    public bool IsSelected { get; set; }
-    public T Status { get; set; }
-    public Action Action { get; internal set; }
-
-    public MenuItem(string text, T status = default)
-    {
-        Text = text;
-        Status = status;
-    }
-}
 
 /// <summary>
 /// A simple menu system that supports keyboard and gamepad navigation.
