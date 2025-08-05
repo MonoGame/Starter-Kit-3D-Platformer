@@ -1,5 +1,9 @@
 [
     {
+        "type": "SCENE",
+        "background": "#BFC6D3"
+    },
+    {
         "name": "PlayerSpawn",
         "type": "SPAWNPOINT",
         "position": [

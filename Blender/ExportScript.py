@@ -1,6 +1,7 @@
 import bpy
 import os
 import math
+import mathutils
 import json
 
 # Example function to get the object name of the instancer
@@ -38,18 +39,56 @@ def get_rotation_degrees(obk):
         return (x, y, z)
     return None
 
+# Convert to HEX
+def rgb_to_hex(rgb):
+    return "#{:02x}{:02x}{:02x}".format(
+        int(rgb[0]*255),
+        int(rgb[1]*255),
+        int(rgb[2]*255)
+    )
+    
+world = bpy.context.scene.world
+if world.use_nodes and world.node_tree:
+    # For rendered backgrounds using nodes (Cycles/Eevee)
+    bg_node = None
+    for node in world.node_tree.nodes:
+        if node.type == 'BACKGROUND':
+            bg_node = node
+            break
+    if bg_node:
+        wcolor = bg_node.inputs['Color'].default_value[:3]  # (R, G, B)
+    else:
+        wcolor = world.color[:3]
+else:
+    # For simple viewport backgrounds
+    wcolor = world.color[:3]  # (R, G, B)
+
+levels_data = []
+
 for collection in bpy.data.collections:
 
     #if not collection.hide_viewport:
     #    continue
-    if not collection.name.startswith("Level"):
+    if collection.name.startswith("Models"):
             continue
 
     print (collection.name)
+    
+    if collection.name.startswith("Level"):
+        levels_data.append(collection.name.lower())
+    
     objects_data = []
 
     # NOTE: Blender uses a Z up coordinate system
     # MonoGame used a Y up coordinate system, so we need to switch the values.
+    background = collection.get("Background")
+    if not background:
+        background = rgb_to_hex(rgb = wcolor)
+    scene_data = {
+        "type": 'SCENE',
+        "background": background
+    }
+    objects_data.append(scene_data)
 
     for obj in collection.all_objects:
         name = obj.name
@@ -59,6 +98,38 @@ for collection in bpy.data.collections:
         matrix_world = obj.matrix_world
         scale = obj.scale
         if obj.type == 'CURVE':
+            continue
+        if obj.parent:
+            continue
+        if obj.type == 'EMPTY' and name.split('.')[0] == 'character':
+            object_data = {
+                "name" : name,
+                "type": 'MESH',
+                "instanceof": 'character',
+                "position": [position.x, position.z, -position.y],
+                "rotation": [round (rotation[0]), round (rotation[1]), round (rotation[2])],
+            }
+            objects_data.append (object_data)
+            continue
+        if obj.type == 'CAMERA':
+            # Get the rotation as a matrix
+            rot_matrix = obj.matrix_world.to_3x3()
+
+            # Blender's camera looks down its local -Z axis in object space
+            forward_local = (0.0, 0.0, -1.0)
+            forward_world = rot_matrix @ mathutils.Vector(forward_local)
+
+            # Normalize to get a unit vector
+            direction = forward_world.normalized()
+            object_data = {
+                "name" : name,
+                "type": 'CAMERA',
+                "position": [position.x, position.z, -position.y],
+                "direction" : [direction.x, direction.z, -direction.y],
+                "rotation": [round (rotation[0]), round (rotation[1]), round (rotation[2])],
+                "fov": math.degrees(obj.data.angle)
+            }
+            objects_data.append (object_data)
             continue
         if obj.type == 'LIGHT':
             object_data = {
@@ -142,3 +213,6 @@ for collection in bpy.data.collections:
 
     with open(blend_file_dir + "/../Content/" + collection.name.lower() + ".json", 'w') as file:
         json.dump(objects_data, file, indent=4)
+        
+with open(blend_file_dir + "/../Content/levels.json", 'w') as file:
+    json.dump(levels_data, file, indent=4)

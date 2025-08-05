@@ -27,7 +27,6 @@ public class Scene
     private Camera _camera;
     private Player _player;
     private Dust _dust;
-    private Color _skyColor = new Color(0.752941f, 0.776471f, 0.827451f);
 
     public List<Entity> Entities => _entities;
     public Camera Camera => _camera;
@@ -46,6 +45,8 @@ public class Scene
     public bool AcceptInput { get; set; } = true;
 
     public bool HasPlayer { get; set; } = true;
+
+    public Color SkyColor { get; set; } = GameConstants.DEFAULT_BACKGROUND_COLOR;
 
     public Scene(GraphicsDevice graphicsDevice, ContentManager contentManager)
     {
@@ -129,7 +130,7 @@ public class Scene
     {
         DrawShadownMaps(shadowProcessor);
         postProcessor.BeginScene();
-        graphicsDevice.Clear(_skyColor);
+        graphicsDevice.Clear(SkyColor);
         DrawScene(shadowProcessor, spriteBatch);
         DrawBillboards(spriteBatch);
         postProcessor.EndScene();

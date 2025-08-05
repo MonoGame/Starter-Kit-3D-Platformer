@@ -1,5 +1,9 @@
 [
     {
+        "type": "SCENE",
+        "background": "#BFC6D3"
+    },
+    {
         "name": "MenuCamera.001",
         "type": "CAMERA",
         "position": [

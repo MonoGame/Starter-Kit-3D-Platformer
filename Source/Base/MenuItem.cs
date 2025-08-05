@@ -8,16 +8,14 @@ using System;
 /// <summary>
 /// Represents a single menu item with text and selection state.
 /// </summary>
-public class MenuItem<T> where T : System.Enum
+public class MenuItem
 {
     public string Text { get; set; }
     public bool IsSelected { get; set; }
-    public T Status { get; set; }
     public Action Action { get; internal set; }
 
-    public MenuItem(string text, T status = default)
+    public MenuItem(string text)
     {
         Text = text;
-        Status = status;
     }
 }

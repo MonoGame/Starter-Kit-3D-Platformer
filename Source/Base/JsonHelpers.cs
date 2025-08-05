@@ -2,6 +2,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
+using System;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 
@@ -74,4 +75,22 @@ static public class JsonHelper
         }
         return Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(z), MathHelper.ToRadians(x), MathHelper.ToRadians(y));
     }
+
+    public static Color ToColorFromJson(this JsonElement colorElement)
+    {
+        if (colorElement.ValueKind != JsonValueKind.String)
+            return Color.Purple;
+
+        var hex = colorElement.GetString();
+        if (hex.StartsWith("#") && hex.Length == 7)
+        {
+            byte r = Convert.ToByte(hex.Substring(1, 2), 16);
+            byte g = Convert.ToByte(hex.Substring(3, 2), 16);
+            byte b = Convert.ToByte(hex.Substring(5, 2), 16);
+            return new Color(r, g, b);
+        }
+
+        return Color.CornflowerBlue;
+    }
+
 }

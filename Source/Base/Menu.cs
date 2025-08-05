@@ -15,9 +15,9 @@ using Microsoft.Xna.Framework.Input;
 /// A simple menu system that supports keyboard and gamepad navigation.
 /// Uses state-based selection rather than events.
 /// </summary>
-public class Menu<T> where T : System.Enum
+public class Menu
 {
-    private readonly List<MenuItem<T>> _menuItems;
+    private readonly List<MenuItem> _menuItems;
     private int _selectedIndex;
     private float _inputCooldown;
     private Action _cancelAction; // Action to perform on cancel (e.g., exit menu)
@@ -33,7 +33,7 @@ public class Menu<T> where T : System.Enum
 
     // State properties
     public int SelectedIndex => _selectedIndex;
-    public MenuItem<T> SelectedItem => _menuItems.Count > 0 ? _menuItems[_selectedIndex] : null;
+    public MenuItem SelectedItem => _menuItems.Count > 0 ? _menuItems[_selectedIndex] : null;
     public int ItemCount => _menuItems.Count;
     public bool HasItems => _menuItems.Count > 0;
 
@@ -47,7 +47,7 @@ public class Menu<T> where T : System.Enum
     /// <param name="cancelAction">Optional action to perform when the menu is canceled by hitting the Escape Key.</param>
     public Menu(SpriteFont font, ContentManager content, Action cancelAction = null)
     {
-        _menuItems = new List<MenuItem<T>>();
+        _menuItems = new List<MenuItem>();
         Font = font;
 
         _selectSound = content.Load<SoundEffect>("Sounds/select");
@@ -61,9 +61,9 @@ public class Menu<T> where T : System.Enum
     /// <summary>
     /// Adds a menu item to the menu.
     /// </summary>
-    public void AddItem(string text, Action action, T status = default )
+    public void AddItem(string text, Action action)
     {
-        var item = new MenuItem<T>(text, status);
+        var item = new MenuItem(text);
         _menuItems.Add(item);
         item.Action = action;
 
@@ -78,7 +78,7 @@ public class Menu<T> where T : System.Enum
     /// <summary>
     /// Adds a menu item to the menu.
     /// </summary>
-    public void AddItem(MenuItem<T> item)
+    public void AddItem(MenuItem item)
     {
         _menuItems.Add(item);
         
@@ -117,7 +117,7 @@ public class Menu<T> where T : System.Enum
     /// <summary>
     /// Removes a menu item by reference.
     /// </summary>
-    public bool RemoveItem(MenuItem<T> item)
+    public bool RemoveItem(MenuItem item)
     {
         int index = _menuItems.IndexOf(item);
         return index >= 0 && RemoveItemAt(index);
@@ -144,7 +144,7 @@ public class Menu<T> where T : System.Enum
     /// <summary>
     /// Gets a menu item by index.
     /// </summary>
-    public MenuItem<T> GetItem(int index)
+    public MenuItem GetItem(int index)
     {
         if (index < 0 || index >= _menuItems.Count)
             return null;

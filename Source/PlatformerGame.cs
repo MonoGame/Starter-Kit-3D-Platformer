@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -19,6 +20,7 @@ public class PlatformerGame : Game
         MenuScreen,
         MainScene,
         PauseScreen,
+        GameOverScreen
     }
 
 #if DEVMODE
@@ -37,14 +39,13 @@ public class PlatformerGame : Game
     private Texture2D _splashTexture;
     private Texture2D _coinTexture;
     private Texture2D _overlayTexture;
-    private Texture2D _menuBackgroundTexture;
     private Texture2D _logoTexture;
+    private Texture2D _foundationTexture;
+    private Texture2D _patreonTexture;
     private float _splashTimer = 0f;
     private float _loadingTimer = 0f;
     private const float SplashDurationInSeconds = 3f;
     private const float LoadingDurationInSeconds = 2f;
-    private readonly Color _skyColor = new Color(0.752941f, 0.776471f, 0.827451f);
-    private readonly Color _menuColor = new Color(255,182,0);
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
@@ -65,14 +66,17 @@ public class PlatformerGame : Game
     private DebugFlags _debugFlags = DebugFlags.None;
 #endif
 
-    private Menu<GameState> _mainMenu;
-    private Menu<GameState> _pauseMenu;
+    private Menu _mainMenu;
+    private Menu _pauseMenu;
 
     private SceneLoader _sceneLoader;
 
     private Scene _menuScene;
     private Scene _loadingScene;
     private Scene _currentScene;
+
+    private string[] levels;
+    private int currentLevel = 0;
 
     public PlatformerGame()
     {
@@ -98,7 +102,6 @@ public class PlatformerGame : Game
     protected override void Initialize()
     {
         base.Initialize();
-
     }
 
     protected override void LoadContent()
@@ -115,10 +118,11 @@ public class PlatformerGame : Game
         _overlayTexture = new Texture2D(_spriteBatch.GraphicsDevice, 1, 1);
         _overlayTexture.SetData(new[] { Color.Black });
         _splashTexture = Content.Load<Texture2D>("splash-screen");
-        _menuBackgroundTexture = Content.Load<Texture2D>("Textures/menu");
         _logoTexture = Content.Load<Texture2D>("Textures/logo");
-        _font = Content.Load<SpriteFont>("Font/hud");
         _coinTexture = Content.Load<Texture2D>("Textures/coin");
+        _foundationTexture = Content.Load<Texture2D>("Textures/foundation");
+        _patreonTexture = Content.Load<Texture2D>("Textures/patreon");
+        _font = Content.Load<SpriteFont>("Font/hud");
         _debugFont = Content.Load<SpriteFont>("Font/debug");
         Content.Load<Model>("Models/platform-large");
         Content.Load<Model>("Models/cloud");
@@ -130,14 +134,14 @@ public class PlatformerGame : Game
 #if !DEVMODE
         _song.Play();
 #endif
-        _mainMenu = new Menu<GameState>(_font, Content, Exit);
+        _mainMenu = new Menu(_font, Content, Exit);
         _mainMenu.AddItem("Start Game", () =>
         {
             LoadLevel("level1");
             _currentState = GameState.MainScene;
         });
         _mainMenu.AddItem("Quit", Exit);
-        _pauseMenu = new Menu<GameState>(_font, Content, () => _currentState = GameState.MainScene);
+        _pauseMenu = new Menu(_font, Content, () => _currentState = GameState.MainScene);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
         _pauseMenu.AddItem("Main Menu", () =>
         {
@@ -159,15 +163,10 @@ public class PlatformerGame : Game
         };
         playerLoading.PlayAnimation("jump");
         _loadingScene.Entities.Add(playerLoading);
-    }
 
-    string[] levels = new string[]
-    {
-        "level1",
-        "level2",
-        "level3"
-    };
-    int currentLevel = 0;
+        // Get the list of levels from the levels.json file.
+        levels = SceneLoader.GetSceneList();
+    }
 
     private void LoadNextLevel()
     {
@@ -178,15 +177,14 @@ public class PlatformerGame : Game
         }
         else
         {
-            // Reset to the first level or handle end of game logic
+            // Reset to the first level and handle end of game logic
             currentLevel = 0;
-            LoadLevel(levels[currentLevel]);
+            _currentState = GameState.GameOverScreen;
         }
     }
 
     private void LoadLevel(string level)
     {
-        Vector3 lightPosition = new Vector3(100, 200, 100);
         _currentScene = _sceneLoader.LoadScene(level);
         _shadowProcessor.LightDirection = Vector3.Normalize(_currentScene.LightPosition);
         _shadowProcessor.SpecularIntensity = 0.1f;
@@ -220,12 +218,10 @@ public class PlatformerGame : Game
                     // Resume the game
                     _currentState = GameState.MainScene;
                     break;
-
-                case GameState.MenuScreen:
-                case GameState.SplashScreen:
-                case GameState.LoadingScreen:
-                    // Exit to desktop or main menu
-                    Exit();
+                case GameState.GameOverScreen:
+                    // Go back to the main menu
+                    _currentState = GameState.MenuScreen;
+                    _mainMenu.Activate();
                     break;
             }
         }
@@ -351,6 +347,8 @@ public class PlatformerGame : Game
                 }
 
                 break;
+            case GameState.GameOverScreen:
+                break;
         }
 
         base.Update(gameTime);
@@ -377,6 +375,23 @@ public class PlatformerGame : Game
         }
 #endif
         _spriteBatch.End();
+    }
+
+    private void DrawGameOverScreen(GameTime gameTime)
+    {
+        var sb = new StringBuilder();
+        var textSize = _font.MeasureString("You have reached the end of the sample!");
+        sb.AppendLine("You have reached the end of the sample!");
+        sb.AppendLine("Thank you for playing.");
+        sb.AppendLine("Press Enter to return to the main menu.");
+        _spriteBatch.DrawString(_font, sb.ToString(), new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), (GameConstants.BASE_RESOLUTION_HEIGHT / 2) - (textSize.Y / 2)), Color.Black);
+        sb.Clear();
+        sb.AppendLine($"Visit {GameConstants.WEBSITEURL} to learn more about MonoGame.");
+        sb.AppendLine($"Check out our Patreon for access to other exclusive samples and demos: {GameConstants.PATREONURL}");
+        sb.AppendLine($"Source code is available on GitHub: {GameConstants.GITHUBURL}");
+        _spriteBatch.Draw(_foundationTexture, new Rectangle((int)(GameConstants.BASE_RESOLUTION_WIDTH / 2) - ((_foundationTexture.Width / 4) / 2), 10, _foundationTexture.Width / 4, _foundationTexture.Height / 4), Color.White);
+        //_spriteBatch.Draw(_patreonTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_patreonTexture.Width /2) - 10, 10, _patreonTexture.Width /2, _patreonTexture.Height /2), Color.White);
+        _spriteBatch.DrawString(_debugFont, sb.ToString(), new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), GameConstants.BASE_RESOLUTION_HEIGHT - 100), Color.Black);
     }
 
     private void DrawMetrics(GameTime gameTime)
@@ -413,7 +428,7 @@ public class PlatformerGame : Game
         {
             case GameState.SplashScreen:
                 // Draw splash screen
-                GraphicsDevice.Clear(Color.Black);
+                GraphicsDevice.Clear(GameConstants.DEFAULT_BACKGROUND_COLOR);
 
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
 
@@ -432,25 +447,21 @@ public class PlatformerGame : Game
             case GameState.LoadingScreen:
                 // Draw splash screen
                 _loadingScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
-                // GraphicsDevice.Clear(Color.Black);
-                // _postProcessor.BeginScene();
-                // _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                break;
 
-                // // Draw splash texture centered on screen
-                // destinationRectangle = new Rectangle(
-                //     ((int)GameConstants.BASE_RESOLUTION_WIDTH - _splashTexture.Width) / 2,
-                //     ((int)GameConstants.BASE_RESOLUTION_HEIGHT - _splashTexture.Height) / 2,
-                //     _splashTexture.Width,
-                //     _splashTexture.Height);
-
-                // _spriteBatch.Draw(_splashTexture, destinationRectangle, Color.White);
-
-                // _spriteBatch.End();
-                // _postProcessor.EndScene();
+            case GameState.GameOverScreen:
+                // Draw MonoGame logo and url, Patreon logo and url and "Game Over" text.
+                // Add Source code GitHub url.
+                // Thank Patrons for their support.
+                _postProcessor.BeginScene();
+                GraphicsDevice.Clear(GameConstants.DEFAULT_BACKGROUND_COLOR);
+                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                DrawGameOverScreen(gameTime);
+                _spriteBatch.End();
+                _postProcessor.EndScene();
                 break;
 
             case GameState.MenuScreen:
-                GraphicsDevice.Clear(_skyColor);
                 _menuScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _spriteBatch.Draw(_logoTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100), 50, _logoTexture.Width - 200, _logoTexture.Height - 50), Color.White);

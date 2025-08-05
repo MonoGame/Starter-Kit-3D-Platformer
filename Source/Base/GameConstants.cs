@@ -3,6 +3,7 @@
 // file 'LICENSE.md', which is part of this source code package.
 
 using System;
+using Microsoft.Xna.Framework;
 
 public static class GameConstants
 {
@@ -51,4 +52,9 @@ public static class GameConstants
     public const float SCALE_SPEED = 5.0f; // Speed of oscillation
     public const float MIN_SCALE = 1.0f;   // Minimum scale
     public const float MAX_SCALE = 1.05f;   // Maximum scale
+    public const string PATREONURL = "https://www.patreon.com/monogame";
+    public const string WEBSITEURL = "https://www.monogame.net";
+    public const string GITHUBURL = "https://github.com/MonoGame/Starter-Kit-3D-Platformer";
+
+    public static readonly Color DEFAULT_BACKGROUND_COLOR = new Color(0.752941f, 0.776471f, 0.827451f);
 }

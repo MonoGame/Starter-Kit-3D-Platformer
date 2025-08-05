@@ -100,6 +100,11 @@ public class SceneLoader
                 scene.Entities.Add(goal);
                 continue;
             }
+            else if (typeName.Equals("SCENE"))
+            {
+                scene.SkyColor = entityData.GetProperty("background").ToColorFromJson();
+                continue;
+            }
             else if (typeName.Equals("MESH"))
             {
                 var instanceOf = entityData.GetProperty("instanceof").GetString();
@@ -124,5 +129,19 @@ public class SceneLoader
         scene.Player.Rotation = spawnPoint?.Rotation ?? Quaternion.Identity;
         scene.Player.PlayAnimation("idle");
         return scene;
+    }
+
+    public static string[] GetSceneList()
+    {
+        var levelsJson = TitleContainer.OpenStream("Content/levels.json");
+        using var reader = new StreamReader(levelsJson);
+        var json = reader.ReadToEnd();
+        var document = JsonDocument.Parse(json);
+        var sceneList = new List<string>();
+        foreach (var element in document.RootElement.EnumerateArray())
+        {
+            sceneList.Add(element.GetString());
+        }
+        return sceneList.ToArray();
     }
 }
