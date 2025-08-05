@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -56,11 +57,28 @@ public class SceneLoader
             if (typeName.Equals("CAMERA"))
             {
                 var cameraPosition = entityData.GetProperty("position").ReadVector3FromJson();
-                var cameraTarget = entityData.GetProperty("target").ReadVector3FromJson();
-                var cameraUp = entityData.GetProperty("up").ReadVector3FromJson(Vector3.Up);
+                var cameraTarget = Vector3.Zero;
+                var cameraUp = Vector3.Up;
+                var cameraRotation = Quaternion.Identity;
+                entityData.TryGetProperty("up", out var up);
+                if (up.ValueKind != JsonValueKind.Undefined)
+                {
+                    cameraUp = up.ReadVector3FromJson();
+                }
+                entityData.TryGetProperty("direction", out var direction);
+                if (direction.ValueKind != JsonValueKind.Undefined)
+                {
+                    cameraTarget = Vector3.Normalize(direction.ReadVector3FromJson()) * 100f;
+                }
+                entityData.TryGetProperty("fov", out var fov);
+                if (fov.ValueKind != JsonValueKind.Undefined)
+                {
+                    scene.Camera.FieldOfView = fov.GetSingle();
+                }
                 scene.Camera.Position = cameraPosition;
-                scene.Camera.Target = cameraTarget;
+                scene.Camera.SetTarget(cameraTarget);
                 scene.Camera.UpDirection = cameraUp;
+                //scene.Camera.Rotation = cameraRotation;
                 continue;
             }
             else if (typeName.Equals("SPAWNPOINT"))

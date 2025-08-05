@@ -42,7 +42,7 @@ public class PlatformerGame : Game
     private float _splashTimer = 0f;
     private float _loadingTimer = 0f;
     private const float SplashDurationInSeconds = 3f;
-    private const float LoadingDurationInSeconds = 5f;
+    private const float LoadingDurationInSeconds = 2f;
     private readonly Color _skyColor = new Color(0.752941f, 0.776471f, 0.827451f);
     private readonly Color _menuColor = new Color(255,182,0);
     private GraphicsDeviceManager _graphics;
@@ -148,6 +148,19 @@ public class PlatformerGame : Game
         });
 
         _menuScene = _sceneLoader.LoadScene("menu");
+        _menuScene.AcceptInput = false;
+
+        // create a loading scene and manually add an animated entity to it
+        _loadingScene = _sceneLoader.LoadScene("loading");
+        _loadingScene.AcceptInput = false;
+        _loadingScene.HasPlayer = false;
+        var playerLoading = new AnimatedEntity(Content.Load<Model>("Models/character"), Content)
+        {
+            Position = Vector3.Zero,
+            Rotation = Quaternion.Identity
+        };
+        playerLoading.PlayAnimation("jump");
+        _loadingScene.Entities.Add(playerLoading);
     }
 
     string[] levels = new string[]
@@ -294,6 +307,7 @@ public class PlatformerGame : Game
                 break;
 
             case GameState.LoadingScreen:
+                _loadingScene.Update(gameTime);
                 _loadingTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (_loadingTimer >= LoadingDurationInSeconds)
                 {
@@ -304,6 +318,7 @@ public class PlatformerGame : Game
 
             case GameState.MenuScreen:
                 // TODO: Handle menu screen logic
+                _menuScene.Update(gameTime);
                 _mainMenu.Update(gameTime, currentKeyboardState, gamePadState);
                 break;
 
@@ -421,35 +436,34 @@ public class PlatformerGame : Game
 
             case GameState.LoadingScreen:
                 // Draw splash screen
-                GraphicsDevice.Clear(Color.Black);
-                _postProcessor.BeginScene();
-                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _loadingScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
+                // GraphicsDevice.Clear(Color.Black);
+                // _postProcessor.BeginScene();
+                // _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
 
-                // Draw splash texture centered on screen
-                destinationRectangle = new Rectangle(
-                    ((int)GameConstants.BASE_RESOLUTION_WIDTH - _splashTexture.Width) / 2,
-                    ((int)GameConstants.BASE_RESOLUTION_HEIGHT - _splashTexture.Height) / 2,
-                    _splashTexture.Width,
-                    _splashTexture.Height);
+                // // Draw splash texture centered on screen
+                // destinationRectangle = new Rectangle(
+                //     ((int)GameConstants.BASE_RESOLUTION_WIDTH - _splashTexture.Width) / 2,
+                //     ((int)GameConstants.BASE_RESOLUTION_HEIGHT - _splashTexture.Height) / 2,
+                //     _splashTexture.Width,
+                //     _splashTexture.Height);
 
-                _spriteBatch.Draw(_splashTexture, destinationRectangle, Color.White);
+                // _spriteBatch.Draw(_splashTexture, destinationRectangle, Color.White);
 
-                _spriteBatch.End();
-                _postProcessor.EndScene();
+                // _spriteBatch.End();
+                // _postProcessor.EndScene();
                 break;
 
             case GameState.MenuScreen:
                 GraphicsDevice.Clear(_skyColor);
-                _postProcessor.BeginScene();
+                _menuScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
-                _spriteBatch.Draw(_menuBackgroundTexture, new Rectangle(0, 0, (int)GameConstants.BASE_RESOLUTION_WIDTH, (int)GameConstants.BASE_RESOLUTION_HEIGHT), Color.White);
-                _spriteBatch.Draw(_logoTexture, new Rectangle(50, 50, _logoTexture.Width / 2, _logoTexture.Height / 2), Color.White);
+                _spriteBatch.Draw(_logoTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100), 50, _logoTexture.Width - 200, _logoTexture.Height - 50), Color.White);
                 _spriteBatch.End();
-                var offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 350, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 100, 0f);
+                var offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 320, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 150, 0f);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(offset) * Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _mainMenu.Draw(_spriteBatch);
                 _spriteBatch.End();
-                _postProcessor.EndScene();
                 break;
 
             case GameState.PauseScreen:

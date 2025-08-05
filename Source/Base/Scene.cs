@@ -39,6 +39,10 @@ public class Scene
     }
     public float ResetTimer { get; set; } = 0.0f;
 
+    public bool AcceptInput { get; set; } = true;
+
+    public bool HasPlayer { get; set; } = true;
+
     public Scene(GraphicsDevice graphicsDevice, ContentManager contentManager)
     {
         _graphicsDevice = graphicsDevice;
@@ -46,6 +50,8 @@ public class Scene
         // The camera will be used to view the scene and the player will represent the main character
         // in the game. The content manager is used to load assets for the entities in the scene.
         _camera = new Camera(graphicsDevice);
+        if (!HasPlayer)
+            return;
         _player = new Player(graphicsDevice, contentManager.Load<Model>("Models/character"), contentManager)
         {
             Position = Vector3.Zero,
@@ -56,9 +62,67 @@ public class Scene
 
     public void Update(GameTime gameTime)
     {
+        if (AcceptInput)
+        {
+            UpdateEntities(gameTime);
+            return;
+        }
+
+        foreach (var entity in _entities)
+        {
+            entity.Update(gameTime);
+            entity.CheckCollision(_player);
+            _player?.CheckCollision(entity);
+        }
+        _camera.UpdateViewMatrix();
+        if (!HasPlayer)
+            return;
+
+        _player.Forward = _camera.ForwardDirection;
+        _player.Update(gameTime);
+        
+        if (_player.Position.Y < -1000)
+        {
+            var spawnPoint = _entities.Find(e => e is SpawnPoint);
+            _player.Position = spawnPoint.Position + (Vector3.Up * 1000);
+        }
+    }
+
+    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, ShadowProcessor shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
+    {
+        DrawShadownMaps(shadowProcessor);
+        postProcessor.BeginScene();
+        graphicsDevice.Clear(_skyColor);
+        DrawScene(shadowProcessor, spriteBatch);
+        DrawBillboards(spriteBatch);
+        postProcessor.EndScene();
+    }
+
+    public void DrawCollisionMeshs(SpriteBatch spriteBatch)
+    {
+        foreach (var entity in _entities)
+        {
+            entity.Draw(_graphicsDevice, spriteBatch, _camera);
+        }
+        if (HasPlayer)
+            _player.Draw(_graphicsDevice, spriteBatch, _camera);
+    }
+
+    public void DrawBillboards(SpriteBatch spriteBatch)
+    {
+        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
+        foreach (var entity in _entities)
+        {
+            entity.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
+        }
+        spriteBatch.End();
+    }
+
+    private void UpdateEntities(GameTime gameTime)
+    {
         if (!_player.IsDead)
         {
-            // TODO: Shoukd the player really update before the world?
+            // TODO: Should the player really update before the world?
             _player.Forward = _camera.ForwardDirection;
             _player.Update(gameTime);
 
@@ -106,21 +170,11 @@ public class Scene
         }
     }
 
-    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, ShadowProcessor shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
-    {
-        DrawShadownMaps(shadowProcessor);
-        postProcessor.BeginScene();
-        graphicsDevice.Clear(_skyColor);
-        DrawScene(shadowProcessor, spriteBatch);
-        DrawBillboards(spriteBatch);
-        postProcessor.EndScene();
-    }
-
     private void DrawShadownMaps(ShadowProcessor shadowProcessor)
     {
         _drawList.Clear();
         _drawList.AddRange(_entities);
-        if (!_player.IsDead)
+        if (!_player.IsDead && HasPlayer)
             _drawList.Add(_player);
         _drawList.Add(_dust);
 
@@ -149,7 +203,7 @@ public class Scene
     {
         _drawList.Clear();
         _drawList.AddRange(_entities);
-        if (!_player.IsDead)
+        if (!_player.IsDead && HasPlayer)
             _drawList.Add(_player);
 
         // Draw closest to the camera first.
@@ -181,24 +235,5 @@ public class Scene
         }
 
         _dust.Draw(_graphicsDevice, spriteBatch, _camera);
-    }
-
-    public void DrawCollisionMeshs(SpriteBatch spriteBatch)
-    {
-        foreach (var entity in _entities)
-        {
-            entity.Draw(_graphicsDevice, spriteBatch, _camera);
-        }
-        _player.Draw(_graphicsDevice, spriteBatch, _camera);
-    }
-
-    public void DrawBillboards(SpriteBatch spriteBatch)
-    {
-        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
-        foreach (var entity in _entities)
-        {
-            entity.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
-        }
-        spriteBatch.End();
     }
 }

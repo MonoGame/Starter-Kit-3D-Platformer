@@ -38,6 +38,8 @@ public class Camera
     public float RotationSpeed { get; set; } = 0.05f;
     public float ZoomSpeed { get; set; } = 5f;
 
+    public float FieldOfView { get; set; } = 45f;
+
     // Camera direction vector
     public Vector3 ForwardDirection => Vector3.Normalize(Target - Position);
 
@@ -77,6 +79,12 @@ public class Camera
     {
         Distance -= amount * ZoomSpeed;
         Distance = MathHelper.Clamp(Distance, MinDistance, MaxDistance);
+    }
+
+    public void SetTarget(Vector3 target)
+    {
+        Target = target;
+        _smoothedTarget = target; // Initialize smoothed target
     }
 
     public void Update(GameTime gameTime)
@@ -166,6 +174,6 @@ public class Camera
     public void UpdateProjectionMatrix()
     {
         float aspectRatio = (float)_device.Viewport.Width / _device.Viewport.Height;
-        _projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45f), aspectRatio, 0.1f, 5000f);
+        _projectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(FieldOfView), aspectRatio, 0.1f, 5000f);
     }
 }
