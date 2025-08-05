@@ -1,3 +1,7 @@
+// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.md', which is part of this source code package.
+
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -46,12 +50,14 @@ public class Scene
     public Scene(GraphicsDevice graphicsDevice, ContentManager contentManager)
     {
         _graphicsDevice = graphicsDevice;
+
         // Initialize the scene with a camera and player
         // The camera will be used to view the scene and the player will represent the main character
         // in the game. The content manager is used to load assets for the entities in the scene.
         _camera = new Camera(graphicsDevice);
         if (!HasPlayer)
             return;
+
         _player = new Player(graphicsDevice, contentManager.Load<Model>("Models/character"), contentManager)
         {
             Position = Vector3.Zero,
@@ -62,66 +68,10 @@ public class Scene
 
     public void Update(GameTime gameTime)
     {
-        if (AcceptInput)
-        {
-            UpdateEntities(gameTime);
-            return;
-        }
-
-        foreach (var entity in _entities)
-        {
-            entity.Update(gameTime);
-            entity.CheckCollision(_player);
-            _player?.CheckCollision(entity);
-        }
-        _camera.UpdateViewMatrix();
-        if (!HasPlayer)
-            return;
-
-        _player.Forward = _camera.ForwardDirection;
-        _player.Update(gameTime);
-        
-        if (_player.Position.Y < -1000)
-        {
-            var spawnPoint = _entities.Find(e => e is SpawnPoint);
-            _player.Position = spawnPoint.Position + (Vector3.Up * 1000);
-        }
-    }
-
-    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, ShadowProcessor shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
-    {
-        DrawShadownMaps(shadowProcessor);
-        postProcessor.BeginScene();
-        graphicsDevice.Clear(_skyColor);
-        DrawScene(shadowProcessor, spriteBatch);
-        DrawBillboards(spriteBatch);
-        postProcessor.EndScene();
-    }
-
-    public void DrawCollisionMeshs(SpriteBatch spriteBatch)
-    {
-        foreach (var entity in _entities)
-        {
-            entity.Draw(_graphicsDevice, spriteBatch, _camera);
-        }
-        if (HasPlayer)
-            _player.Draw(_graphicsDevice, spriteBatch, _camera);
-    }
-
-    public void DrawBillboards(SpriteBatch spriteBatch)
-    {
-        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
-        foreach (var entity in _entities)
-        {
-            entity.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
-        }
-        spriteBatch.End();
-    }
-
-    private void UpdateEntities(GameTime gameTime)
-    {
         if (!_player.IsDead)
         {
+            _player.InputEnabled = AcceptInput;
+
             // TODO: Should the player really update before the world?
             _player.Forward = _camera.ForwardDirection;
             _player.Update(gameTime);
@@ -164,10 +114,45 @@ public class Scene
                     _dust.AddDust(gameTime, _player.Position);
                 }
 
-                _camera.Target = _player.Position;
-                _camera.Update(gameTime);
+                if (!AcceptInput)
+                    _camera.UpdateViewMatrix();
+                else
+                {
+                    _camera.Target = _player.Position;
+                    _camera.Update(gameTime);
+                }                
             }
         }
+    }
+
+    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, ShadowProcessor shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
+    {
+        DrawShadownMaps(shadowProcessor);
+        postProcessor.BeginScene();
+        graphicsDevice.Clear(_skyColor);
+        DrawScene(shadowProcessor, spriteBatch);
+        DrawBillboards(spriteBatch);
+        postProcessor.EndScene();
+    }
+
+    public void DrawCollisionMeshs(SpriteBatch spriteBatch)
+    {
+        foreach (var entity in _entities)
+        {
+            entity.Draw(_graphicsDevice, spriteBatch, _camera);
+        }
+        if (HasPlayer)
+            _player.Draw(_graphicsDevice, spriteBatch, _camera);
+    }
+
+    public void DrawBillboards(SpriteBatch spriteBatch)
+    {
+        spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise);
+        foreach (var entity in _entities)
+        {
+            entity.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
+        }
+        spriteBatch.End();
     }
 
     private void DrawShadownMaps(ShadowProcessor shadowProcessor)

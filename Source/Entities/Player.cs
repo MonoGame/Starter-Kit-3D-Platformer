@@ -13,6 +13,8 @@ using Microsoft.Xna.Framework.Input;
 
 public class Player : AnimatedEntity
 {
+    public bool InputEnabled = true;
+
     public bool IsJumping = false;
     public bool IsGrounded = false;
 
@@ -194,9 +196,14 @@ public class Player : AnimatedEntity
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        // Get current keyboard state
-        var currentKeyboardState = Keyboard.GetState();
-        var gamePadState = GamePad.GetState(PlayerIndex.One);
+        // Get current input state.
+        var currentKeyboardState = default(KeyboardState);
+        var gamePadState = default(GamePadState);
+        if (InputEnabled)
+        {
+            currentKeyboardState = Keyboard.GetState();
+            gamePadState = GamePad.GetState(PlayerIndex.One);
+        }
 
         var jump = (_previousGamePadState.Buttons.A == ButtonState.Released && gamePadState.Buttons.A == ButtonState.Pressed) || (currentKeyboardState.IsKeyDown(Keys.Space) && !_previousKeyboardState.IsKeyDown(Keys.Space));
         var jumpHeld = gamePadState.Buttons.A == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Space);
