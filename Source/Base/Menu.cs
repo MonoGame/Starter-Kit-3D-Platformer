@@ -17,8 +17,6 @@ public class Menu<T> where T : System.Enum
 {
     private readonly List<MenuItem<T>> _menuItems;
     private int _selectedIndex;
-    private KeyboardState _previousKeyboardState;
-    private GamePadState _previousGamePadState;
     private float _inputCooldown;
     private Action _cancelAction; // Action to perform on cancel (e.g., exit menu)
     
@@ -47,8 +45,6 @@ public class Menu<T> where T : System.Enum
         _menuItems = new List<MenuItem<T>>();
         Font = font;
         _selectedIndex = 0;
-        _previousKeyboardState = Keyboard.GetState();
-        _previousGamePadState = GamePad.GetState(PlayerIndex.One);
         _cancelAction = cancelAction ?? (() => { /* Default cancel action */ });
         _scaleTimer = 0f;
     }
@@ -161,7 +157,7 @@ public class Menu<T> where T : System.Enum
     /// <summary>
     /// Updates the menu's input handling and navigation.
     /// </summary>
-    public void Update(GameTime gameTime, KeyboardState currentKeyboardState, GamePadState currentGamePadState)
+    public void Update(GameTime gameTime)
     {
         if (_menuItems.Count == 0)
         {
@@ -183,15 +179,15 @@ public class Menu<T> where T : System.Enum
             bool navigationInput = false;
 
             // Check for up/down navigation
-            bool upPressed = (currentKeyboardState.IsKeyDown(Keys.Up) && !_previousKeyboardState.IsKeyDown(Keys.Up)) ||
-                            //(currentKeyboardState.IsKeyDown(Keys.W) && !_previousKeyboardState.IsKeyDown(Keys.W)) ||
-                            (currentGamePadState.DPad.Up == ButtonState.Pressed && _previousGamePadState.DPad.Up == ButtonState.Released) ||
-                            (currentGamePadState.ThumbSticks.Left.Y > 0.5f && _previousGamePadState.ThumbSticks.Left.Y <= 0.5f);
+            bool upPressed =    InputState.IsKeyPressed(Keys.Up) ||
+                                //InputState.IsKeyPressed(Keys.W) ||
+                                InputState.IsButtonPressed(Buttons.DPadUp) ||
+                                InputState.IsButtonPressed(Buttons.LeftThumbstickUp);
 
-            bool downPressed = (currentKeyboardState.IsKeyDown(Keys.Down) && !_previousKeyboardState.IsKeyDown(Keys.Down)) ||
-                              //(currentKeyboardState.IsKeyDown(Keys.S) && !_previousKeyboardState.IsKeyDown(Keys.S)) ||
-                              (currentGamePadState.DPad.Down == ButtonState.Pressed && _previousGamePadState.DPad.Down == ButtonState.Released) ||
-                              (currentGamePadState.ThumbSticks.Left.Y < -0.5f && _previousGamePadState.ThumbSticks.Left.Y >= -0.5f);
+            bool downPressed =  InputState.IsKeyPressed(Keys.Down) ||
+                                //InputState.IsKeyPressed(Keys.S) ||
+                                InputState.IsButtonPressed(Buttons.DPadDown) ||
+                                InputState.IsButtonPressed(Buttons.LeftThumbstickDown);
 
             if (upPressed)
             {
@@ -210,13 +206,13 @@ public class Menu<T> where T : System.Enum
             }
 
             // Check for confirm/cancel input
-            var menuConfirmPressed = (currentKeyboardState.IsKeyDown(Keys.Enter) && !_previousKeyboardState.IsKeyDown(Keys.Enter)) ||
-                               //(currentKeyboardState.IsKeyDown(Keys.Space) && !_previousKeyboardState.IsKeyDown(Keys.Space)) ||
-                               (currentGamePadState.Buttons.A == ButtonState.Pressed && _previousGamePadState.Buttons.A == ButtonState.Released);
+            var menuConfirmPressed = InputState.IsKeyPressed(Keys.Enter) ||
+                               //InputState.IsKeyPressed(Keys.Space) ||
+                               InputState.IsButtonPressed(Buttons.A);
 
-            var menuCancelPressed = (currentKeyboardState.IsKeyDown(Keys.Escape) && !_previousKeyboardState.IsKeyDown(Keys.Escape)) ||
-                              (currentGamePadState.Buttons.B == ButtonState.Pressed && _previousGamePadState.Buttons.B == ButtonState.Released) ||
-                              (currentGamePadState.Buttons.Back == ButtonState.Pressed && _previousGamePadState.Buttons.Back == ButtonState.Released);
+            var menuCancelPressed = InputState.IsKeyPressed(Keys.Escape) ||
+                                    InputState.IsButtonPressed(Buttons.B) ||
+                                    InputState.IsButtonPressed(Buttons.Back);
 
             if (menuConfirmPressed)
             {
@@ -231,9 +227,6 @@ public class Menu<T> where T : System.Enum
             }
 
         }
-        // Store previous states
-        _previousKeyboardState = currentKeyboardState;
-        _previousGamePadState = currentGamePadState;
     }
 
     /// <summary>

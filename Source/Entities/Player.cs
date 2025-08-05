@@ -34,8 +34,6 @@ public class Player : AnimatedEntity
 
     private Vector3 _velocity;
     private Vector3 _physicsForce;
-    private KeyboardState _previousKeyboardState;
-    private GamePadState _previousGamePadState;
     private int _jumpCount = 0;
     private int _maxJumps = 2; // Allow double jump
     private Vector3 _moveDirection = Vector3.Zero;
@@ -62,7 +60,6 @@ public class Player : AnimatedEntity
         Position = new Vector3(0, 0, 0);
         Scale = new Vector3(1, 1, 1);
         Rotation = Quaternion.Identity;
-        _previousKeyboardState = Keyboard.GetState();
         _graphicsDevice = graphicsDevice;
         _squish = Vector3.Zero;
 
@@ -196,19 +193,7 @@ public class Player : AnimatedEntity
 
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        // Get current input state.
-        var currentKeyboardState = default(KeyboardState);
-        var gamePadState = default(GamePadState);
-        if (InputEnabled)
-        {
-            currentKeyboardState = Keyboard.GetState();
-            gamePadState = GamePad.GetState(PlayerIndex.One);
-        }
 
-        var jump = (_previousGamePadState.Buttons.A == ButtonState.Released && gamePadState.Buttons.A == ButtonState.Pressed) || (currentKeyboardState.IsKeyDown(Keys.Space) && !_previousKeyboardState.IsKeyDown(Keys.Space));
-        var jumpHeld = gamePadState.Buttons.A == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Space);
-
-        // Calculate the right vector based on forward (cross product with up)
         Vector3 right = Vector3.Cross(Vector3.Up, Forward);
         right = Vector3.Normalize(right);
 
@@ -217,10 +202,17 @@ public class Player : AnimatedEntity
 
         // Process movement inputs and convert to world-relative movement
         _moveDirection = Vector3.Zero;
+        var jump = false;
+        var jumpHeld = false;
 
-        if (deltaTime > 0f)
+        // Get current input state.
+        if (InputEnabled && deltaTime > 0f)
         {
-            var thumbstickLeft = gamePadState.ThumbSticks.Left;
+            jump = InputState.IsButtonPressed(Buttons.A) || InputState.IsKeyPressed(Keys.Space);
+
+            jumpHeld = InputState.IsButtonHeld(Buttons.A) || InputState.IsKeyHeld(Keys.Space);
+
+            var thumbstickLeft = InputState.GamepadState.ThumbSticks.Left;
             if (thumbstickLeft.LengthSquared() > 0)
             {
                 // Movement along the right vector
@@ -229,13 +221,13 @@ public class Player : AnimatedEntity
                 _moveDirection += forward * thumbstickLeft.Y;
             }
 
-            if (currentKeyboardState.IsKeyDown(Keys.A))
+            if (InputState.IsKeyDown(Keys.A))
                 _moveDirection += right;
-            if (currentKeyboardState.IsKeyDown(Keys.D))
+            if (InputState.IsKeyDown(Keys.D))
                 _moveDirection -= right;
-            if (currentKeyboardState.IsKeyDown(Keys.W))
+            if (InputState.IsKeyDown(Keys.W))
                 _moveDirection += forward;
-            if (currentKeyboardState.IsKeyDown(Keys.S))
+            if (InputState.IsKeyDown(Keys.S))
                 _moveDirection -= forward;
         }
 
@@ -352,10 +344,6 @@ public class Player : AnimatedEntity
         // Remove out the physics forces over time.
         float PhysicsDrag = 0.75f;
         _physicsForce = Vector3.Lerp(_physicsForce, Vector3.Zero, PhysicsDrag * deltaTime);
-
-        // Store current keyboard state for next frame
-        _previousKeyboardState = currentKeyboardState;
-        _previousGamePadState = gamePadState;
 
         // Do the squish check... we look at the distance between
         // the contact points and the center of the bounds to get

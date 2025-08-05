@@ -65,8 +65,6 @@ public class PlatformerGame : Game
     private DebugFlags _debugFlags = DebugFlags.None;
 #endif
 
-    private KeyboardState _previousKeyboardState = new KeyboardState();
-
     private Menu<GameState> _mainMenu;
     private Menu<GameState> _pauseMenu;
 
@@ -204,9 +202,11 @@ public class PlatformerGame : Game
         if (_song != null && _song.Volume < 1.0f && _song.State == SoundState.Playing)
             _song.Volume = MathF.Min(1.0f, _song.Volume + (deltaTime * 0.5f));
 
-        var currentKeyboardState = Keyboard.GetState();
-        var gamePadState = GamePad.GetState(PlayerIndex.One);
-        if (gamePadState.Buttons.Back == ButtonState.Pressed || currentKeyboardState.IsKeyDown(Keys.Escape) && _previousKeyboardState.IsKeyUp(Keys.Escape))
+        // Capture the current input state here once which is
+        // then used all through out the game.
+        InputState.Update();
+
+        if (InputState.IsButtonPressed(Buttons.Back) || InputState.IsKeyPressed(Keys.Escape))
         {
             switch (_currentState)
             {
@@ -230,36 +230,33 @@ public class PlatformerGame : Game
             }
         }
 
-        if (currentKeyboardState.IsKeyDown(Keys.LeftAlt))
+        if (InputState.IsKeyDown(Keys.LeftAlt) && InputState.IsKeyPressed(Keys.Enter))
         {
-            if (currentKeyboardState.IsKeyDown(Keys.Enter) && _previousKeyboardState.IsKeyUp(Keys.Enter))
-            {
-                // Toggle fullscreen mode
-                _graphics.ToggleFullScreen();
-            }
+            // Toggle fullscreen mode
+            _graphics.ToggleFullScreen();
         }
 
         // Handle debug flags toggling
 #if DEVMODE
-        if (currentKeyboardState.IsKeyDown(Keys.LeftControl) || currentKeyboardState.IsKeyDown(Keys.RightControl))
+        if (InputState.IsKeyDown(Keys.LeftControl) || InputState.IsKeyDown(Keys.RightControl))
         {
-            if (currentKeyboardState.IsKeyDown(Keys.F1) && _previousKeyboardState.IsKeyUp(Keys.F1))
+            if (InputState.IsKeyPressed(Keys.F1))
             {
                 _debugFlags ^= DebugFlags.ShowCollisionMesh;
             }
-            if (currentKeyboardState.IsKeyDown(Keys.F2) && _previousKeyboardState.IsKeyUp(Keys.F2))
+            if (InputState.IsKeyPressed(Keys.F2))
             {
                 _debugFlags ^= DebugFlags.ShowRenderTargets;
             }
-            if (currentKeyboardState.IsKeyDown(Keys.F3) && _previousKeyboardState.IsKeyUp(Keys.F3))
+            if (InputState.IsKeyPressed(Keys.F3))
             {
                 _debugFlags ^= DebugFlags.ShowMetrics;
             }
-            if (currentKeyboardState.IsKeyDown(Keys.P) && _previousKeyboardState.IsKeyUp(Keys.P))
+            if (InputState.IsKeyPressed(Keys.P))
             {
                 // TODO: print screen.
             }
-            if (currentKeyboardState.IsKeyDown(Keys.OemPlus) && _previousKeyboardState.IsKeyUp(Keys.OemPlus))
+            if (InputState.IsKeyPressed(Keys.OemPlus))
             {
                 TimeScale += 0.1f; // Increase time scale by 0.1x
                 if (TimeScale > 10f) // Prevent excessive time scale
@@ -267,7 +264,7 @@ public class PlatformerGame : Game
                     TimeScale = 10f;
                 }
             }
-            if (currentKeyboardState.IsKeyDown(Keys.OemMinus) && _previousKeyboardState.IsKeyUp(Keys.OemMinus))
+            if (InputState.IsKeyPressed(Keys.OemMinus))
             {
                 TimeScale -= 0.1f; // Decrease time scale by 0.1x
                 if (TimeScale < 0.1f) // Prevent negative or zero time scale
@@ -275,7 +272,7 @@ public class PlatformerGame : Game
                     TimeScale = 0.1f;
                 }
             }
-            if (currentKeyboardState.IsKeyDown(Keys.M) && _previousKeyboardState.IsKeyUp(Keys.M))
+            if (InputState.IsKeyPressed(Keys.M))
             {
                 if (_song.State == SoundState.Playing)
                 {
@@ -319,12 +316,12 @@ public class PlatformerGame : Game
             case GameState.MenuScreen:
                 // TODO: Handle menu screen logic
                 _menuScene.Update(gameTime);
-                _mainMenu.Update(gameTime, currentKeyboardState, gamePadState);
+                _mainMenu.Update(gameTime);
                 break;
 
             case GameState.PauseScreen:
                 deltaTime = 0f; // Pause the game logic
-                _pauseMenu.Update(gameTime, currentKeyboardState, gamePadState);
+                _pauseMenu.Update(gameTime);
                 goto case GameState.MainScene; // Pause screen logic is handled in the main scene update
             case GameState.MainScene:
                 // Handle main scene logic
@@ -357,8 +354,6 @@ public class PlatformerGame : Game
         }
 
         base.Update(gameTime);
-
-        _previousKeyboardState = currentKeyboardState;
     }
 
     private void DrawHud(GameTime gameTime, Rectangle rect, Vector2 scale)

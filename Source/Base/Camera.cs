@@ -44,8 +44,6 @@ public class Camera
     public Vector3 ForwardDirection => Vector3.Normalize(Target - Position);
 
     // Previous input states
-    private KeyboardState _previousKeyboardState;
-    private GamePadState _previousGamePadState;
     private Vector2 _cameraRotation = Vector2.Zero;
 
     public Matrix ViewMatrix => _viewMatrix;
@@ -54,8 +52,6 @@ public class Camera
     public Camera(GraphicsDevice graphicsDevice)
     {
         _device = graphicsDevice;
-        _previousKeyboardState = Keyboard.GetState();
-        _previousGamePadState = GamePad.GetState(PlayerIndex.One);
         UpdateViewMatrix();
         UpdateProjectionMatrix();
     }
@@ -97,18 +93,18 @@ public class Camera
 
     private void HandleInput(GameTime gameTime)
     {
-        KeyboardState keyboardState = Keyboard.GetState();
-        GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+
         // Handle gamepad rotation
-        Vector2 rightStick = gamePadState.ThumbSticks.Right;
+        Vector2 rightStick = InputState.GamepadState.ThumbSticks.Right;
+
         // Handle keyboard rotation
-        if (keyboardState.IsKeyDown(Keys.Left))
+        if (InputState.IsKeyDown(Keys.Left))
             rightStick.X = Math.Clamp(rightStick.X - 0.01f, -1f, 1f);
-        if (keyboardState.IsKeyDown(Keys.Right))
+        if (InputState.IsKeyDown(Keys.Right))
             rightStick.X = Math.Clamp(rightStick.X + 0.01f, -1f, 1f);
-        if (keyboardState.IsKeyDown(Keys.Up))
+        if (InputState.IsKeyDown(Keys.Up))
             rightStick.Y = Math.Clamp(rightStick.Y + 0.01f, -1f, 1f);
-        if (keyboardState.IsKeyDown(Keys.Down))
+        if (InputState.IsKeyDown(Keys.Down))
             rightStick.Y = Math.Clamp(rightStick.Y - 0.01f, -1f, 1f);
 
         if (rightStick != Vector2.Zero)
@@ -126,18 +122,15 @@ public class Camera
         }
 
         // Handle zoom (example using keyboard)
-        if (keyboardState.IsKeyDown(Keys.OemComma))
+        if (InputState.IsKeyDown(Keys.OemComma))
             Zoom(1f);
-        if (keyboardState.IsKeyDown(Keys.OemPeriod))
+        if (InputState.IsKeyDown(Keys.OemPeriod))
             Zoom(-1f);
 
         // Handle zoom with gamepad triggers
-        float triggerDifference = gamePadState.Triggers.Left - gamePadState.Triggers.Right;
+        float triggerDifference = InputState.GamepadState.Triggers.Left - InputState.GamepadState.Triggers.Right;
         if (triggerDifference != 0)
             Zoom(triggerDifference);
-
-        _previousKeyboardState = keyboardState;
-        _previousGamePadState = gamePadState;
     }
 
     private void UpdateCameraPosition(GameTime gameTime)
