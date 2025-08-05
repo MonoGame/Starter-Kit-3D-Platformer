@@ -148,7 +148,7 @@ public class Player : AnimatedEntity
 
         if (_physicsForce.Y > 0)
         {
-            _velocity.Y = 0.0f;
+            _velocity = Vector3.Zero;
             IsGrounded = false;
             PlayAnimation("jump");
             IsJumping = true;
@@ -215,9 +215,8 @@ public class Player : AnimatedEntity
             var thumbstickLeft = InputState.GamepadState.ThumbSticks.Left;
             if (thumbstickLeft.LengthSquared() > 0)
             {
-                // Movement along the right vector
+                // Movement along the forward and right vector
                 _moveDirection -= right * thumbstickLeft.X;
-                // Movement along the forward vector
                 _moveDirection += forward * thumbstickLeft.Y;
             }
 
@@ -290,7 +289,7 @@ public class Player : AnimatedEntity
         }
         else
         {
-            float AirSteeringAmount = 40;
+            float AirSteeringAmount = 5;
             if (desiredVelocity.X != 0 || desiredVelocity.Z != 0)
             {
                 _velocity.X = MathHelper.Lerp(_velocity.X, desiredVelocity.X, AirSteeringAmount * deltaTime);
