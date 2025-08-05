@@ -425,3 +425,11 @@
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /build:Sounds/burst.wav
+
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Sounds/select.wav
+
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/build:Sounds/click.wav

@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -23,6 +25,9 @@ public class Menu<T> where T : System.Enum
     // Oscillating scale properties
     private float _scaleTimer;
 
+    private SoundEffect _selectSound;
+    private SoundEffect _clickSound;
+
     public float ItemSpacing { get; set; } = 50f;
     public SpriteFont Font { get; set; }
 
@@ -40,10 +45,14 @@ public class Menu<T> where T : System.Enum
     /// </summary>
     /// <param name="font">The font used to render menu items.</param>
     /// <param name="cancelAction">Optional action to perform when the menu is canceled by hitting the Escape Key.</param>
-    public Menu(SpriteFont font, Action cancelAction = null)
+    public Menu(SpriteFont font, ContentManager content, Action cancelAction = null)
     {
         _menuItems = new List<MenuItem<T>>();
         Font = font;
+
+        _selectSound = content.Load<SoundEffect>("Sounds/select");
+        _clickSound = content.Load<SoundEffect>("Sounds/click");
+
         _selectedIndex = 0;
         _cancelAction = cancelAction ?? (() => { /* Default cancel action */ });
         _scaleTimer = 0f;
@@ -217,7 +226,8 @@ public class Menu<T> where T : System.Enum
             if (menuConfirmPressed)
             {
                 // Execute the action of the selected item
-                SelectedItem?.Action?.Invoke();
+                PlayClick();
+                SelectedItem?.Action?.Invoke();                
             }
             if (menuCancelPressed)
             {
@@ -238,6 +248,7 @@ public class Menu<T> where T : System.Enum
 
         _selectedIndex = (_selectedIndex + 1) % _menuItems.Count;
         UpdateSelectionHighlight();
+        PlaySelect();
     }
 
     /// <summary>
@@ -249,6 +260,7 @@ public class Menu<T> where T : System.Enum
 
         _selectedIndex = (_selectedIndex - 1 + _menuItems.Count) % _menuItems.Count;
         UpdateSelectionHighlight();
+        PlaySelect();
     }
 
     /// <summary>
@@ -326,5 +338,17 @@ public class Menu<T> where T : System.Enum
                 maxWidth = textSize.X;
         }
         return maxWidth;
+    }
+
+    public void PlayClick()
+    {
+        if (_clickSound != null)
+            _clickSound.Play(0.25f, 0, 0);
+    }
+
+    public void PlaySelect()
+    {
+        if (_selectSound != null)
+            _selectSound.Play(0.25f, 0, 0);
     }
 }

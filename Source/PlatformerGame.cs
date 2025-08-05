@@ -130,14 +130,14 @@ public class PlatformerGame : Game
 #if !DEVMODE
         _song.Play();
 #endif
-        _mainMenu = new Menu<GameState>(_font, Exit);
+        _mainMenu = new Menu<GameState>(_font, Content, Exit);
         _mainMenu.AddItem("Start Game", () =>
         {
             LoadLevel("level1");
             _currentState = GameState.MainScene;
         });
         _mainMenu.AddItem("Quit", Exit);
-        _pauseMenu = new Menu<GameState>(_font, () => _currentState = GameState.MainScene);
+        _pauseMenu = new Menu<GameState>(_font, Content, () => _currentState = GameState.MainScene);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
         _pauseMenu.AddItem("Main Menu", () =>
         {
