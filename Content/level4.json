@@ -2,5 +2,101 @@
     {
         "type": "SCENE",
         "background": "#BFC6D3"
+    },
+    {
+        "name": "Sun.005",
+        "type": "LIGHT",
+        "position": [
+            1014.9091796875,
+            1602.5953369140625,
+            882.7705078125
+        ]
+    },
+    {
+        "name": "PlayerSpawn.005",
+        "type": "SPAWNPOINT",
+        "position": [
+            560.3721313476562,
+            155.7833251953125,
+            -82.99490356445312
+        ],
+        "rotation": [
+            0,
+            0,
+            -93
+        ]
+    },
+    {
+        "name": "platform.010",
+        "type": "MESH",
+        "instanceof": "platform",
+        "position": [
+            557.4767456054688,
+            -1.7881393432617188e-05,
+            -85.02308654785156
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": true
+    },
+    {
+        "name": "platform-grass-large-round.003",
+        "type": "MESH",
+        "instanceof": "platform-grass-large-round",
+        "position": [
+            57.31334686279297,
+            -13.854074478149414,
+            -33.299190521240234
+        ],
+        "rotation": [
+            0,
+            0,
+            109
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": true
+    },
+    {
+        "name": "Goal.003",
+        "type": "GOAL",
+        "position": [
+            -53.626060485839844,
+            92.94524383544922,
+            1.6592681407928467
+        ],
+        "radius": 100.0
+    },
+    {
+        "name": "flag.003",
+        "type": "MESH",
+        "instanceof": "flag",
+        "position": [
+            -52.728843688964844,
+            36.11426544189453,
+            -14.625483512878418
+        ],
+        "rotation": [
+            0,
+            0,
+            109
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": true
     }
 ]
