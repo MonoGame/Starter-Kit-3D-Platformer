@@ -41,7 +41,6 @@ public class PlatformerGame : Game
     private Texture2D _overlayTexture;
     private Texture2D _logoTexture;
     private Texture2D _foundationTexture;
-    private Texture2D _patreonTexture;
     private float _splashTimer = 0f;
     private float _loadingTimer = 0f;
     private const float SplashDurationInSeconds = 3f;
@@ -121,7 +120,6 @@ public class PlatformerGame : Game
         _logoTexture = Content.Load<Texture2D>("Textures/logo");
         _coinTexture = Content.Load<Texture2D>("Textures/coin");
         _foundationTexture = Content.Load<Texture2D>("Textures/foundation");
-        _patreonTexture = Content.Load<Texture2D>("Textures/patreon");
         _font = Content.Load<SpriteFont>("Font/hud");
         _debugFont = Content.Load<SpriteFont>("Font/debug");
         Content.Load<Model>("Models/platform-large");
@@ -390,7 +388,6 @@ public class PlatformerGame : Game
         sb.AppendLine($"Check out our Patreon for access to other exclusive samples and demos: {GameConstants.PATREONURL}");
         sb.AppendLine($"Source code is available on GitHub: {GameConstants.GITHUBURL}");
         _spriteBatch.Draw(_foundationTexture, new Rectangle((int)(GameConstants.BASE_RESOLUTION_WIDTH / 2) - ((_foundationTexture.Width / 4) / 2), 10, _foundationTexture.Width / 4, _foundationTexture.Height / 4), Color.White);
-        //_spriteBatch.Draw(_patreonTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_patreonTexture.Width /2) - 10, 10, _patreonTexture.Width /2, _patreonTexture.Height /2), Color.White);
         _spriteBatch.DrawString(_debugFont, sb.ToString(), new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), GameConstants.BASE_RESOLUTION_HEIGHT - 100), Color.Black);
     }
 
