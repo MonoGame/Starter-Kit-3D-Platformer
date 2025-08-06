@@ -23,6 +23,8 @@ public class PlatformerGame : Game
         GameOverScreen
     }
 
+
+
 #if DEVMODE
     [Flags]
     private enum DebugFlags
@@ -58,6 +60,7 @@ public class PlatformerGame : Game
 
     private PostProcessor _postProcessor;
     private ShadowProcessor _shadowProcessor;
+    private TransitionProcessor _transitionProcessor;
 
     private SoundEffectInstance _song;
 
@@ -113,6 +116,7 @@ public class PlatformerGame : Game
         _shadowProcessor.LightDirection = Vector3.Normalize(new Vector3(10, 20, 10));
         _shadowProcessor.SpecularIntensity = 10f;
         _shadowProcessor.Shininess = 160.0f;
+        _transitionProcessor = new TransitionProcessor(GraphicsDevice, _spriteBatch);
         _sceneLoader = new SceneLoader(GraphicsDevice, Content);
         _overlayTexture = new Texture2D(_spriteBatch.GraphicsDevice, 1, 1);
         _overlayTexture.SetData(new[] { Color.Black });
@@ -136,16 +140,23 @@ public class PlatformerGame : Game
         _mainMenu.BasePosition = Vector2.Zero;
         _mainMenu.AddItem("Start Game", () =>
         {
-            LoadLevel("level1");
-            _currentState = GameState.MainScene;
+            currentLevel = 0;
+            LoadLevel(levels[currentLevel]);
+            _transitionProcessor.StartTransition(() =>
+            {
+                _currentState = GameState.MainScene;
+            });
         });
         _mainMenu.AddItem("Quit", Exit);
         _pauseMenu = new Menu(_font, Content, () => _currentState = GameState.MainScene, MenuTransitionDirection.Top);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
         _pauseMenu.AddItem("Main Menu", () =>
         {
-            _currentState = GameState.MenuScreen;
-            _mainMenu.Activate();
+            _transitionProcessor.StartTransition(() =>
+            {
+                _currentState = GameState.MenuScreen;
+                _mainMenu.Activate();
+            });
         });
 
         _menuScene = _sceneLoader.LoadScene("menu");
@@ -172,12 +183,14 @@ public class PlatformerGame : Game
         currentLevel++;
         if (currentLevel < levels.Length)
         {
+            // Load the next level and go to loading screen
+            _currentState = GameState.LoadingScreen;
             LoadLevel(levels[currentLevel]);
         }
         else
         {
-            // Reset to the first level and handle end of game logic
-            currentLevel = 0;
+            // Reset to the first level and go to game over screen
+            currentLevel = -1;
             _currentState = GameState.GameOverScreen;
         }
     }
@@ -195,6 +208,9 @@ public class PlatformerGame : Game
     {
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         
+        // Update transitions first
+        _transitionProcessor.Update(deltaTime);
+        
         // Fade in the music volume.
         if (_song != null && _song.Volume < 1.0f && _song.State == SoundState.Playing)
             _song.Volume = MathF.Min(1.0f, _song.Volume + (deltaTime * 0.5f));
@@ -203,24 +219,28 @@ public class PlatformerGame : Game
         // then used all through out the game.
         InputState.Update();
 
-        if (InputState.IsButtonPressed(Buttons.Back) || InputState.IsKeyPressed(Keys.Escape))
+        // Skip input handling during transitions
+        if (!_transitionProcessor.IsTransitioning && (InputState.IsButtonPressed(Buttons.Back) || InputState.IsKeyPressed(Keys.Escape)))
         {
             switch (_currentState)
             {
                 case GameState.MainScene:
-                    // Pause the game
+                    // Pause the game - NO transition, instant
                     _currentState = GameState.PauseScreen;
                     _pauseMenu.Activate();
                     break;
 
                 case GameState.PauseScreen:
-                    // Resume the game
+                    // Resume the game - NO transition, instant
                     _currentState = GameState.MainScene;
                     break;
                 case GameState.GameOverScreen:
                     // Go back to the main menu
-                    _currentState = GameState.MenuScreen;
-                    _mainMenu.Activate();
+                    _transitionProcessor.StartTransition(() =>
+                    {
+                        _currentState = GameState.MenuScreen;
+                        _mainMenu.Activate();
+                    });
                     break;
             }
         }
@@ -293,8 +313,11 @@ public class PlatformerGame : Game
                 if (_splashTimer >= SplashDurationInSeconds)
                 {
                     _splashTimer = 0f; // Reset splash timer
-                    _currentState = GameState.MenuScreen;
-                    _mainMenu.Activate();
+                    _transitionProcessor.StartTransition(() =>
+                    {
+                        _currentState = GameState.MenuScreen;
+                        _mainMenu.Activate();
+                    });
                 }
                 break;
 
@@ -304,7 +327,10 @@ public class PlatformerGame : Game
                 if (_loadingTimer >= LoadingDurationInSeconds)
                 {
                     _loadingTimer = 0f; // Reset the timer
-                    _currentState = GameState.MainScene; // Transition to main scene
+                    _transitionProcessor.StartTransition(() =>
+                    {
+                        _currentState = GameState.MainScene; // Transition to main scene
+                    });
                 }
                 break;
 
@@ -329,19 +355,24 @@ public class PlatformerGame : Game
 
                 _shadowProcessor.TargetPosition = _currentScene.Player.Position;
 
-                if (_currentScene.Goal.Complete)
+                if (_currentScene.Goal.Complete && !_transitionProcessor.IsTransitioning)
                 {
-                    _currentState = GameState.LoadingScreen;
-                    LoadNextLevel(); // Reload the level
+                    _transitionProcessor.StartTransition(() =>
+                    {
+                        LoadNextLevel(); // Reload the level
+                    });
                 }
 
-                if (_currentScene.ResetTimer > 0)
+                if (_currentScene.ResetTimer > 0 && !_transitionProcessor.IsTransitioning)
                 {
                     _currentScene.ResetTimer -= deltaTime * TimeScale;
                     if (_currentScene.ResetTimer < 0)
                     {
-                        _currentState = GameState.LoadingScreen;
-                        LoadLevel(levels[currentLevel]); // Reload the level
+                        _transitionProcessor.StartTransition(() =>
+                        {
+                            _currentState = GameState.LoadingScreen;
+                            LoadLevel(levels[currentLevel]); // Reload the level
+                        });
                     }
                 }
 
@@ -514,6 +545,9 @@ public class PlatformerGame : Game
                 }
                 break;
         }
+
+        // Draw transition overlay at the end (over everything including post-processing effects)
+        _transitionProcessor.DrawTransition(uiScale, GameConstants.BASE_RESOLUTION_WIDTH, GameConstants.BASE_RESOLUTION_HEIGHT);
 
         base.Draw(gameTime);
     }
