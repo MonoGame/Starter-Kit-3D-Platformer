@@ -23,7 +23,6 @@
     <EmbeddedResource Include="Icon.bmp">
       <LogicalName>Icon.bmp</LogicalName>
     </EmbeddedResource>
-    <MonoGameContentReference Include="..\..\Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Source\**\*.cs" />
