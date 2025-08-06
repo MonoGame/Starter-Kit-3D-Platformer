@@ -27,6 +27,7 @@ public class Scene
     private Camera _camera;
     private Player _player;
     private Dust _dust;
+    private Sparkles _sparkles;
 
     public List<Entity> Entities => _entities;
     public Camera Camera => _camera;
@@ -65,6 +66,7 @@ public class Scene
             Rotation = Quaternion.Identity
         };
         _dust = new Dust(contentManager.Load<Model>("Models/dust"), contentManager);
+        _sparkles = new Sparkles(contentManager);
     }
 
     public void Update(GameTime gameTime)
@@ -82,6 +84,7 @@ public class Scene
         }
 
         _dust.Update(gameTime);
+        _sparkles.Update(gameTime);
 
         foreach (var entity in _entities)
         {
@@ -153,6 +156,7 @@ public class Scene
         {
             entity.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
         }
+        _sparkles.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
         spriteBatch.End();
     }
 

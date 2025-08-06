@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -36,6 +37,7 @@ public class Player : AnimatedEntity
     private Vector3 _physicsForce;
     private int _jumpCount = 0;
     private int _maxJumps = 2; // Allow double jump
+    private bool _forceJump = false;
     private Vector3 _moveDirection = Vector3.Zero;
     private float _targetRotationAngle = 1.5f; // The angle we want to rotate towards
     private float _currentRotationAngle = 1.5f; // Current rotation angle, start facing the player
@@ -182,7 +184,14 @@ public class Player : AnimatedEntity
 
     public void Die()
     {
-        _playerDied.Play();
+        // dont play the dead sound if we are not accepting inputs.
+        if (InputEnabled)
+            _playerDied.Play();
+    }
+
+    public void Jump()
+    {
+        _forceJump = true;
     }
 
     public override void Update(GameTime gameTime)
@@ -202,8 +211,9 @@ public class Player : AnimatedEntity
 
         // Process movement inputs and convert to world-relative movement
         _moveDirection = Vector3.Zero;
-        var jump = false;
+        var jump = _forceJump;
         var jumpHeld = false;
+        _forceJump = false;
 
         // Get current input state.
         if (InputEnabled && deltaTime > 0f)
