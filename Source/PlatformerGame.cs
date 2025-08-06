@@ -132,14 +132,15 @@ public class PlatformerGame : Game
 #if !DEVMODE
         _song.Play();
 #endif
-        _mainMenu = new Menu(_font, Content, Exit);
+        _mainMenu = new Menu(_font, Content, Exit, MenuTransitionDirection.Right);
+        _mainMenu.BasePosition = Vector2.Zero;
         _mainMenu.AddItem("Start Game", () =>
         {
             LoadLevel("level1");
             _currentState = GameState.MainScene;
         });
         _mainMenu.AddItem("Quit", Exit);
-        _pauseMenu = new Menu(_font, Content, () => _currentState = GameState.MainScene);
+        _pauseMenu = new Menu(_font, Content, () => _currentState = GameState.MainScene, MenuTransitionDirection.Top);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
         _pauseMenu.AddItem("Main Menu", () =>
         {
@@ -381,7 +382,7 @@ public class PlatformerGame : Game
         var textSize = _font.MeasureString("You have reached the end of the sample!");
         sb.AppendLine("You have reached the end of the sample!");
         sb.AppendLine("Thank you for playing.");
-        sb.AppendLine("Press Enter to return to the main menu.");
+        sb.AppendLine("Press Escape to return to the main menu.");
         _spriteBatch.DrawString(_font, sb.ToString(), new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), (GameConstants.BASE_RESOLUTION_HEIGHT / 2) - (textSize.Y / 2)), Color.Black);
         sb.Clear();
         sb.AppendLine($"Visit {GameConstants.WEBSITEURL} to learn more about MonoGame.");
@@ -464,7 +465,7 @@ public class PlatformerGame : Game
                 _spriteBatch.Draw(_logoTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100), 50, _logoTexture.Width - 200, _logoTexture.Height - 50), Color.White);
                 _spriteBatch.End();
                 var offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 320, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 150, 0f);
-                _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(offset) * Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _spriteBatch.Begin(transformMatrix:Matrix.CreateTranslation(offset) *  Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _mainMenu.Draw(_spriteBatch);
                 _spriteBatch.End();
                 break;
@@ -497,13 +498,17 @@ public class PlatformerGame : Game
 #endif
                 if (_currentState == GameState.PauseScreen)
                 {
+                    var pauseMenuPosition = new Vector2(
+                        GameConstants.BASE_RESOLUTION_WIDTH / 2f - _pauseMenu.GetMenuWidth() / 2f, 
+                        GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _pauseMenu.GetMenuHeight() / 2f
+                    );
+                    _pauseMenu.BasePosition = pauseMenuPosition;
+                    _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                     // Draw semi-transparent overlay
-                    offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _pauseMenu.GetMenuWidth() / 2f, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _pauseMenu.GetMenuHeight() / 2f, 0f);
-                    _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(offset) * Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                     _spriteBatch.Draw(_overlayTexture,
-                        new Rectangle(-(int)offset.X, -(int)offset.Y, (int)GameConstants.BASE_RESOLUTION_WIDTH, (int)GameConstants.BASE_RESOLUTION_HEIGHT),
+                        new Rectangle(0, 0, (int)GameConstants.BASE_RESOLUTION_WIDTH, (int)GameConstants.BASE_RESOLUTION_HEIGHT),
                         Color.Black * 0.5f);
-                    // Draw the pause menu centered horizontally
+                    // Draw the pause menu
                     _pauseMenu.Draw(_spriteBatch);
                     _spriteBatch.End();
                 }

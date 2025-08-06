@@ -52,6 +52,10 @@ public static class GameConstants
     public const float SCALE_SPEED = 5.0f; // Speed of oscillation
     public const float MIN_SCALE = 1.0f;   // Minimum scale
     public const float MAX_SCALE = 1.05f;   // Maximum scale
+    
+    // Menu transition constants
+    public const float MENU_TRANSITION_DURATION = 0.5f; // Duration of menu transitions in seconds
+    public const float MENU_TRANSITION_OFFSET = 200f;   // How far off-screen menu items start
     public const string PATREONURL = "https://www.patreon.com/monogame";
     public const string WEBSITEURL = "https://www.monogame.net";
     public const string GITHUBURL = "https://github.com/MonoGame/Starter-Kit-3D-Platformer";

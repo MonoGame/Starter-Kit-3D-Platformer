@@ -14,6 +14,7 @@ using Microsoft.Xna.Framework.Input;
 /// <summary>
 /// A simple menu system that supports keyboard and gamepad navigation.
 /// Uses state-based selection rather than events.
+/// Supports animated transitions when activating and deactivating.
 /// </summary>
 public class Menu
 {
@@ -25,10 +26,17 @@ public class Menu
     // Oscillating scale properties
     private float _scaleTimer;
 
+    // Transition properties
+    private MenuState _menuState;
+    private MenuTransitionDirection _transitionDirection;
+    private float _transitionTimer;
+    private Vector2 _basePosition; // The final position when fully transitioned in
+    private Action _onTransitionOutComplete; // Callback when transition out completes
+
     private SoundEffect _selectSound;
     private SoundEffect _clickSound;
 
-    public float ItemSpacing { get; set; } = 50f;
+    public float ItemSpacing { get; set; } = 80f;
     public SpriteFont Font { get; set; }
 
     // State properties
@@ -36,16 +44,33 @@ public class Menu
     public MenuItem SelectedItem => _menuItems.Count > 0 ? _menuItems[_selectedIndex] : null;
     public int ItemCount => _menuItems.Count;
     public bool HasItems => _menuItems.Count > 0;
+    public MenuState CurrentState => _menuState;
+    public bool IsInteractive => _menuState == MenuState.Active;
 
     public Color TextColor { get; set; } = new Color(255,182,0);
     public Color SelectedColor { get; set; } = Color.Yellow;
+
+    // Transition properties
+    public MenuTransitionDirection TransitionDirection 
+    { 
+        get => _transitionDirection; 
+        set => _transitionDirection = value; 
+    }
+
+    public Vector2 BasePosition 
+    { 
+        get => _basePosition; 
+        set => _basePosition = value; 
+    }
 
     /// <summary>
     /// Initializes a new instance of the Menu class.
     /// </summary>
     /// <param name="font">The font used to render menu items.</param>
+    /// <param name="content">Content manager for loading sounds.</param>
     /// <param name="cancelAction">Optional action to perform when the menu is canceled by hitting the Escape Key.</param>
-    public Menu(SpriteFont font, ContentManager content, Action cancelAction = null)
+    /// <param name="transitionDirection">Direction from which menu items will transition in.</param>
+    public Menu(SpriteFont font, ContentManager content, Action cancelAction = null, MenuTransitionDirection transitionDirection = MenuTransitionDirection.Top)
     {
         _menuItems = new List<MenuItem>();
         Font = font;
@@ -56,6 +81,13 @@ public class Menu
         _selectedIndex = 0;
         _cancelAction = cancelAction ?? (() => { /* Default cancel action */ });
         _scaleTimer = 0f;
+        
+        // Initialize transition properties
+        _menuState = MenuState.Hidden;
+        _transitionDirection = transitionDirection;
+        _transitionTimer = 0f;
+        _basePosition = Vector2.Zero;
+        _onTransitionOutComplete = null;
     }
 
     /// <summary>
@@ -136,9 +168,33 @@ public class Menu
     {
         // Ignore input when activated so we 
         // don't accidentally trigger actions on menu open
-        _inputCooldown =  GameConstants.INPUT_COOLDOWN_TIME;
+        _inputCooldown = GameConstants.INPUT_COOLDOWN_TIME;
         _selectedIndex = 0; // Reset selection when activated
         UpdateSelectionHighlight();
+        
+        // Start transition in
+        _menuState = MenuState.TransitionIn;
+        _transitionTimer = 0f;
+    }
+
+    /// <summary>
+    /// Starts the transition out animation and calls the provided callback when complete.
+    /// </summary>
+    /// <param name="onComplete">Callback to execute when transition out completes.</param>
+    public void Deactivate(Action onComplete = null)
+    {
+        _onTransitionOutComplete = onComplete;
+        _menuState = MenuState.TransitionOut;
+        _transitionTimer = 0f;
+    }
+
+    /// <summary>
+    /// Immediately hides the menu without transition.
+    /// </summary>
+    public void Hide()
+    {
+        _menuState = MenuState.Hidden;
+        _transitionTimer = 0f;
     }
 
     /// <summary>
@@ -164,7 +220,7 @@ public class Menu
     }
 
     /// <summary>
-    /// Updates the menu's input handling and navigation.
+    /// Updates the menu's input handling, navigation, and transitions.
     /// </summary>
     public void Update(GameTime gameTime)
     {
@@ -173,14 +229,25 @@ public class Menu
             return;
         }
 
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        // Update transition state
+        UpdateTransition(deltaTime);
+
         // Update input cooldown
         if (_inputCooldown > 0)
         {
-            _inputCooldown -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _inputCooldown -= deltaTime;
         }
 
         // Update scale timer for oscillating effect
-        _scaleTimer += (float)gameTime.ElapsedGameTime.TotalSeconds * GameConstants.SCALE_SPEED;
+        _scaleTimer += deltaTime * GameConstants.SCALE_SPEED;
+
+        // Only handle input if menu is fully active
+        if (_menuState != MenuState.Active)
+        {
+            return;
+        }
 
         // Check for navigation input (only if cooldown has expired)
         if (_inputCooldown <= 0)
@@ -240,6 +307,40 @@ public class Menu
     }
 
     /// <summary>
+    /// Updates the transition state and timer.
+    /// </summary>
+    private void UpdateTransition(float deltaTime)
+    {
+        switch (_menuState)
+        {
+            case MenuState.TransitionIn:
+                _transitionTimer += deltaTime;
+                if (_transitionTimer >= GameConstants.MENU_TRANSITION_DURATION)
+                {
+                    _transitionTimer = GameConstants.MENU_TRANSITION_DURATION;
+                    _menuState = MenuState.Active;
+                }
+                break;
+
+            case MenuState.TransitionOut:
+                _transitionTimer += deltaTime;
+                if (_transitionTimer >= GameConstants.MENU_TRANSITION_DURATION)
+                {
+                    _transitionTimer = GameConstants.MENU_TRANSITION_DURATION;
+                    _menuState = MenuState.Hidden;
+                    _onTransitionOutComplete?.Invoke();
+                    _onTransitionOutComplete = null;
+                }
+                break;
+
+            case MenuState.Hidden:
+            case MenuState.Active:
+                // No transition updates needed
+                break;
+        }
+    }
+
+    /// <summary>
     /// Moves to the next menu item.
     /// </summary>
     public void MoveNext()
@@ -284,17 +385,30 @@ public class Menu
     }
 
     /// <summary>
-    /// Renders the menu to the screen.
+    /// Renders the menu to the screen with transition effects.
     /// </summary>
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (Font == null || _menuItems.Count == 0)
+        if (Font == null || _menuItems.Count == 0 || _menuState == MenuState.Hidden)
             return;
+
+        // Calculate transition progress (0 = start, 1 = end)
+        float transitionProgress = GetTransitionProgress();
 
         for (int i = 0; i < _menuItems.Count; i++)
         {
             var item = _menuItems[i];
-            var itemPosition = new Vector2(0, i * ItemSpacing);
+            
+            // Calculate base position for this item
+            var itemBasePosition = _basePosition + new Vector2(0, i * ItemSpacing);
+            
+            // Apply transition offset
+            var itemPosition = GetTransitionPosition(itemBasePosition, transitionProgress, i);
+
+            // Calculate opacity based on transition progress
+            float alpha = _menuState == MenuState.TransitionOut ? 1f - transitionProgress : transitionProgress;
+            var textColor = item.IsSelected ? SelectedColor : TextColor;
+            textColor *= alpha;
 
             if (item.IsSelected)
             {
@@ -304,13 +418,65 @@ public class Menu
                 var origin = textSize * 0.5f; // Center the scaling
                 var scaledPosition = itemPosition + origin; // Adjust position to account for origin
 
-                spriteBatch.DrawString(Font, item.Text, scaledPosition, SelectedColor, 0f, origin, scale, SpriteEffects.None, 0f);
+                spriteBatch.DrawString(Font, item.Text, scaledPosition, textColor, 0f, origin, scale, SpriteEffects.None, 0f);
             }
             else
             {
                 // Draw normal item without scaling
-                spriteBatch.DrawString(Font, item.Text, itemPosition, TextColor);
+                spriteBatch.DrawString(Font, item.Text, itemPosition, textColor);
             }
+        }
+    }
+
+    /// <summary>
+    /// Gets the current transition progress (0.0 to 1.0).
+    /// </summary>
+    private float GetTransitionProgress()
+    {
+        float progress = _transitionTimer / GameConstants.MENU_TRANSITION_DURATION;
+        return MathHelper.Clamp(progress, 0f, 1f);
+    }
+
+    /// <summary>
+    /// Calculates the position of a menu item during transition.
+    /// </summary>
+    private Vector2 GetTransitionPosition(Vector2 finalPosition, float progress, int itemIndex)
+    {
+        if (_transitionDirection == MenuTransitionDirection.None)
+            return finalPosition;
+
+        // Apply easing to the progress for smoother animation
+        float easedProgress = _menuState == MenuState.TransitionOut ? 
+            MathHelpers.EaseInCubic(progress) : MathHelpers.EaseOutCubic(progress);
+
+        // Add staggered delay for each item (creates a cascade effect)
+        float staggerDelay = itemIndex * 0.1f; // 0.1 second delay between items
+        float adjustedProgress = MathHelper.Clamp(easedProgress - staggerDelay, 0f, 1f);
+
+        if (_menuState == MenuState.TransitionOut)
+            adjustedProgress = 1f - adjustedProgress;
+
+        Vector2 offset = GetOffsetForDirection(_transitionDirection);
+        return Vector2.Lerp(finalPosition + offset, finalPosition, adjustedProgress);
+    }
+
+    /// <summary>
+    /// Gets the offset vector for the specified transition direction.
+    /// </summary>
+    private Vector2 GetOffsetForDirection(MenuTransitionDirection direction)
+    {
+        switch (direction)
+        {
+            case MenuTransitionDirection.Top:
+                return new Vector2(0, -GameConstants.MENU_TRANSITION_OFFSET);
+            case MenuTransitionDirection.Bottom:
+                return new Vector2(0, GameConstants.MENU_TRANSITION_OFFSET);
+            case MenuTransitionDirection.Left:
+                return new Vector2(-GameConstants.MENU_TRANSITION_OFFSET, 0);
+            case MenuTransitionDirection.Right:
+                return new Vector2(GameConstants.MENU_TRANSITION_OFFSET, 0);
+            default:
+                return Vector2.Zero;
         }
     }
 
@@ -351,4 +517,28 @@ public class Menu
         if (_selectSound != null)
             _selectSound.Play(0.25f, 0, 0);
     }
+
+    /// <summary>
+    /// Sets the transition direction for the menu.
+    /// </summary>
+    /// <param name="direction">The direction from which menu items will transition.</param>
+    public void SetTransitionDirection(MenuTransitionDirection direction)
+    {
+        _transitionDirection = direction;
+    }
+
+    /// <summary>
+    /// Checks if the menu is currently transitioning (in or out).
+    /// </summary>
+    public bool IsTransitioning => _menuState == MenuState.TransitionIn || _menuState == MenuState.TransitionOut;
+
+    /// <summary>
+    /// Checks if the menu is fully visible and ready for interaction.
+    /// </summary>
+    public bool IsFullyActive => _menuState == MenuState.Active;
+
+    /// <summary>
+    /// Gets the current transition progress as a percentage (0-100).
+    /// </summary>
+    public float TransitionProgressPercent => GetTransitionProgress() * 100f;
 }
