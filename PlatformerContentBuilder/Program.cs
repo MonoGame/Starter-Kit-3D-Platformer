@@ -11,7 +11,6 @@
 using PlatformerContentBuilder;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using MonoGame.Framework.Content.Pipeline.Builder;
-using SharpDX;
 
 var contentCollectionArgs = new ContentBuilderParams()
 {

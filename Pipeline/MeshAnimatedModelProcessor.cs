@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 
 [ContentProcessor(DisplayName = "Mesh Animated Model Processor")]
-class MeshAnimatedModelProcessor : ModelProcessor
+public class MeshAnimatedModelProcessor : ModelProcessor
 {
     // TODO: Expose max collision options, disable, max faces, tolerance, etc.
 

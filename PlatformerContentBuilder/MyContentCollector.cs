@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework.Content.Pipeline;
 using MonoGame.Framework.Content.Pipeline.Builder;
 
 namespace PlatformerContentBuilder;
@@ -10,9 +11,11 @@ public class MyContentCollector : ContentBuilder
 
         // include everything in the folder
         contentCollection.Include<RegexRule>(".");
+        contentCollection.Include<WildcardRule>("*.fbx", new FbxImporter(), new MeshAnimatedModelProcessor());
 
         // override .txt files to be copied
         contentCollection.IncludeCopy<RegexRule>(".txt");
+        contentCollection.IncludeCopy<RegexRule>(".json");
 
         // exclude bin / obj paths
         contentCollection.Exclude<RegexRule>("bin/");
