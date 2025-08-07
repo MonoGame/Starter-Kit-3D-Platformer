@@ -32,8 +32,8 @@
   </ItemGroup>
   <Target Name="BuildContent" BeforeTargets="Build">
     <PropertyGroup>
-      <MyBuilder>..\..\PlatformerContentBuilder\bin\$(Configuration)\net8.0\PlatformerContentBuilder.exe</MyBuilder>
-      <MyContent>..\..\Content</MyContent>
+      <MyBuilder>..\..\Content\bin\$(Configuration)\net8.0\Content.exe</MyBuilder>
+      <MyContent>..\..\Content\Assets</MyContent>
       <MyOutput>$(OutputPath)\Content\</MyOutput>
       <MyTemp>$(IntermediateOutputPath)\Content</MyTemp>
     </PropertyGroup>

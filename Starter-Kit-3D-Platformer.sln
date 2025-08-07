@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Desktop", "Platforms\Deskto
 		{0131C3F2-715E-3F74-B207-6BB2ED6040D5} = {0131C3F2-715E-3F74-B207-6BB2ED6040D5}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Content", "Content\Builder\ContentProject.csproj", "{0131C3F2-715E-3F74-B207-6BB2ED6040D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Content", "Content\Content.csproj", "{0131C3F2-715E-3F74-B207-6BB2ED6040D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
