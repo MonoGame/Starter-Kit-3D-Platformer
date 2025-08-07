@@ -9,16 +9,14 @@
 ///
 
 using PlatformerContentBuilder;
-using Microsoft.Xna.Framework.Content.Pipeline;
 using MonoGame.Framework.Content.Pipeline.Builder;
 
-var contentCollectionArgs = new ContentBuilderParams()
-{
-    Mode = ContentBuilderMode.Builder,
-    WorkingDirectory = $"{AppContext.BaseDirectory}../../../../", // path to where your content folder can be located
-    SourceDirectory = "Content", // Not actually needed as this is the default, but added for reference
-    OutputDirectory = $"{AppContext.BaseDirectory}../../../../Content/Output",
-    Platform = TargetPlatform.DesktopGL
-};
+
+var contentCollectionArgs = ContentBuilderParams.Parse(args);
+if (contentCollectionArgs == null)
+    return -1;
+
 var contentCollector = new MyContentCollector();
-contentCollector.Run(contentCollectionArgs); // alternativly just pass args to read from command line
+contentCollector.Run(contentCollectionArgs);
+
+return 0;
