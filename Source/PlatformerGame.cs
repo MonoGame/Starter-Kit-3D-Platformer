@@ -396,7 +396,7 @@ public class PlatformerGame : Game
         if (_currentScene.Goal.GoalReached)
         {
             var textSize = _font.MeasureString("Level Complete!");
-            _spriteBatch.DrawString(_font, "Level Complete!", new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), (GameConstants.BASE_RESOLUTION_HEIGHT / 2) - (textSize.Y / 2)), Color.White);
+            _spriteBatch.DrawString(_font, "Level Complete!", new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), GameConstants.BASE_RESOLUTION_HEIGHT - (textSize.Y / 2) - 100), Color.White);
         }
 #if DEVMODE
         if (_debugFlags.HasFlag(DebugFlags.ShowMetrics))

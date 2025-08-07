@@ -194,6 +194,27 @@ public class Player : AnimatedEntity
         _forceJump = true;
     }
 
+    public void LookAt(GameTime gameTime, Vector3 target)
+    {
+        // Calculate the direction to the target
+        Vector3 direction = target - Position;
+        if (direction.LengthSquared() < 0.0001f)
+            return; // Avoid division by zero
+
+        // Normalize the direction vector
+        direction.Normalize();
+
+        // Calculate the angle to look at the target
+        _targetRotationAngle = (float)Math.Atan2(direction.X, direction.Z);
+
+        // Smoothly interpolate towards the target rotation angle
+        float angleDifference = MathHelper.WrapAngle(_targetRotationAngle - _currentRotationAngle);
+        _currentRotationAngle += angleDifference * GameConstants.PLAYER_ROTATION_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        // Update the rotation quaternion
+        Rotation = Quaternion.CreateFromAxisAngle(Vector3.Up, _currentRotationAngle);
+    }
+
     public override void Update(GameTime gameTime)
     {
         // No updates once dead!

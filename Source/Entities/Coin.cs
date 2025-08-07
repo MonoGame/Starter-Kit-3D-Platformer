@@ -139,7 +139,6 @@ public class Coin : BobingEntity
             Type = Sparkles.SparkleType.Coin,
             Lifetime = 0.01f + (float)random.NextDouble(),  // Live for 0.5 to 1.5 seconds
             MaxLifetime = 0.01f + (float)random.NextDouble(),
-            UsePhysics = false,
             VerticalSpread = 50f,
         });
     }

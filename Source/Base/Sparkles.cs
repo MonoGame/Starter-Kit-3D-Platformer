@@ -29,6 +29,7 @@ public class Sparkles
         public float Lifetime;
         public float MaxLifetime;
         public SparkleType Type;
+        public Vector3 Gravity;
     }
 
     /// <summary>
@@ -53,8 +54,7 @@ public class Sparkles
         public float SpawnRadius { get; set; } = 30f;
         public float Rotation { get; set; } = 0f;
         public float VerticalSpread { get; set; } = 50f;
-        public Vector3 Gravity { get; set; } = new Vector3(0, -50f, 0);
-        public bool UsePhysics { get; set; } = true;
+        public Vector3 Gravity { get; set; } = Vector3.Zero;
     }
 
     public Sparkles(ContentManager content)
@@ -95,7 +95,8 @@ public class Sparkles
             Color = color,
             Lifetime = config.Lifetime,
             MaxLifetime = config.MaxLifetime,
-            Type = config.Type
+            Type = config.Type,
+            Gravity = config.Gravity
         };
 
         sparkle.MaxLifetime = sparkle.Lifetime; // Store original lifetime
@@ -136,6 +137,8 @@ public class Sparkles
             float lifePercent = sparkle.Lifetime / sparkle.MaxLifetime;
             byte alpha = (byte)(255 * lifePercent);
             sparkle.Color = new Color(sparkle.Color.R, sparkle.Color.G, sparkle.Color.B, alpha);
+
+            sparkle.Position += sparkle.Gravity * deltaTime;
 
             _sparkles[i] = sparkle;
         }
