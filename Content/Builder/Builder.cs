@@ -13,11 +13,11 @@ using MonoGame.Framework.Content.Pipeline.Builder;
 
 
 // TOOD: PlatformerContentBuilder should be returning success or failure!
-var contentCollector = new PlatformerContentBuilder();
+var contentCollector = new Builder();
 contentCollector.Run(args);
 return 0; 
 
-public class PlatformerContentBuilder : ContentBuilder
+public class Builder : ContentBuilder
 {
     public override IContentCollection GetContentCollection()
     {
