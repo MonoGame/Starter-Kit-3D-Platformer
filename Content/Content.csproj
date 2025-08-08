@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Source\Base\AnimationData.cs" Link="Builder\Base\AnimationData.cs" />
-    <Compile Include="..\Source\Base\Contact.cs" Link="Builder\Base\Contact.cs" />
-    <Compile Include="..\Source\Base\ConvexHull.cs" Link="Builder\Base\ConvexHull.cs" />
-    <Compile Include="..\Source\Base\GameConstants.cs" Link="Builder\Base\GameConstants.cs" />
-    <Compile Include="..\Source\Base\ModelData.cs" Link="Builder\Base\ModelData.cs" />
+    <Compile Include="..\Source\Base\AnimationData.cs" Link="Builder\AnimationData.cs" />
+    <Compile Include="..\Source\Base\Contact.cs" Link="Builder\Contact.cs" />
+    <Compile Include="..\Source\Base\ConvexHull.cs" Link="Builder\ConvexHull.cs" />
+    <Compile Include="..\Source\Base\GameConstants.cs" Link="Builder\GameConstants.cs" />
+    <Compile Include="..\Source\Base\ModelData.cs" Link="Builder\ModelData.cs" />
   </ItemGroup>
   <ItemGroup>
 	<None Include="Assets/*" />
@@ -21,10 +21,6 @@
     <PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.5-develop.6" />
     <PackageReference Include="MonoGame.Framework.Native" Version="3.8.5-develop.6" />
     <PackageReference Include="MIConvexHull" Version="1.1.19.1019" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Builder\Base\" />
   </ItemGroup>
   
 </Project>
