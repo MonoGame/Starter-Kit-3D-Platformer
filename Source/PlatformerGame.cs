@@ -76,6 +76,7 @@ public class PlatformerGame : Game
     private Scene _menuScene;
     private Scene _loadingScene;
     private Scene _currentScene;
+    private GameOver _gameOverScreen;
 
     private string[] levels;
     private int currentLevel = 0;
@@ -130,6 +131,16 @@ public class PlatformerGame : Game
         Content.Load<Model>("Models/cloud");
         Content.Load<Model>("Models/character");
 
+        _gameOverScreen = new GameOver(GraphicsDevice, Content, _font);
+        _gameOverScreen.OnReturnToMainMenu = () =>
+        {
+            _transitionProcessor.StartTransition(() =>
+            {
+                _currentState = GameState.MenuScreen;
+                _mainMenu.Activate();
+            });
+        };
+
         _song = Content.Load<SoundEffect>("Sounds/bright").CreateInstance();
         _song.IsLooped = true;
         _song.Volume = 0.0f;
@@ -137,7 +148,6 @@ public class PlatformerGame : Game
         _song.Play();
 #endif
         _mainMenu = new Menu(_font, Content, Exit, MenuTransitionDirection.Right);
-        _mainMenu.BasePosition = Vector2.Zero;
         _mainMenu.AddItem("Start Game", () =>
         {
             currentLevel = 0;
@@ -148,6 +158,7 @@ public class PlatformerGame : Game
             });
         });
         _mainMenu.AddItem("Quit", Exit);
+        _mainMenu.BasePosition = new Vector2(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 320, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 150);
         _pauseMenu = new Menu(_font, Content, () => _currentState = GameState.MainScene, MenuTransitionDirection.Top);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
         _pauseMenu.AddItem("Main Menu", () =>
@@ -192,6 +203,7 @@ public class PlatformerGame : Game
             // Reset to the first level and go to game over screen
             currentLevel = -1;
             _currentState = GameState.GameOverScreen;
+            _gameOverScreen.Activate();
         }
     }
 
@@ -315,8 +327,10 @@ public class PlatformerGame : Game
                     _splashTimer = 0f; // Reset splash timer
                     _transitionProcessor.StartTransition(() =>
                     {
-                        _currentState = GameState.MenuScreen;
-                        _mainMenu.Activate();
+                        //_currentState = GameState.MenuScreen;
+                        //_mainMenu.Activate();
+                        _currentState = GameState.GameOverScreen;
+                        _gameOverScreen.Activate();
                     });
                 }
                 break;
@@ -378,6 +392,7 @@ public class PlatformerGame : Game
 
                 break;
             case GameState.GameOverScreen:
+                _gameOverScreen.Update(gameTime);
                 break;
         }
 
@@ -405,22 +420,6 @@ public class PlatformerGame : Game
         }
 #endif
         _spriteBatch.End();
-    }
-
-    private void DrawGameOverScreen(GameTime gameTime)
-    {
-        var sb = new StringBuilder();
-        var textSize = _font.MeasureString("You have reached the end of the sample!");
-        sb.AppendLine("You have reached the end of the sample!");
-        sb.AppendLine("Thank you for playing.");
-        sb.AppendLine("Press Escape to return to the main menu.");
-        _spriteBatch.DrawString(_font, sb.ToString(), new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), (GameConstants.BASE_RESOLUTION_HEIGHT / 2) - (textSize.Y / 2)), Color.Black);
-        sb.Clear();
-        sb.AppendLine($"Visit {GameConstants.WEBSITEURL} to learn more about MonoGame.");
-        sb.AppendLine($"Check out our Patreon for access to other exclusive samples and demos: {GameConstants.PATREONURL}");
-        sb.AppendLine($"Source code is available on GitHub: {GameConstants.GITHUBURL}");
-        _spriteBatch.Draw(_foundationTexture, new Rectangle((int)(GameConstants.BASE_RESOLUTION_WIDTH / 2) - ((_foundationTexture.Width / 4) / 2), 10, _foundationTexture.Width / 4, _foundationTexture.Height / 4), Color.White);
-        _spriteBatch.DrawString(_debugFont, sb.ToString(), new Vector2((GameConstants.BASE_RESOLUTION_WIDTH / 2) - (textSize.X / 2), GameConstants.BASE_RESOLUTION_HEIGHT - 100), Color.Black);
     }
 
     private void DrawMetrics(GameTime gameTime)
@@ -485,7 +484,7 @@ public class PlatformerGame : Game
                 _postProcessor.BeginScene();
                 GraphicsDevice.Clear(GameConstants.DEFAULT_BACKGROUND_COLOR);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
-                DrawGameOverScreen(gameTime);
+                _gameOverScreen.Draw(gameTime, _spriteBatch);
                 _spriteBatch.End();
                 _postProcessor.EndScene();
                 break;
@@ -495,8 +494,7 @@ public class PlatformerGame : Game
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _spriteBatch.Draw(_logoTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100), 50, _logoTexture.Width - 200, _logoTexture.Height - 50), Color.White);
                 _spriteBatch.End();
-                var offset = new Vector3(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 320, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 150, 0f);
-                _spriteBatch.Begin(transformMatrix:Matrix.CreateTranslation(offset) *  Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _spriteBatch.Begin(transformMatrix:Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _mainMenu.Draw(_spriteBatch);
                 _spriteBatch.End();
                 break;

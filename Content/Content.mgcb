@@ -375,6 +375,7 @@
 /copy:level2.json
 /copy:level3.json
 /copy:level4.json
+/copy:level5.json
 
 #begin Font/hud.spritefont
 /importer:FontDescriptionImporter
