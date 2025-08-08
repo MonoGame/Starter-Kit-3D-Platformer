@@ -6,6 +6,7 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
     <AssemblyName>3DPlatformer</AssemblyName>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
@@ -32,11 +33,13 @@
   </ItemGroup>
   <Target Name="BuildContent" BeforeTargets="Build">
     <PropertyGroup>
-      <MyBuilder>..\..\Content\bin\$(Configuration)\net8.0\Content.exe</MyBuilder>
-      <MyContent>..\..\Content\Assets</MyContent>
-      <MyOutput>$(OutputPath)\Content\</MyOutput>
-      <MyTemp>$(IntermediateOutputPath)\Content</MyTemp>
+      <ContentTarget>DesktopGL</ContentTarget>
+      <ContentOutput>'$(ProjectDir)$(OutputPath)\Content\'</ContentOutput>
+      <ContentTemp>'$(ProjectDir)$(IntermediateOutputPath)\Content'</ContentTemp>
+      <ContentArgs>build -p $(ContentTarget) -s Assets -o $(ContentOutput) -i $(ContentTemp)</ContentArgs>
     </PropertyGroup>
-    <Exec Command="$(MyBuilder) build -p DesktopGL -s $(MyContent) -o $(MyOutput) -i $(MyTemp)" />
+    <MSbuild  Projects="..\..\Content\Content.csproj"
+              Targets="Run"
+              Properties="RunArguments=$(ContentArgs);" />
   </Target>
 </Project>
