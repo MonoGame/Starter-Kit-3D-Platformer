@@ -45,6 +45,7 @@ public class Scene
     }
     public float ResetTimer { get; set; } = 0.0f;
     public float CelebrationTimer { get; set; } = 0.0f;
+    public float CelebrationJumpInterval { get; set; } = 0.8f;
 
     public bool AcceptInput { get; set; } = true;
 
@@ -77,9 +78,11 @@ public class Scene
         if (CelebrationTimer > 0)
         {
             CelebrationTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (_player.IsGrounded)
+            CelebrationJumpInterval -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_player.IsGrounded && CelebrationJumpInterval <= 0)
             {
                 _player.Jump(); // Make the player jump to add to the celebration effect
+                CelebrationJumpInterval = 1f; // Reset the jump interval
             }
             _player.LookAt(gameTime, _camera.Position);
             return; // Avoid starting celebration if already in progress
