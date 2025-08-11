@@ -327,10 +327,8 @@ public class PlatformerGame : Game
                     _splashTimer = 0f; // Reset splash timer
                     _transitionProcessor.StartTransition(() =>
                     {
-                        //_currentState = GameState.MenuScreen;
-                        //_mainMenu.Activate();
-                        _currentState = GameState.GameOverScreen;
-                        _gameOverScreen.Activate();
+                        _currentState = GameState.MenuScreen;
+                        _mainMenu.Activate();
                     });
                 }
                 break;
