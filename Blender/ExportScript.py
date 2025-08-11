@@ -3,6 +3,7 @@ import os
 import math
 import mathutils
 import json
+import subprocess
 
 # Example function to get the object name of the instancer
 def get_instancer_object_name(obj):
@@ -136,6 +137,8 @@ for collection in bpy.data.collections:
                 "name" : name,
                 "type": 'LIGHT',
                 "position": [position.x, position.z, -position.y],
+                "color": rgb_to_hex(rgb = obj.data.color),
+                "intensity": obj.data.energy
             }
             objects_data.append (object_data)
             continue
@@ -216,3 +219,18 @@ for collection in bpy.data.collections:
         
 with open(blend_file_dir + "/../Content/levels.json", 'w') as file:
     json.dump(levels_data, file, indent=4)
+    
+#run the content compiler
+# The command you want to run (can add arguments as needed)
+command = ["dotnet", "build", "Platforms/Desktop/Desktop.csproj", '-t:"IncludeContent;CopyFilesToOutputDirectory"']  # Replace '--help' with your actual arguments
+workingdir = blend_file_dir + '/..'
+
+# Run the command
+try:
+    print("Executing:", command)
+    result = subprocess.run(command, cwd=workingdir, check=True, capture_output=True, text=True)
+    print("STDOUT:", result.stdout)
+    print("STDERR:", result.stderr)
+except subprocess.CalledProcessError as e:
+    print(f"Command failed with exit code {e.returncode}")
+    print("STDERR:", e.stderr)
