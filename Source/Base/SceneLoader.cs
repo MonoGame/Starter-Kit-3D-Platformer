@@ -91,6 +91,8 @@ public class SceneLoader
             else if (typeName.Equals("LIGHT"))
             {
                 scene.LightPosition = entityData.GetProperty("position").ReadVector3FromJson();
+                scene.LightColor = entityData.GetProperty("color").ToColorFromJson();
+                scene.LightIntensity = entityData.GetProperty("intensity").GetSingle();
                 continue;
             }
             else if (typeName.Equals("GOAL"))

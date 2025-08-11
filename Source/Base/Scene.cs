@@ -32,6 +32,8 @@ public class Scene
     public List<Entity> Entities => _entities;
     public Camera Camera => _camera;
     public Vector3 LightDirection => Vector3.Normalize(LightPosition);
+    public Color LightColor { get; set; } = Color.White;
+    public float LightIntensity { get; set; } = 1.0f;
     public Player Player => _player;
     public Dust Dust => _dust;
     public Goal Goal
@@ -186,6 +188,8 @@ public class Scene
 
     public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, ShadowProcessor shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
     {
+        shadowProcessor.SunColor = LightColor.ToVector3();
+        shadowProcessor.SunIntensity = LightIntensity;
         DrawShadownMaps(shadowProcessor);
         postProcessor.BeginScene();
         graphicsDevice.Clear(SkyColor);

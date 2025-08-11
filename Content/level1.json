@@ -24,7 +24,9 @@
             912.68212890625,
             1585.5361328125,
             -1106.1181640625
-        ]
+        ],
+        "color": "#ffe5e5",
+        "intensity": 1.100000023841858
     },
     {
         "name": "coin",
@@ -279,7 +281,7 @@
         "collidable": false
     },
     {
-        "name": "platform",
+        "name": "platform.100",
         "type": "MESH",
         "instanceof": "platform",
         "position": [
@@ -321,7 +323,7 @@
         "collidable": true
     },
     {
-        "name": "platform-falling",
+        "name": "platform-falling.100",
         "type": "MESH",
         "instanceof": "platform-falling",
         "position": [
@@ -834,26 +836,5 @@
             1.0
         ],
         "collidable": false
-    },
-    {
-        "name": "platform-medium.001",
-        "type": "MESH",
-        "instanceof": "platform-medium",
-        "position": [
-            559.1642456054688,
-            370.4566650390625,
-            -1275.0379638671875
-        ],
-        "rotation": [
-            0,
-            0,
-            -39
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "collidable": true
     }
 ]
