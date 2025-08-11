@@ -31,14 +31,6 @@ public class Builder : ContentBuilder
         // override .txt files to be copied
         contentCollection.IncludeCopy<RegexRule>(".json");
 
-        // exclude bin / obj paths
-        contentCollection.Exclude<RegexRule>("bin/");
-        contentCollection.Exclude<RegexRule>("obj/");
-        contentCollection.Exclude<WildcardRule>("*.mgcb");
-        contentCollection.Exclude<WildcardRule>("*.contentproj");
-        contentCollection.Exclude<WildcardRule>("*.xnb");
-        contentCollection.Exclude<WildcardRule>("*.mgcontent");
-
         return contentCollection;
     }
 }

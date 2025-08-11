@@ -3,6 +3,7 @@
 // file 'LICENSE.md', which is part of this source code package.
 
 using System;
+using System.Diagnostics.Contracts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

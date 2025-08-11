@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -36,6 +37,7 @@ public class Player : AnimatedEntity
     private Vector3 _physicsForce;
     private int _jumpCount = 0;
     private int _maxJumps = 2; // Allow double jump
+    private bool _forceJump = false;
     private Vector3 _moveDirection = Vector3.Zero;
     private float _targetRotationAngle = 1.5f; // The angle we want to rotate towards
     private float _currentRotationAngle = 1.5f; // Current rotation angle, start facing the player
@@ -182,7 +184,35 @@ public class Player : AnimatedEntity
 
     public void Die()
     {
-        _playerDied.Play();
+        // dont play the dead sound if we are not accepting inputs.
+        if (InputEnabled)
+            _playerDied.Play();
+    }
+
+    public void Jump()
+    {
+        _forceJump = true;
+    }
+
+    public void LookAt(GameTime gameTime, Vector3 target)
+    {
+        // Calculate the direction to the target
+        Vector3 direction = target - Position;
+        if (direction.LengthSquared() < 0.0001f)
+            return; // Avoid division by zero
+
+        // Normalize the direction vector
+        direction.Normalize();
+
+        // Calculate the angle to look at the target
+        _targetRotationAngle = (float)Math.Atan2(direction.X, direction.Z);
+
+        // Smoothly interpolate towards the target rotation angle
+        float angleDifference = MathHelper.WrapAngle(_targetRotationAngle - _currentRotationAngle);
+        _currentRotationAngle += angleDifference * GameConstants.PLAYER_ROTATION_SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        // Update the rotation quaternion
+        Rotation = Quaternion.CreateFromAxisAngle(Vector3.Up, _currentRotationAngle);
     }
 
     public override void Update(GameTime gameTime)
@@ -202,8 +232,9 @@ public class Player : AnimatedEntity
 
         // Process movement inputs and convert to world-relative movement
         _moveDirection = Vector3.Zero;
-        var jump = false;
+        var jump = _forceJump;
         var jumpHeld = false;
+        _forceJump = false;
 
         // Get current input state.
         if (InputEnabled && deltaTime > 0f)

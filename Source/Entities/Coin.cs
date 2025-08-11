@@ -16,23 +16,10 @@ public class Coin : BobingEntity
     private bool _collected = false;
     private Vector3 _initialPosition;
     private SoundEffectInstance _collectedSound; // Sound effect for coin collection
-    private Texture2D _sparkleTexture; // Texture for the coin
-
-    // Particle system for sparkles
-    private List<Particle> _sparkles = new List<Particle>();
+    private Sparkles _sparkles;
     private float _sparkleTimer = 0f;
     private const float SPARKLE_SPAWN_RATE = 0.8f; // Spawn a new sparkle every 0.3 seconds
 
-    // Struct to represent a sparkle particle
-    private struct Particle
-    {
-        public Vector3 Position;
-        public float Scale;
-        public float Rotation;
-        public Color Color;
-        public float Lifetime;
-        public float MaxLifetime;
-    }
 
     public int Value = 1; // Default value of the coin
 
@@ -65,7 +52,7 @@ public class Coin : BobingEntity
     {
         // Load the sound effect for coin collection
         _collectedSound = Content.Load<SoundEffect>("Sounds/coin").CreateInstance();
-        _sparkleTexture = Content.Load<Texture2D>("Textures/particle"); // Load the coin texture
+        _sparkles = new Sparkles(Content);
         base.LoadContent();
     }
 
@@ -122,30 +109,11 @@ public class Coin : BobingEntity
             if (_sparkleTimer >= SPARKLE_SPAWN_RATE)
             {
                 _sparkleTimer = 0f;
-                CreateSparkle();
+                _sparkles.CreateSparkle(Position);
             }
         }
 
-        // Update existing sparkles
-        for (int i = _sparkles.Count - 1; i >= 0; i--)
-        {
-            var sparkle = _sparkles[i];
-            sparkle.Lifetime -= deltaTime;
-
-            // Remove expired sparkles
-            if (sparkle.Lifetime <= 0)
-            {
-                _sparkles.RemoveAt(i);
-                continue;
-            }
-
-            // Update sparkle (fade out based on lifetime)
-            float lifePercent = sparkle.Lifetime / sparkle.MaxLifetime;
-            sparkle.Color = new Color(sparkle.Color.R, sparkle.Color.G, sparkle.Color.B, (byte)(255 * lifePercent));
-            sparkle.Rotation += deltaTime * 2f; // Rotate the sparkle
-
-            _sparkles[i] = sparkle; // Update the list
-        }
+        _sparkles.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -164,55 +132,19 @@ public class Coin : BobingEntity
             (float)Math.Sin(angle) * radius
         );
 
-        Particle sparkle = new Particle
+        _sparkles.CreateSparkle(Position + offset, new Sparkles.SparkleConfig
         {
-            Position = Position + offset,
-            Scale = 0.05f + (float)random.NextDouble() * 0.1f, // Random size
+            Scale = 0.05f + (float)random.NextDouble() * 0.1f,
             Rotation = (float)random.NextDouble() * MathHelper.TwoPi,
-            Color = new Color(
-                (byte)(220 + random.Next(35)),    // Mostly yellow/gold
-                (byte)(220 + random.Next(35)),
-                (byte)(100 + random.Next(100)),
-                (byte)(100 + random.Next(100))),
+            Type = Sparkles.SparkleType.Coin,
             Lifetime = 0.01f + (float)random.NextDouble(),  // Live for 0.5 to 1.5 seconds
-            MaxLifetime = 0.01f + (float)random.NextDouble()
-        };
-
-        _sparkles.Add(sparkle);
+            MaxLifetime = 0.01f + (float)random.NextDouble(),
+            VerticalSpread = 50f,
+        });
     }
 
     public override void DrawBillboards(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
     {
-        if (_sparkleTexture != null && _sparkles.Count > 0)
-        {
-            foreach (var sparkle in _sparkles)
-            {
-                // Convert 3D position to screen position
-                Vector3 screenPos = graphicsDevice.Viewport.Project(
-                    sparkle.Position,
-                    camera.ProjectionMatrix,
-                    camera.ViewMatrix,
-                    Matrix.Identity);
-
-                // Only draw if in front of the camera
-                if (screenPos.Z < 1)
-                {
-                    // Calculate origin (center of texture)
-                    Vector2 origin = new Vector2(_sparkleTexture.Width / 2, _sparkleTexture.Height / 2);
-
-                    // Draw the sparkle as a 2D sprite at the projected position
-                    spriteBatch.Draw(
-                        _sparkleTexture,
-                        new Vector2(screenPos.X, screenPos.Y),
-                        null,
-                        sparkle.Color,
-                        sparkle.Rotation,
-                        origin,
-                        sparkle.Scale * (2.0f - screenPos.Z), // Scale based on distance
-                        SpriteEffects.None,
-                        screenPos.Z);
-                }
-            }
-        }
+        _sparkles.DrawBillboards(graphicsDevice, spriteBatch, camera);
     }
 }

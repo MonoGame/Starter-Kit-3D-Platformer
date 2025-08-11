@@ -27,10 +27,13 @@ public class Scene
     private Camera _camera;
     private Player _player;
     private Dust _dust;
+    private Sparkles _sparkles;
 
     public List<Entity> Entities => _entities;
     public Camera Camera => _camera;
     public Vector3 LightDirection => Vector3.Normalize(LightPosition);
+    public Color LightColor { get; set; } = Color.White;
+    public float LightIntensity { get; set; } = 1.0f;
     public Player Player => _player;
     public Dust Dust => _dust;
     public Goal Goal
@@ -41,6 +44,7 @@ public class Scene
         }
     }
     public float ResetTimer { get; set; } = 0.0f;
+    public float CelebrationTimer { get; set; } = 0.0f;
 
     public bool AcceptInput { get; set; } = true;
 
@@ -65,6 +69,56 @@ public class Scene
             Rotation = Quaternion.Identity
         };
         _dust = new Dust(contentManager.Load<Model>("Models/dust"), contentManager);
+        _sparkles = new Sparkles(contentManager);
+    }
+
+    public void StartCelebration(GameTime gameTime)
+    {
+        if (CelebrationTimer > 0)
+        {
+            CelebrationTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_player.IsGrounded)
+            {
+                _player.Jump(); // Make the player jump to add to the celebration effect
+            }
+            _player.LookAt(gameTime, _camera.Position);
+            return; // Avoid starting celebration if already in progress
+        }
+        CelebrationTimer = GameConstants.DEFAULT_CELEBRATION_TIMER; // Set a timer for the celebration duration
+        _sparkles.Clear(); // Clear existing sparkles
+        // Create a burst of sparkles at the player's position
+        // This will create a celebratory effect when the goal is reached
+        if (Goal != null)
+        {
+            Random random = new Random();
+            for (int i = 0; i < 100; i++)
+            {
+                float radius = 0.8f + random.NextSingle() * 50f; // Radius around the coin
+                float angle = (float)random.NextDouble() * MathHelper.TwoPi;
+                float height = (float)random.NextDouble() * 100.0f - 5f;
+
+                Vector3 offset = new Vector3(
+                    (float)Math.Cos(angle) * radius,
+                    height,
+                    (float)Math.Sin(angle) * radius
+                );
+                _sparkles.CreateSparkle(Goal.Position + offset, new Sparkles.SparkleConfig
+                {
+                    Scale = 0.15f + (float)random.NextDouble() * 0.1f,
+                    Rotation = (float)random.NextDouble() * MathHelper.TwoPi,
+                    Type = Sparkles.SparkleType.Celebration,
+                    Lifetime = 0.05f + (float)random.NextDouble(),  // Live for 0.5 to 1.5 seconds
+                    MaxLifetime = 0.05f + (float)random.NextDouble(),
+                    VerticalSpread = 150f,
+                    Gravity = new Vector3(0, -50f, 0)
+                });
+            }
+        }
+        if (_player != null)
+        {
+            AcceptInput = false;
+            _player.Jump();
+        }
     }
 
     public void Update(GameTime gameTime)
@@ -82,6 +136,7 @@ public class Scene
         }
 
         _dust.Update(gameTime);
+        _sparkles.Update(gameTime);
 
         foreach (var entity in _entities)
         {
@@ -97,6 +152,11 @@ public class Scene
         {
             var entity = _entitiesToRemove.Dequeue();
             _entities.Remove(entity);
+        }
+
+        if (Goal != null && Goal.GoalReached)
+        {
+            StartCelebration(gameTime);
         }
 
         // If not dead.
@@ -121,13 +181,15 @@ public class Scene
                 {
                     _camera.Target = _player.Position;
                     _camera.Update(gameTime);
-                }                
+                }
             }
         }
     }
 
     public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, ShadowProcessor shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
     {
+        shadowProcessor.SunColor = LightColor.ToVector3();
+        shadowProcessor.SunIntensity = LightIntensity;
         DrawShadownMaps(shadowProcessor);
         postProcessor.BeginScene();
         graphicsDevice.Clear(SkyColor);
@@ -153,6 +215,7 @@ public class Scene
         {
             entity.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
         }
+        _sparkles.DrawBillboards(_graphicsDevice, spriteBatch, _camera);
         spriteBatch.End();
     }
 

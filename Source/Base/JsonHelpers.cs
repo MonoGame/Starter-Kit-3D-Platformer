@@ -82,7 +82,7 @@ static public class JsonHelper
             return Color.Purple;
 
         var hex = colorElement.GetString();
-        if (hex.StartsWith("#") && hex.Length == 7)
+        if (hex.StartsWith("#") && hex.Length >= 7)
         {
             byte r = Convert.ToByte(hex.Substring(1, 2), 16);
             byte g = Convert.ToByte(hex.Substring(3, 2), 16);
