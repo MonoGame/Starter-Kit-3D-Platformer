@@ -1,3 +1,11 @@
+// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.md', which is part of this source code package.
+
+using Microsoft.Xna.Framework.Content.Pipeline;
+using MonoGame.Framework.Content.Pipeline.Builder;
+
+
 /// <summary>
 /// Entry point for the Content Builder project, 
 /// which when executed will build content according to the "Content Collection Strategy" defined in the MyContentCollector class.
@@ -8,14 +16,9 @@
 /// </remarks>
 ///
 
-using Microsoft.Xna.Framework.Content.Pipeline;
-using MonoGame.Framework.Content.Pipeline.Builder;
-
-
-// TOOD: PlatformerContentBuilder should be returning success or failure!
 var contentCollector = new Builder();
 contentCollector.Run(args);
-return 0; 
+return contentCollector.FailedToBuild > 0 ? -1 : 0; 
 
 public class Builder : ContentBuilder
 {
