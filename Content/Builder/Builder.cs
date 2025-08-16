@@ -38,6 +38,14 @@ public class Builder : ContentBuilder
         // We use .ogg files for SoundEffects and not Song.
         contentCollection.Include<WildcardRule>("*.ogg", new OggImporter(), new SoundEffectProcessor());
 
+        // The model is small so we need to scale it up a bunch.
+        contentCollection.Include("Models/character.glb", new FbxImporter(),
+            new MeshAnimatedModelProcessor()
+            {
+                Scale = 100.0f
+            }
+        );
+
         return contentCollection;
     }
 }
