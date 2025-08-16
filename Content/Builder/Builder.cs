@@ -3,6 +3,7 @@
 // file 'LICENSE.md', which is part of this source code package.
 
 using Microsoft.Xna.Framework.Content.Pipeline;
+using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using MonoGame.Framework.Content.Pipeline.Builder;
 
 
@@ -31,8 +32,11 @@ public class Builder : ContentBuilder
         contentCollection.Include<WildcardRule>("*.fbx", new FbxImporter(), new MeshAnimatedModelProcessor());
         contentCollection.Include<WildcardRule>("*.glb", new FbxImporter(), new MeshAnimatedModelProcessor());
 
-        // override .txt files to be copied
-        contentCollection.IncludeCopy<RegexRule>(".json");
+        // Copy out the level json files.
+        contentCollection.IncludeCopy<WildcardRule>("*.json");
+
+        // We use .ogg files for SoundEffects and not Song.
+        contentCollection.Include<WildcardRule>("*.ogg", new OggImporter(), new SoundEffectProcessor());
 
         return contentCollection;
     }
