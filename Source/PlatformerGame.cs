@@ -75,6 +75,7 @@ public class PlatformerGame : Game
 
     private Scene _menuScene;
     private Scene _loadingScene;
+    private Scene _gameOverScene;
     private Scene _currentScene;
     private GameOver _gameOverScreen;
 
@@ -184,6 +185,9 @@ public class PlatformerGame : Game
         };
         playerLoading.PlayAnimation("jump");
         _loadingScene.Entities.Add(playerLoading);
+
+        _gameOverScene = _sceneLoader.LoadScene("gameover");
+        _gameOverScene.AcceptInput = false;
 
         // Get the list of levels from the levels.json file.
         levels = SceneLoader.GetSceneList();
@@ -390,6 +394,7 @@ public class PlatformerGame : Game
 
                 break;
             case GameState.GameOverScreen:
+                _gameOverScene.Update(gameTime);
                 _gameOverScreen.Update(gameTime);
                 break;
         }
@@ -479,12 +484,10 @@ public class PlatformerGame : Game
                 // Draw MonoGame logo and url, Patreon logo and url and "Game Over" text.
                 // Add Source code GitHub url.
                 // Thank Patrons for their support.
-                _postProcessor.BeginScene();
-                GraphicsDevice.Clear(GameConstants.DEFAULT_BACKGROUND_COLOR);
+                _gameOverScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _gameOverScreen.Draw(gameTime, _spriteBatch);
                 _spriteBatch.End();
-                _postProcessor.EndScene();
                 break;
 
             case GameState.MenuScreen:

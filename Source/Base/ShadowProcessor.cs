@@ -4,15 +4,28 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-
+/// <summary>
+/// Processes shadows for 3D entities.
+/// This process created two RenderTargets to store the shadow maps.
+/// One is for the directional or "sun" light, the other is for the player shadow
+/// which appears directly below the player. This is done to aide jumping and 
+/// is common in platformer games.
+/// </summary>
 public class ShadowProcessor
 {
     private GraphicsDevice _graphicsDevice;
     private Effect _shadowEffect;
     private SpriteBatch _spriteBatch;
     private readonly RenderTarget2D[] _shadowMaps = new RenderTarget2D[2];
+    private readonly Matrix[] _lightViewMatrix = new Matrix[2];
+    private Matrix _lightProjectionMatrix;
+    private int _shadowIndex;
+
+    // Shadow map resolution
+    private int _shadowMapSize = 2048;
 
     // Light properties
     public Vector3 LightDirection { get; set; }
@@ -39,23 +52,41 @@ public class ShadowProcessor
         }
     }
 
+    /// <summary>
+    /// The specular intensity of the light.
+    /// </summary>
     public float SpecularIntensity { get; set; }
+
+    /// <summary>
+    /// The shininess of the light.
+    /// </summary>
     public float Shininess { get; set; }
+
+    /// <summary>
+    /// The intensity of the sun light.
+    /// </summary>
     public float SunIntensity { get; set; }
+
+    /// <summary>
+    /// The color of the sun light.
+    /// </summary>
     public Vector3 SunColor { get; set; }
 
+    /// <summary>
+    /// The target position of the light.
+    /// </summary>
     public Vector3 TargetPosition { get; set; }
+
+    /// <summary>
+    /// The up vector of the light.
+    /// </summary>
     public Vector3 UpVector { get; set; } = Vector3.Up;
 
-    // Matrices
-    private readonly Matrix[] _lightViewMatrix = new Matrix[2];
-    private Matrix _lightProjectionMatrix;
-
-    private int _shadowIndex;
-
-    // Shadow map resolution
-    private int _shadowMapSize = 2048;
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ShadowProcessor"/> class.
+    /// </summary>
+    /// <param name="graphicsDevice">The graphics device.</param>
+    /// <param name="spriteBatch">The sprite batch.</param>
     public ShadowProcessor(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
     {
         _graphicsDevice = graphicsDevice;
@@ -70,6 +101,9 @@ public class ShadowProcessor
         SunIntensity = 1.1f;
     }
 
+    /// <summary>
+    /// Creates the render targets for shadow mapping.
+    /// </summary>
     private void CreateRenderTargets()
     {
         _shadowMaps[0] = new RenderTarget2D(
@@ -89,11 +123,18 @@ public class ShadowProcessor
             DepthFormat.Depth24);
     }
 
-    public void LoadContent(Microsoft.Xna.Framework.Content.ContentManager content)
+    /// <summary>
+    /// Loads the content for the shadow processor.
+    /// </summary>
+    /// <param name="content">The content manager.</param>
+    public void LoadContent(ContentManager content)
     {
         _shadowEffect = content.Load<Effect>("Effects/ShadowEffect");
     }
 
+    /// <summary>
+    /// Updates the light view and projection matrices.
+    /// </summary>
     private void UpdateLightMatrices()
     {
         // Create view matrix from light's perspective
@@ -112,6 +153,12 @@ public class ShadowProcessor
             2048, 2048, 0.1f, 5000f);
     }
 
+    /// <summary>
+    /// Begins the shadow map pass for the specified light index.
+    /// By default index 0 is the global "scene" light.
+    /// index 1 is the player shadow light.
+    /// </summary>
+    /// <param name="index">The light index.</param>
     public void BeginShadowMapPass(int index)
     {
         _shadowIndex = index;
@@ -128,11 +175,19 @@ public class ShadowProcessor
         _shadowEffect.CurrentTechnique = _shadowEffect.Techniques["RenderDepth"];
     }
 
+    /// <summary>
+    /// Ends the shadow map pass. We do this by resetting the _graphicsDevice RenderTarget.
+    /// At this point the ShadowMap is complete and can be used for rendering.
+    /// </summary>
     public void EndShadowMapPass()
     {
         _graphicsDevice.SetRenderTarget(null);
     }
 
+    /// <summary>
+    /// Draws the entity to the shadow map.
+    /// </summary>
+    /// <param name="entity">The entity to draw.</param>
     public void DrawEntityToShadowMap(Entity entity)
     {
         var model = entity.Model;
@@ -171,6 +226,13 @@ public class ShadowProcessor
         }
     }
 
+    /// <summary>
+    /// Draws the model with shadows.
+    /// </summary>
+    /// <param name="entity">The entity to draw.</param>
+    /// <param name="camera">The camera used for rendering.</param>
+    /// <param name="blendPass">Whether this is a blend pass. The Blend pass will make objects
+    /// transparent if they are close to the camera.</param>
     public void DrawModelWithShadow(Entity entity, Camera camera, bool blendPass)
     {
         Model model = entity.Model;
@@ -274,7 +336,10 @@ public class ShadowProcessor
         }
     }
 
-    // Optional: Utility method to visualize the shadow map for debugging
+    /// <summary>
+    /// Optional: Utility method to visualize the shadow map for debugging
+    /// </summary>
+    /// <param name="destination"></param>
     public void DebugDrawShadowMap(Rectangle destination)
     {
         _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);

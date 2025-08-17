@@ -42,6 +42,9 @@ building blocks of meshes.
 - jumppad
 
 All of these have already been imported into the `level.blend` file.
+When you open the `.blend` file it will ask if you want to run the `AddMenu` script.
+This script adds a `Platformer->Run Platformer Export` menu to the Blender menu to make it easy to export to the game.
+
 To layout more platforms, select one of the platforms you want to add and
 duplicate it (Shift+D). You can then move it to the desired location.
 
@@ -62,8 +65,10 @@ touches it. Usually use in conjunction with the `jumppad` mesh.
 
 Once you have organised your level you can go to the scripting tab in blender
 and run the provided script. This script will examine all the objects in the
-`Scene` collection and export their properties to the `level.json` file.
-If you want to export to a different file you can change the name in the script.
+`Scene` collection and export their properties to a `.json` file.
+The name of the file is taken from the collection nanme. The script will also produce
+a `levels.json` file which contains a list of all the levels in the game.
+This will allow you to easily add new levels.
 
 ## Ideas for Improvements
 
