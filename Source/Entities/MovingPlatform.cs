@@ -36,4 +36,10 @@ public class MovingPlatform : Platform
 
         _followPath.Update(gameTime, Position);
     }
+
+    public override void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, Camera camera)
+    {
+        base.Draw(graphicsDevice, spriteBatch, camera);
+        _followPath.DrawDebugPath(graphicsDevice);
+    }
 }
