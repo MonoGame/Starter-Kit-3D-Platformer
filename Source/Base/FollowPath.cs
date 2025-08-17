@@ -1,10 +1,13 @@
+using System;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 public class FollowPath
 {
     private float _moveSpeed;
     private Vector3 _direction;
+    private Vector3 _previousPosition;
     private Vector3 _destination;
     private Vector3[] _pathPoints;
     private int _currentPathIndex = 1;
@@ -48,7 +51,15 @@ public class FollowPath
             return;
 
         // Check if we need to move to the next point
-        if (Vector3.DistanceSquared(position, _destination) < 1f)
+        float lastDistance = Vector3.Distance(_previousPosition, _destination);
+        float currentDistance = Vector3.Distance(position, _destination);
+
+        // Check if we've reached the destination (either close enough or overshot it)
+        bool reachedDestination = currentDistance < 1f ||
+            (lastDistance > 0 && currentDistance > lastDistance &&
+             Vector3.Dot(_direction, Vector3.Normalize(position - _previousPosition)) > 0.8f);
+
+        if (reachedDestination)
         {
             _currentPathIndex += _moveDirection;
             if (_currentPathIndex > _pathPoints.Length - 1)
@@ -69,5 +80,34 @@ public class FollowPath
             }
             _direction = Vector3.Normalize(_destination - position);
         }
+        _previousPosition = position;
     }
+
+#if DEVMODE
+    VertexBuffer _vertexBuffer;
+
+    public void DrawDebugPath(GraphicsDevice graphicsDevice)
+    {
+        if (_pathPoints == null || _pathPoints.Length == 0)
+            return;
+
+        // Create a vertex buffer if it doesn't exist
+        if (_vertexBuffer == null)
+        {
+            _vertexBuffer = new VertexBuffer(graphicsDevice, typeof(VertexPositionColor), _pathPoints.Length, BufferUsage.WriteOnly);
+        }
+
+        // Update the vertex buffer with the current path points
+        var vertices = new VertexPositionColor[_pathPoints.Length];
+        for (int i = 0; i < _pathPoints.Length; i++)
+        {
+            vertices[i] = new VertexPositionColor(_pathPoints[i], Color.Red);
+        }
+        _vertexBuffer.SetData(vertices);
+
+        graphicsDevice.SetVertexBuffer(_vertexBuffer);
+
+        graphicsDevice.DrawPrimitives(PrimitiveType.LineStrip, 0, _pathPoints.Length - 1);
+    }
+#endif
 }
