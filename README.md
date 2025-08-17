@@ -65,6 +65,18 @@ and run the provided script. This script will examine all the objects in the
 `Scene` collection and export their properties to the `level.json` file.
 If you want to export to a different file you can change the name in the script.
 
+## Ideas for Improvements
+
+This is your Starter Kit! So you can modify it , extend it, take things out.
+Here are some thoughts on things that could be added
+
+- Rotating Platforms.
+- Enemies
+- Other Collectables
+- Power Enhancement Pickups.
+- Local Co-op
+- Swap out the artwork.
+
 ## License
 
 MIT License
