@@ -370,6 +370,7 @@
 #begin level.json
 /copy:menu.json
 /copy:loading.json
+/copy:gameover.json
 /copy:levels.json
 /copy:level1.json
 /copy:level2.json
