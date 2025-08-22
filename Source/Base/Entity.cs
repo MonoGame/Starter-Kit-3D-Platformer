@@ -132,6 +132,10 @@ public class Entity
 
         if (data.TryGetProperty("scale", out var scale))
             Scale = scale.ReadVector3FromJson();
+
+        if (data.TryGetProperty("collidable", out var collidable))
+            IsBlockingMovement = collidable.GetBoolean();
+
     }
 
     /// <summary>
