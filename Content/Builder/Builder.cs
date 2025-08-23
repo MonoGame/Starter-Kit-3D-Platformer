@@ -17,9 +17,10 @@ using MonoGame.Framework.Content.Pipeline.Builder;
 /// </remarks>
 ///
 
-var contentCollector = new Builder();
-contentCollector.Run(args);
-return contentCollector.FailedToBuild > 0 ? -1 : 0; 
+var builder = new Builder();
+builder.Logger = new MsBuildLogger();
+builder.Run(args);
+return builder.FailedToBuild > 0 ? -1 : 0; 
 
 public class Builder : ContentBuilder
 {
@@ -38,8 +39,8 @@ public class Builder : ContentBuilder
         // We use .ogg files for SoundEffects and not Song.
         contentCollection.Include<WildcardRule>("*.ogg", new OggImporter(), new SoundEffectProcessor());
 
-        // The model is small so we need to scale it up a bunch.
-        contentCollection.Include("Models/character.glb", new FbxImporter(),
+        // The model is small so we need to scale it up a buch.
+        contentCollection.Include("Models\\character.glb", new FbxImporter(),
             new MeshAnimatedModelProcessor()
             {
                 Scale = 100.0f
