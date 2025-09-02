@@ -2,6 +2,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
+using System.Diagnostics;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using MonoGame.Framework.Content.Pipeline.Builder;
@@ -17,36 +18,43 @@ using MonoGame.Framework.Content.Pipeline.Builder;
 /// </remarks>
 ///
 
+
+// If you need to debug the content build process you can enable
+// this, build the game, then attach the debugger when prompted.
+//Debugger.Launch();
+
+
 var builder = new Builder();
 builder.Logger = new MsBuildLogger();
 builder.Run(args);
 return builder.FailedToBuild > 0 ? -1 : 0; 
 
+
 public class Builder : ContentBuilder
 {
     public override IContentCollection GetContentCollection()
     {
-        var contentCollection = new ContentCollection();
+        var content = new ContentCollection();
 
         // include everything in the folder
-        contentCollection.Include<RegexRule>(".");
-        contentCollection.Include<WildcardRule>("*.fbx", new FbxImporter(), new MeshAnimatedModelProcessor());
-        contentCollection.Include<WildcardRule>("*.glb", new FbxImporter(), new MeshAnimatedModelProcessor());
+        content.Include<RegexRule>(".");
+        content.Include<WildcardRule>("*.fbx", new FbxImporter(), new MeshAnimatedModelProcessor());
+        content.Include<WildcardRule>("*.glb", new FbxImporter(), new MeshAnimatedModelProcessor());
 
         // Copy out the level json files.
-        contentCollection.IncludeCopy<WildcardRule>("*.json");
+        content.IncludeCopy<WildcardRule>("*.json");
 
         // We use .ogg files for SoundEffects and not Song.
-        contentCollection.Include<WildcardRule>("*.ogg", new OggImporter(), new SoundEffectProcessor());
+        content.Include<WildcardRule>("*.ogg", new OggImporter(), new SoundEffectProcessor());
 
         // The model is small so we need to scale it up a buch.
-        contentCollection.Include("Models\\character.glb", new FbxImporter(),
+        content.Include("Models/character.glb", new FbxImporter(),
             new MeshAnimatedModelProcessor()
             {
                 Scale = 100.0f
             }
         );
 
-        return contentCollection;
+        return content;
     }
 }
