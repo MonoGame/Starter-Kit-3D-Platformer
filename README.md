@@ -25,6 +25,45 @@ Includes features like;
 - Standard keyboard controls (WASD, Space), plus GamePad support
 - Camera controls (Arrows to move), Comma/Period Zoom
 
+## Project Layout
+
+## Project Layout
+
+The Starter Kit 3D Platformer is organized into several key directories, each serving a specific purpose in the game's architecture:
+
+### Core Projects
+
+- **Source/** - Contains the main game code and logic
+  - **PlatformerGame.cs** - The entry point and main game loop
+  - **Base/** - Core engine components like Scene, Camera, Entity, and collision systems
+  - **Entities/** - All game entity implementations (Player, Coins, Platforms, etc.)
+
+- **Content/** - Houses all game assets
+  - **Models/** - 3D models for characters, platforms etc.
+  - **Textures/** - Sprite sheets, UI elements, and textures
+  - **Effects/** - Shader effects like Bloom, Shadow, and Vignette
+  - **Font/** - Font files and spritefont definitions
+  - **Sounds/** - Sound effects and music files
+  - **Content.mgcb** - MonoGame Content Builder project file
+  - **level*.json** - Level definition files exported from Blender
+  - **levels.json** - Index of all available levels
+
+- **Pipeline/** - Custom content processing
+  - **ConvexHullHelper.cs** - Generates collision meshes from 3D models
+  - **MeshAnimatedModelProcessor.cs** - Processes animated models
+  - **MeshAnimatedModelHelper.cs** - Utilities for model processing
+  - **Pipeline.csproj** - MonoGame Content Pipeline extension project
+
+- **Platforms/** - Platform-specific implementations
+  - **Desktop/** - Desktop (Windows/macOS/Linux) implementation
+    - **Program.cs** - Entry point for desktop applications
+    - **Desktop.csproj** - Project file for desktop builds
+
+- **Blender/** - Level editing tools
+  - **level.blend** - Main Blender file for level editing
+  - **AddMenu.py** - Adds export menu to Blender
+  - **ExportScript.py** - Exports level data to JSON
+
 ## Level Editing
 
 This sample uses Blender to create levels. The entire game is made up of these
