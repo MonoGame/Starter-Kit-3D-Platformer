@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework.Input;
 
 /// <summary>
 /// This holds the current global input state for the game.
+/// We do this to avoid multiple calls to Keyboard.GetState() and GamePad.GetState().
+/// It also allows us to track button presses and releases.
+/// Can be extended to support Mouse and Touch input as needed.
 /// </summary>
 public static class InputState
 {
