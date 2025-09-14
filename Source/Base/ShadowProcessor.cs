@@ -339,7 +339,7 @@ public class ShadowProcessor
     /// <summary>
     /// Optional: Utility method to visualize the shadow map for debugging
     /// </summary>
-    /// <param name="destination"></param>
+    /// <param name="destination">The destination rectangle for the shadow map visualization</param>
     public void DebugDrawShadowMap(Rectangle destination)
     {
         _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);

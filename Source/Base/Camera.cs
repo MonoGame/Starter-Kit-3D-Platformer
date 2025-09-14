@@ -8,6 +8,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+/// <summary>
+/// A 3D camera that orbits around a target point.
+/// The camera supports rotation, zooming, and smooth target following.
+/// </summary>
 public class Camera
 {
     private GraphicsDevice _device;
@@ -57,6 +61,11 @@ public class Camera
         UpdateProjectionMatrix();
     }
 
+    /// <summary>
+    /// Rotates the camera around the target point.
+    /// </summary>
+    /// <param name="yawChange">The change in yaw (horizontal rotation).</param>
+    /// <param name="pitchChange">The change in pitch (vertical rotation).</param>
     public void RotateCamera(float yawChange, float pitchChange)
     {
         Yaw += yawChange;
@@ -72,12 +81,20 @@ public class Camera
             Yaw += MathHelper.TwoPi;
     }
 
+    /// <summary>
+    /// Zooms the camera in or out by adjusting the distance from the target.
+    /// </summary>
+    /// <param name="amount">The amount to zoom (positive to zoom in, negative to zoom out).</param>
     public void Zoom(float amount)
     {
         Distance -= amount * ZoomSpeed;
         Distance = MathHelper.Clamp(Distance, MinDistance, MaxDistance);
     }
 
+    /// <summary>
+    /// Sets the target point the camera orbits around.
+    /// </summary>
+    /// <param name="target">The new target point, this is usually the location of the player.</param>
     public void SetTarget(Vector3 target)
     {
         Target = target;

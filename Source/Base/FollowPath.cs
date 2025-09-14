@@ -3,6 +3,9 @@ using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// Handles following a predefined path using spline points.
+/// </summary>
 public class FollowPath
 {
     private float _moveSpeed;
@@ -13,6 +16,12 @@ public class FollowPath
     private int _currentPathIndex = 1;
     private int _moveDirection = 1; // 1 for forward, -1 for backward
 
+    /// <summary>
+    /// Loads path data from a JSON element.
+    /// The json should contain a "movespeed" property and a "splines" array with points.
+    /// </summary>
+    /// <param name="data">The JSON element containing path data.</param>
+    /// <returns>The starting position of the path.</returns>
     public Vector3 LoadFromJson(JsonElement data)
     {
         _moveSpeed = data.GetProperty("movespeed").GetSingle();
@@ -40,11 +49,23 @@ public class FollowPath
         return _pathPoints[0];
     }
 
+    /// <summary>
+    /// Gets the current velocity based on the move speed and direction.
+    /// The velocity is a vector pointing towards the next path point.
+    /// The move speed is defined in the JSON data.
+    /// </summary>
+    /// <returns>The current velocity vector.</returns>
     public Vector3 GetVelocity()
     {
         return _direction * _moveSpeed;
     }
 
+    /// <summary>
+    /// Updates the path following logic based on the current position.
+    /// This checks if the object has reached the current destination and updates to the next point if necessary.
+    /// </summary>
+    /// <param name="gameTime">The game time.</param>
+    /// <param name="position">The current position of the object following the path.</param>
     public void Update(GameTime gameTime, Vector3 position)
     {
         if (_pathPoints == null || _pathPoints.Length == 0)
@@ -86,6 +107,12 @@ public class FollowPath
 #if DEVMODE
     VertexBuffer _vertexBuffer;
 
+    /// <summary>
+    /// Draws the debug path using line segments.
+    /// We don't want to include this in the final build.
+    /// So it is behind the DEVMODE conditional compilation symbol.
+    /// </summary>
+    /// <param name="graphicsDevice">The graphics device.</param>
     public void DrawDebugPath(GraphicsDevice graphicsDevice)
     {
         if (_pathPoints == null || _pathPoints.Length == 0)

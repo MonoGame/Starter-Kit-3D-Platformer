@@ -8,9 +8,24 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 
+/// <summary>
+/// A convex hull used for collision detection.
+/// Implements the Separating Axis Theorem (SAT) for intersection tests.
+/// ContentSerializerRuntimeType attribute is needed to ensure the
+/// XNB deserializer can properly instantiate this type at runtime. 
+/// Because we use Shared code, we need to know the final assembly name at built time.
+/// This is done using the GameConstants.AssemblyName constant.
+/// </summary>
 [ContentSerializerRuntimeType($"{nameof(ConvexHull)}, {GameConstants.AssemblyName}")]
 public class ConvexHull
 {
+    /// <summary>
+    /// A face of the convex hull.
+    /// ContentSerializerRuntimeType attribute is needed to ensure the
+    /// XNB deserializer can properly instantiate this type at runtime. 
+    /// Because we use Shared code, we need to know the final assembly name at built time.
+    /// This is done using the GameConstants.AssemblyName constant.
+    /// </summary>
     [ContentSerializerRuntimeType($"{nameof(ConvexHull)}+{nameof(Face)}, {GameConstants.AssemblyName}")]
     public struct Face
     {
