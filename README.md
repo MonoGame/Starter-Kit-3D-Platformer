@@ -125,6 +125,15 @@ The name of the file is taken from the collection nanme. The script will also pr
 a `levels.json` file which contains a list of all the levels in the game.
 This will allow you to easily add new levels.
 
+## Debugging Blender Export Script
+
+First install the required [extension](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development).
+
+The run Cmd+Shift+P, `Blender: Start` to start blender and attach the debugger.
+Note: You will be asked for the path to Blender.
+
+Then open the `ExportScript.py` in VSCode and place a breakpoint. Then run Cmd+Shift+P,`Blender: Run Script`. You will now be debugging the script.
+
 ## Ideas for Improvements
 
 This is your Starter Kit! So you can modify it , extend it, take things out.
