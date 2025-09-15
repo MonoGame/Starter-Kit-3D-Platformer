@@ -197,10 +197,7 @@ for collection in bpy.data.collections:
                 points = []
                 for sp in spline.points:
                     x, y, z, w = sp.co
-                    if w != 0:
-                        local_co = mathutils.Vector((x / w, y / w, z / w))
-                    else:
-                        local_co = mathutils.Vector((x, y, z))
+                    local_co = mathutils.Vector((x, y, z))
                     world_co = obj.matrix_world @ local_co
                     lp = world_co * 100
                     point = {
