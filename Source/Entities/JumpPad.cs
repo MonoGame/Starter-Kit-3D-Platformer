@@ -9,6 +9,12 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Text.Json;
 
+/// <summary>
+/// A jump pad entity that launches the player into the air when they collide with it.
+/// The jump pad does not block movement so that the player can pass through it.
+/// The jump force can be adjusted via the "jumpforce" property in the JSON data.
+/// This force can be modified in the level in blender via a custom property.
+/// </summary>
 public class JumpPad : AnimatedEntity
 {
     private float _jumpForce;

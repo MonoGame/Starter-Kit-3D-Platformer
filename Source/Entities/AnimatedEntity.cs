@@ -8,6 +8,11 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
+/// <summary>
+/// An entity that supports mesh animation.
+/// Note this does not support skeletal animation.
+/// It simply updates the Model's MeshTransforms based on keyframes defined in an AnimationClip.
+/// </summary>
 public class AnimatedEntity : Entity
 {
     TimeSpan currentTimeValue;

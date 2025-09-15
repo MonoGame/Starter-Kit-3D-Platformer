@@ -11,7 +11,13 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-
+/// <summary>
+/// A player entity that can move, jump, and interact with the environment.
+/// This is probably one of the most complex classes in the game with the
+/// exception of the collision system.
+/// It handles input, movement, jumping, physics, collision response,
+/// animation, sound effects, and player state (like score and whether the player is dead).
+/// </summary>
 public class Player : AnimatedEntity
 {
     public bool InputEnabled = true;
@@ -144,6 +150,11 @@ public class Player : AnimatedEntity
         return collision;
     }
 
+    /// <summary>
+    /// This is used by the code which triggers a jump on the player when
+    /// they reach the goal.
+    /// </summary>
+    /// <param name="force"></param>
     public void AddForce(Vector3 force)
     {
         _physicsForce += force;
@@ -157,6 +168,9 @@ public class Player : AnimatedEntity
         }
     }
 
+    /// <summary>
+    /// Reset the collision state before doing collision checks.
+    /// </summary>
     public void PreCollision()
     {
         IsGrounded = false;

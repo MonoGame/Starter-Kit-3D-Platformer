@@ -5,6 +5,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// Handles post-processing effects like bloom and vignette.
+/// This class is fairly self contained. It does however
+/// require the relevant shaders to be present in the Content/Effects folder.
+/// </summary>
 public class PostProcessor
 {
     private GraphicsDevice _graphicsDevice;

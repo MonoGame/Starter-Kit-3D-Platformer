@@ -8,6 +8,12 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// A platform that falls after the player lands on it.
+/// The platform shakes for a short duration before falling.
+/// The fall delay and shake amplitude can be adjusted via the
+/// _fallDelay and _shakeAmplitude fields.
+/// </summary>
 public class FallingPlatform : Platform
 {
     private float _fallTime;

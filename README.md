@@ -25,7 +25,23 @@ Includes features like;
 - Standard keyboard controls (WASD, Space), plus GamePad support
 - Camera controls (Arrows to move), Comma/Period Zoom
 
-## Project Layout
+## Build Instructions
+
+- Make sure your system is setup for MonoGame development by following the documentation at [https://docs.monogame.net/](https://docs.monogame.net/)
+- Clone the repository.
+- `dotnet build Starter-Kit-3D-Platformer.sln`
+- `dotnet run --project Platforms/Desktop/Desktop.csproj`
+
+For debug builds we define a `DEVMODE` conditional define. This is used to make sure
+development code is not included in the final build.
+
+When in debug mode you can use the following keys to show/see debug information.
+
+- F1 : Show/Hide collision meshes
+- F2 : Show/Hide RenderTargets for Shadow and Post Process'.
+- F3 : Show/Hide Performance Metrics.
+- +/- : Speed up or slow time the game time. Useful for debugging animations.
+- M : Mute/UnMute the Music.
 
 ## Project Layout
 

@@ -11,6 +11,9 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+/// <summary>
+/// This is the main type for your game.
+/// </summary>
 public class PlatformerGame : Game
 {
     private enum GameState
@@ -22,8 +25,6 @@ public class PlatformerGame : Game
         PauseScreen,
         GameOverScreen
     }
-
-
 
 #if DEVMODE
     [Flags]
@@ -85,6 +86,8 @@ public class PlatformerGame : Game
     public PlatformerGame()
     {
         _graphics = new GraphicsDeviceManager(this);
+        // We use a fixed resolution of 1280x720 for the game.
+        // we then use RenderTargets to scale to the actual window size.
         _graphics.PreferredBackBufferWidth = (int)GameConstants.BASE_RESOLUTION_WIDTH;
         _graphics.PreferredBackBufferHeight = (int)GameConstants.BASE_RESOLUTION_HEIGHT;
         _graphics.PreferredBackBufferFormat = SurfaceFormat.Color;
@@ -223,10 +226,10 @@ public class PlatformerGame : Game
     protected override void Update(GameTime gameTime)
     {
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        
+
         // Update transitions first
         _transitionProcessor.Update(deltaTime);
-        
+
         // Fade in the music volume.
         if (_song != null && _song.Volume < 1.0f && _song.State == SoundState.Playing)
             _song.Volume = MathF.Min(1.0f, _song.Volume + (deltaTime * 0.5f));
@@ -495,7 +498,7 @@ public class PlatformerGame : Game
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _spriteBatch.Draw(_logoTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100), 50, _logoTexture.Width - 200, _logoTexture.Height - 50), Color.White);
                 _spriteBatch.End();
-                _spriteBatch.Begin(transformMatrix:Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _mainMenu.Draw(_spriteBatch);
                 _spriteBatch.End();
                 break;
@@ -529,7 +532,7 @@ public class PlatformerGame : Game
                 if (_currentState == GameState.PauseScreen)
                 {
                     var pauseMenuPosition = new Vector2(
-                        GameConstants.BASE_RESOLUTION_WIDTH / 2f - _pauseMenu.GetMenuWidth() / 2f, 
+                        GameConstants.BASE_RESOLUTION_WIDTH / 2f - _pauseMenu.GetMenuWidth() / 2f,
                         GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _pauseMenu.GetMenuHeight() / 2f
                     );
                     _pauseMenu.BasePosition = pauseMenuPosition;

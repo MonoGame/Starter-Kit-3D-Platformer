@@ -4,6 +4,9 @@
 
 using Microsoft.Xna.Framework;
 
+/// <summary>
+/// Describes a 3D pose with translation, rotation, and scale.
+/// </summary>
 public struct Pose
 {
     public static Pose Identity => new Pose

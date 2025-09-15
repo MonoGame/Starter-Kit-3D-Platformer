@@ -6,7 +6,10 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-
+/// <summary>
+/// Provides helper methods for drawing simple shapes using SpriteBatch.
+/// This is mostly used for debugging purposes.
+/// </summary>
 static public class SpriteHelper
 {
     private static bool _init;

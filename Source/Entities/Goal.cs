@@ -9,6 +9,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// A goal entity that the player can reach to complete a level.
+/// When the player reaches the goal, it triggers a delay before marking the goal as complete.
+/// The goal does not block movement so that the player can pass through it.
+/// </summary>
 public class Goal : Entity
 {
     public bool Complete = false;
