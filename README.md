@@ -129,10 +129,10 @@ This will allow you to easily add new levels.
 
 First install the required [extension](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development).
 
-The run Cmd+Shift+P, `Blender: Start` to start blender and attach the debugger.
+The run Ctrl+Shift+P (Cmd+Shift+P on Mac), `Blender: Start` to start blender and attach the debugger.
 Note: You will be asked for the path to Blender.
 
-Then open the `ExportScript.py` in VSCode and place a breakpoint. Then run Cmd+Shift+P,`Blender: Run Script`. You will now be debugging the script.
+Then open the `ExportScript.py` in VSCode and place a breakpoint. Then run Ctrl+Shift+P,`Blender: Run Script`. You will now be debugging the script.
 
 ## Ideas for Improvements
 
