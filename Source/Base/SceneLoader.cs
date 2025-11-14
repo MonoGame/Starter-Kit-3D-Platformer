@@ -116,7 +116,8 @@ public class SceneLoader
                         throw new Exception($"No entity factory found for {instanceOf}");
                 }
 
-                var entity = entityFactory(_content.Load<Model>($"Models/{instanceOf}"), _content);
+                var model = _content.Load<Model>($"Models/{instanceOf}");
+                var entity = entityFactory(model, _content);
                 entity.SetProperties(entityData);
                 scene.Entities.Add(entity);
             }
