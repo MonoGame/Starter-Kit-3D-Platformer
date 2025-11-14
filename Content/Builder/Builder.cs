@@ -27,6 +27,9 @@ using MonoGame.Framework.Content.Pipeline.Builder;
 var builder = new Builder();
 builder.Logger = new MsBuildLogger();
 builder.Run(args);
+var parameters = ContentBuilderParams.Parse(args);
+//parameters.Rebuild = true;
+builder.Run(parameters);
 return builder.FailedToBuild > 0 ? -1 : 0; 
 
 
