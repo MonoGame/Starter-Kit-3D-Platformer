@@ -1,0 +1,5 @@
+{
+    "blender.additionalArguments": [
+        "${workspaceFolder}/Blender/level.blend"
+    ]
+}

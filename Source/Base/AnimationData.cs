@@ -9,6 +9,10 @@ using Microsoft.Xna.Framework.Content;
 
 /// <summary>
 /// Describes the position of a single bone at a single point in time.
+/// ContentSerializerRuntimeType attribute is needed to ensure the
+/// XNB deserializer can properly instantiate this type at runtime. 
+/// Because we use Shared code, we need to know the final assembly name at built time.
+/// This is done using the GameConstants.AssemblyName constant.
 /// </summary>
 [ContentSerializerRuntimeType($"{nameof(Keyframe)}, {GameConstants.AssemblyName}")]
 public class Keyframe
@@ -73,6 +77,10 @@ public class Keyframe
 /// An animation clip is the runtime equivalent of the
 /// Microsoft.Xna.Framework.Content.Pipeline.Graphics.AnimationContent type.
 /// It holds all the keyframes needed to describe a single animation.
+/// ContentSerializerRuntimeType attribute is needed to ensure the
+/// XNB deserializer can properly instantiate this type at runtime. 
+/// Because we use Shared code, we need to know the final assembly name at built time.
+/// This is done using the GameConstants.AssemblyName constant.
 /// </summary>
 [ContentSerializerRuntimeType($"{nameof(AnimationClip)}, {GameConstants.AssemblyName}")]
 public class AnimationClip
@@ -110,6 +118,13 @@ public class AnimationClip
     public List<Keyframe> Keyframes { get; private set; }
 }
 
+/// <summary>
+/// An animation data contains a set of named animation clips.
+/// ContentSerializerRuntimeType attribute is needed to ensure the
+/// XNB deserializer can properly instantiate this type at runtime. 
+/// Because we use Shared code, we need to know the final assembly name at built time.
+/// This is done using the GameConstants.AssemblyName constant.
+/// </summary>
 [ContentSerializerRuntimeType($"{nameof(AnimationData)}, {GameConstants.AssemblyName}")]
 public class AnimationData
 {

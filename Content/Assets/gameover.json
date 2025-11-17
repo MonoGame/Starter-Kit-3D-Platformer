@@ -1,72 +1,30 @@
 [
     {
         "type": "SCENE",
-        "background": "#BFC6D3"
+        "background": "#6CD2FFFF"
     },
     {
-        "name": "MenuCamera",
+        "name": "MenuCamera.002",
         "type": "CAMERA",
         "position": [
-            421.0334167480469,
-            256.4700012207031,
-            734.6712036132812
+            527.8798217773438,
+            179.25950622558594,
+            -348.867431640625
         ],
         "direction": [
-            0.0,
-            -1.0,
-            -0.0
+            -0.8083600401878357,
+            -0.04900454729795456,
+            0.586645245552063
         ],
         "rotation": [
-            78,
+            87,
             0,
-            30
+            126
         ],
         "fov": 69.23897316368576
     },
     {
-        "name": "platform.007",
-        "type": "MESH",
-        "instanceof": "platform",
-        "position": [
-            0.0,
-            -5.985524654388428,
-            -0.0
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "collidable": true
-    },
-    {
-        "name": "coin.033",
-        "type": "MESH",
-        "instanceof": "coin",
-        "position": [
-            233.0953826904297,
-            157.76235961914062,
-            7.286083698272705
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "collidable": false
-    },
-    {
-        "name": "cloud.026",
+        "name": "cloud.033",
         "type": "MESH",
         "instanceof": "cloud",
         "position": [
@@ -87,7 +45,7 @@
         "collidable": true
     },
     {
-        "name": "cloud.027",
+        "name": "cloud.034",
         "type": "MESH",
         "instanceof": "cloud",
         "position": [
@@ -108,7 +66,7 @@
         "collidable": true
     },
     {
-        "name": "cloud.028",
+        "name": "cloud.035",
         "type": "MESH",
         "instanceof": "cloud",
         "position": [
@@ -129,28 +87,7 @@
         "collidable": true
     },
     {
-        "name": "coin.034",
-        "type": "MESH",
-        "instanceof": "coin",
-        "position": [
-            164.53309631347656,
-            126.11255645751953,
-            -14.063006401062012
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "collidable": false
-    },
-    {
-        "name": "Sun.003",
+        "name": "Sun.007",
         "type": "LIGHT",
         "position": [
             1049.336181640625,
@@ -161,7 +98,7 @@
         "intensity": 1.100000023841858
     },
     {
-        "name": "cloud.029",
+        "name": "cloud.036",
         "type": "MESH",
         "instanceof": "cloud",
         "position": [
@@ -182,7 +119,7 @@
         "collidable": true
     },
     {
-        "name": "cloud.030",
+        "name": "cloud.037",
         "type": "MESH",
         "instanceof": "cloud",
         "position": [
@@ -203,7 +140,7 @@
         "collidable": true
     },
     {
-        "name": "cloud.031",
+        "name": "cloud.038",
         "type": "MESH",
         "instanceof": "cloud",
         "position": [
@@ -224,7 +161,7 @@
         "collidable": true
     },
     {
-        "name": "platform.008",
+        "name": "platform.015",
         "type": "MESH",
         "instanceof": "platform",
         "position": [
@@ -245,80 +182,80 @@
         "collidable": true
     },
     {
-        "name": "coin.035",
-        "type": "MESH",
-        "instanceof": "coin",
-        "position": [
-            -81.92774200439453,
-            208.731201171875,
-            70.63457489013672
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "collidable": false
-    },
-    {
-        "name": "coin.036",
-        "type": "MESH",
-        "instanceof": "coin",
-        "position": [
-            -156.46432495117188,
-            143.43846130371094,
-            103.67295837402344
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "collidable": false
-    },
-    {
-        "name": "platform.009",
-        "type": "MESH",
-        "instanceof": "platform",
-        "position": [
-            23.674726486206055,
-            -5.985524654388428,
-            387.48175048828125
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "collidable": true
-    },
-    {
-        "name": "PlayerSpawn.003",
+        "name": "PlayerSpawn.006",
         "type": "SPAWNPOINT",
         "position": [
-            24.65389060974121,
-            119.802734375,
-            397.2720947265625
+            -280.1767578125,
+            102.80278015136719,
+            -200.54542541503906
         ],
         "rotation": [
             0,
             0,
             -93
         ]
+    },
+    {
+        "name": "cloud.039",
+        "type": "MESH",
+        "instanceof": "cloud",
+        "position": [
+            -242.18081665039062,
+            185.8084259033203,
+            441.249267578125
+        ],
+        "rotation": [
+            68,
+            18,
+            -45
+        ],
+        "scale": [
+            1.5988744497299194,
+            1.5988744497299194,
+            1.5988744497299194
+        ],
+        "collidable": true
+    },
+    {
+        "name": "cloud.040",
+        "type": "MESH",
+        "instanceof": "cloud",
+        "position": [
+            -24.81522560119629,
+            110.38334655761719,
+            524.0264892578125
+        ],
+        "rotation": [
+            105,
+            0,
+            -74
+        ],
+        "scale": [
+            1.2001532316207886,
+            1.2001532316207886,
+            1.200153112411499
+        ],
+        "collidable": true
+    },
+    {
+        "name": "cloud.041",
+        "type": "MESH",
+        "instanceof": "cloud",
+        "position": [
+            58.58995819091797,
+            261.9198913574219,
+            608.6432495117188
+        ],
+        "rotation": [
+            127,
+            38,
+            -92
+        ],
+        "scale": [
+            1.2001532316207886,
+            1.2001532316207886,
+            1.200153112411499
+        ],
+        "collidable": true
     }
 ]

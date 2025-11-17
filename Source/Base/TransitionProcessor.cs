@@ -6,6 +6,9 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// Handles screen transitions like fade in and fade out.
+/// </summary>
 public class TransitionProcessor
 {
     public enum TransitionState
@@ -77,15 +80,13 @@ public class TransitionProcessor
         }
     }
 
-
-
     public float GetTransitionAlpha()
     {
         if (_transitionState == TransitionState.None)
             return 0f;
 
         float progress = MathHelper.Clamp(_transitionTimer / _transitionDuration, 0f, 1f);
-        
+
         switch (_transitionState)
         {
             case TransitionState.FadeOut:

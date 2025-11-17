@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// A basic platform entity.
+/// </summary>
 public class Platform : Entity
 {
     public Platform(Model model, ContentManager contentManager) : base(model, contentManager)

@@ -9,6 +9,11 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// A coin entity that spins and bobs up and down.
+/// When collected by the player, it increases the player's score and plays a sound.
+/// It also emits sparkles periodically and when collected.
+/// </summary>
 public class Coin : BobingEntity
 {
     private float _rotationSpeed = 3f;

@@ -7,6 +7,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// An entity that bobs up and down using a sine wave.
+/// The size and speed of the bobbing can be adjusted via
+/// the BobAmplitude and BobSpeed properties.
+/// </summary>
 public class BobingEntity : Entity
 {
     private Vector3 _initialPosition;

@@ -8,6 +8,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// A dust entity that emits dust particles.
+/// The dust particles slowly fade out and disappear.
+/// The AddDust method is called as the player moves around
+/// creating a trail of dust particles.
+/// </summary>
 public class Dust : Entity
 {
     struct DustParticle

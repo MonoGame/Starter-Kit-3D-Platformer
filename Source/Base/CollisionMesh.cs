@@ -7,6 +7,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
+/// <summary>
+/// A collision mesh composed of one or more convex hulls.
+/// Collision detection is performed using the Separating Axis Theorem (SAT).
+/// The mesh can be generated from a model or primitive shapes like spheres and cylinders.
+/// The mesh is transformed into world space using the parent entity's world matrix.
+/// Debug rendering is supported to visualize the collision hulls and bounding box.
+/// </summary>
 public class CollisionMesh
 {
     private List<ConvexHull> _hulls;

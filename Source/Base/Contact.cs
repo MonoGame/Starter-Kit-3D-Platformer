@@ -5,7 +5,9 @@
 using System;
 using Microsoft.Xna.Framework;
 
-
+/// <summary>
+/// Contact information for collision detection.
+/// </summary>
 public struct Contact
 {
     public Vector3 point;

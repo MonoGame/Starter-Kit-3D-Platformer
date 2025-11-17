@@ -11,6 +11,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+/// <summary>
+/// Loads and manages scenes in the game.
+/// Scenes are defined in JSON files and can be loaded at runtime.
+/// They can be created by hand , but we use blender to create them
+/// and a export screen is provided to facilitate this process.
+/// </summary>
 public class SceneLoader
 {
     Dictionary<string, Func<Model, ContentManager, Entity>> _assetMap = new();
@@ -134,6 +140,10 @@ public class SceneLoader
         return scene;
     }
 
+    /// <summary>
+    /// Gets a list of all available scene names.
+    /// </summary>
+    /// <returns> A list of scene names.</returns>
     public static string[] GetSceneList()
     {
         var levelsJson = TitleContainer.OpenStream("Content/levels.json");

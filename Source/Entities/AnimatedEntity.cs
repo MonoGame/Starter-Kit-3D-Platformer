@@ -8,6 +8,11 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 
+/// <summary>
+/// An entity that supports mesh animation.
+/// Note this does not support skeletal animation.
+/// It simply updates the Model's MeshTransforms based on keyframes defined in an AnimationClip.
+/// </summary>
 public class AnimatedEntity : Entity
 {
     TimeSpan currentTimeValue;
@@ -42,7 +47,8 @@ public class AnimatedEntity : Entity
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimatedEntity"/> class.
     /// </summary>
-    /// <param name="name">The name of the entity.</param>
+    /// <param name="model">The name of the entity.</param>
+    /// <param name="contentManager">The content manager managing this content.</param>
     public AnimatedEntity(Model model, ContentManager contentManager) : base(model, contentManager)
     {
         if (model.Tag is ModelData data)
@@ -96,6 +102,13 @@ public class AnimatedEntity : Entity
         }
     }
 
+    /// <summary>
+    /// Plays the specified animation clip.
+    /// </summary>
+    /// <param name="clipName">The name of the animation clip to play.</param>
+    /// <param name="reset">Whether to reset the animation.</param>
+    /// <param name="loop">Whether the animation should loop.</param>
+    /// <exception cref="ArgumentException">Thrown when the animation clip is not found.</exception>
     public void PlayAnimation(string clipName, bool reset = false, bool loop = true)
     {
         if (AnimationData != null && AnimationData.Animations.TryGetValue(clipName, out var clip))
@@ -199,6 +212,9 @@ public class AnimatedEntity : Entity
     /// <summary>
     /// Helper used by the Update method to refresh the BoneTransforms data.
     /// </summary>
+    /// <param name="time">The current time of the animation.</param>
+    /// <param name="relativeToCurrentTime">Whether the time is relative to the current time.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the animation player is not started.</exception>
     public void UpdateMeshTransforms(TimeSpan time, bool relativeToCurrentTime)
     {
         if (CurrentClip == null)
@@ -293,6 +309,10 @@ public class AnimatedEntity : Entity
         }
     }
 
+    /// <summary>
+    /// Updates the animated entity.
+    /// </summary>
+    /// <param name="gameTime">The game time.</param>
     public override void Update(GameTime gameTime)
     {
         if (CurrentClip != null)

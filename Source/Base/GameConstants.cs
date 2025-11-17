@@ -5,8 +5,16 @@
 using System;
 using Microsoft.Xna.Framework;
 
+/// <summary>
+/// Holds various game constants used throughout the game.
+/// </summary>
 public static class GameConstants
 {
+    /// <summary>
+    /// The assembly name for the game. This is used in ContentSerializerRuntimeType attributes
+    /// to ensure the XNB deserializer can properly instantiate types at runtime.
+    /// IMPORTANT: This must match the actual assembly name of the final built game!
+    /// </summary>
     public const string AssemblyName = "3DPlatformer";
     /// <summary>
     /// Base resolution for the game.

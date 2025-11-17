@@ -25,6 +25,61 @@ Includes features like;
 - Standard keyboard controls (WASD, Space), plus GamePad support
 - Camera controls (Arrows to move), Comma/Period Zoom
 
+## Build Instructions
+
+- Make sure your system is setup for MonoGame development by following the documentation at [https://docs.monogame.net/](https://docs.monogame.net/)
+- Clone the repository.
+- `dotnet build Starter-Kit-3D-Platformer.sln`
+- `dotnet run --project Platforms/Desktop/Desktop.csproj`
+
+For debug builds we define a `DEVMODE` conditional define. This is used to make sure
+development code is not included in the final build.
+
+When in debug mode you can use the following keys to show/see debug information.
+
+- F1 : Show/Hide collision meshes
+- F2 : Show/Hide RenderTargets for Shadow and Post Process'.
+- F3 : Show/Hide Performance Metrics.
+- +/- : Speed up or slow time the game time. Useful for debugging animations.
+- M : Mute/UnMute the Music.
+
+## Project Layout
+
+The Starter Kit 3D Platformer is organized into several key directories, each serving a specific purpose in the game's architecture:
+
+### Core Projects
+
+- **Source/** - Contains the main game code and logic
+  - **PlatformerGame.cs** - The entry point and main game loop
+  - **Base/** - Core engine components like Scene, Camera, Entity, and collision systems
+  - **Entities/** - All game entity implementations (Player, Coins, Platforms, etc.)
+
+- **Content/** - Houses all game assets
+  - **Models/** - 3D models for characters, platforms etc.
+  - **Textures/** - Sprite sheets, UI elements, and textures
+  - **Effects/** - Shader effects like Bloom, Shadow, and Vignette
+  - **Font/** - Font files and spritefont definitions
+  - **Sounds/** - Sound effects and music files
+  - **Content.mgcb** - MonoGame Content Builder project file
+  - **level*.json** - Level definition files exported from Blender
+  - **levels.json** - Index of all available levels
+
+- **Pipeline/** - Custom content processing
+  - **ConvexHullHelper.cs** - Generates collision meshes from 3D models
+  - **MeshAnimatedModelProcessor.cs** - Processes animated models
+  - **MeshAnimatedModelHelper.cs** - Utilities for model processing
+  - **Pipeline.csproj** - MonoGame Content Pipeline extension project
+
+- **Platforms/** - Platform-specific implementations
+  - **Desktop/** - Desktop (Windows/macOS/Linux) implementation
+    - **Program.cs** - Entry point for desktop applications
+    - **Desktop.csproj** - Project file for desktop builds
+
+- **Blender/** - Level editing tools
+  - **level.blend** - Main Blender file for level editing
+  - **AddMenu.py** - Adds export menu to Blender
+  - **ExportScript.py** - Exports level data to JSON
+
 ## Level Editing
 
 This sample uses Blender to create levels. The entire game is made up of these
@@ -42,6 +97,9 @@ building blocks of meshes.
 - jumppad
 
 All of these have already been imported into the `level.blend` file.
+When you open the `.blend` file it will ask if you want to run the `AddMenu` script.
+This script adds a `Platformer->Run Platformer Export` menu to the Blender menu to make it easy to export to the game.
+
 To layout more platforms, select one of the platforms you want to add and
 duplicate it (Shift+D). You can then move it to the desired location.
 
@@ -62,8 +120,31 @@ touches it. Usually use in conjunction with the `jumppad` mesh.
 
 Once you have organised your level you can go to the scripting tab in blender
 and run the provided script. This script will examine all the objects in the
-`Scene` collection and export their properties to the `level.json` file.
-If you want to export to a different file you can change the name in the script.
+`Scene` collection and export their properties to a `.json` file.
+The name of the file is taken from the collection nanme. The script will also produce
+a `levels.json` file which contains a list of all the levels in the game.
+This will allow you to easily add new levels.
+
+## Debugging Blender Export Script
+
+First install the required [extension](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development).
+
+The run Ctrl+Shift+P (Cmd+Shift+P on Mac), `Blender: Start` to start blender and attach the debugger.
+Note: You will be asked for the path to Blender.
+
+Then open the `ExportScript.py` in VSCode and place a breakpoint. Then run Ctrl+Shift+P,`Blender: Run Script`. You will now be debugging the script.
+
+## Ideas for Improvements
+
+This is your Starter Kit! So you can modify it , extend it, take things out.
+Here are some thoughts on things that could be added
+
+- Rotating Platforms.
+- Enemies
+- Other Collectables
+- Power Enhancement Pickups.
+- Local Co-op
+- Swap out the artwork.
 
 ## License
 
