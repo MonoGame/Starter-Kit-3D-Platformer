@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework.Graphics;
 /// which appears directly below the player. This is done to aide jumping and 
 /// is common in platformer games.
 /// </summary>
-public class ShadowProcessor
+public class SceneRenderer
 {
     private GraphicsDevice _graphicsDevice;
     private Effect _shadowEffect;
@@ -83,11 +83,11 @@ public class ShadowProcessor
     public Vector3 UpVector { get; set; } = Vector3.Up;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ShadowProcessor"/> class.
+    /// Initializes a new instance of the <see cref="SceneRenderer"/> class.
     /// </summary>
     /// <param name="graphicsDevice">The graphics device.</param>
     /// <param name="spriteBatch">The sprite batch.</param>
-    public ShadowProcessor(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
+    public SceneRenderer(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
     {
         _graphicsDevice = graphicsDevice;
         _spriteBatch = spriteBatch;
