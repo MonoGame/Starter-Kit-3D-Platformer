@@ -32,19 +32,6 @@ public class Coin : BobingEntity
     {
         IsBlockingMovement = false; // Coins do not block movement
         _rotationAngle = Random.Shared.NextSingle() * MathHelper.TwoPi; // Random initial rotation
-        foreach (var mesh in Model.Meshes)
-        {
-            foreach (var part in mesh.MeshParts)
-            {
-                var basicEffect = (BasicEffect)part.Effect;
-                basicEffect.EnableDefaultLighting();
-                basicEffect.DiffuseColor = new Vector3(1f, 1f, 0.5f); // Gold-like color
-                basicEffect.AmbientLightColor = new Vector3(0.5f, 0.5f, 0.5f); // Ambient light
-                basicEffect.SpecularColor = new Vector3(1f, 1f, 0.5f); // Gold-like color
-                basicEffect.SpecularPower = 16f;
-                basicEffect.EmissiveColor = new Vector3(1f, 1f, 0.5f); // Emissive color for glow
-            }
-        }
         TimeAccumilator = 0f;
         BobAmplitude = 20f;
         BobSpeed = 4f; // Speed of bobbing
