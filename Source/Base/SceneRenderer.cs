@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 /// <summary>
-/// Processes shadows for 3D entities.
+/// Renders the scene and handles shadow mapping for the scene.
 /// This process created two RenderTargets to store the shadow maps.
 /// One is for the directional or "sun" light, the other is for the player shadow
 /// which appears directly below the player. This is done to aide jumping and 
