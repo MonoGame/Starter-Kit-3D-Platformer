@@ -275,6 +275,8 @@ public class SceneRenderer
         var lp1 = Vector3.Normalize(Vector3.TransformNormal(LightPosition1, view));
 
         Effect effect = _shadowEffect;
+        // TODO: We can cache these parameters when loading the effect for better performance.
+        // This will remove a lot of dictionary lookups during rendering.
         effect.CurrentTechnique = effect.Techniques["RenderTextured"];
         effect.Parameters["LightPosition0"]?.SetValue(lp0);
         effect.Parameters["LightPosition1"]?.SetValue(lp1);
@@ -312,6 +314,8 @@ public class SceneRenderer
             temp.Translation = Vector3.Zero;
             Matrix worldViewIT = Matrix.Transpose(Matrix.Invert(temp));
 
+            // TODO: We can cache these parameters when loading the effect for better performance.
+            // This will remove a lot of dictionary lookups during rendering.
             effect.Parameters["NormalToView"]?.SetValue(worldViewIT);
             effect.Parameters["ModelToScreen"]?.SetValue(worldViewProjMatrix);
             effect.Parameters["ModelToLight0"]?.SetValue(lightWorldViewProjMatrix0);
