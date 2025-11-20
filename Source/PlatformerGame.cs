@@ -430,25 +430,22 @@ public class PlatformerGame : Game
 
     private void DrawMetrics(GameTime gameTime)
     {
-        if (_debugFlags.HasFlag(DebugFlags.ShowMetrics))
-        {
-            // Draw any additional metrics here
-            _spriteBatch.DrawString(_debugFont, $"FPS: {1f / (float)gameTime.ElapsedGameTime.TotalSeconds:0.00}", new Vector2(10, 110), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Time Scale: {TimeScale:0.00}", new Vector2(10, 130), Color.White);
-            //_spriteBatch.DrawString(_debugFont, $"Entities: {_entities.Count}", new Vector2(10, 150), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Clear: {GraphicsDevice.Metrics.ClearCount}", new Vector2(10, 170), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Draw: {GraphicsDevice.Metrics.DrawCount}", new Vector2(10, 190), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Primitives: {GraphicsDevice.Metrics.PrimitiveCount}", new Vector2(10, 210), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Sprites: {GraphicsDevice.Metrics.SpriteCount}", new Vector2(10, 230), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Gen 0: {GC.CollectionCount(0)}", new Vector2(10, 250), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Gen 1: {GC.CollectionCount(1)}", new Vector2(10, 270), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Gen 2: {GC.CollectionCount(2)}", new Vector2(10, 290), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Total: {GC.CollectionCount(3)}", new Vector2(10, 310), Color.White);
-            var gcMemoryInfo = GC.GetGCMemoryInfo();
-            _spriteBatch.DrawString(_debugFont, $"GC Memory: {gcMemoryInfo.TotalAvailableMemoryBytes / (1024 * 1024):0.00} MB", new Vector2(10, 350), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Fragmentation: {gcMemoryInfo.FragmentedBytes / (1024 * 1024):0.00} MB", new Vector2(10, 370), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Heap Size: {gcMemoryInfo.HeapSizeBytes / (1024 * 1024):0.00} MB", new Vector2(10, 390), Color.White);
-        }
+        // Draw any additional metrics here
+        _spriteBatch.DrawString(_debugFont, $"FPS: {1f / (float)gameTime.ElapsedGameTime.TotalSeconds:0.00}", new Vector2(10, 110), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Time Scale: {TimeScale:0.00}", new Vector2(10, 130), Color.White);
+        //_spriteBatch.DrawString(_debugFont, $"Entities: {_entities.Count}", new Vector2(10, 150), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Clear: {GraphicsDevice.Metrics.ClearCount}", new Vector2(10, 170), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Draw: {GraphicsDevice.Metrics.DrawCount}", new Vector2(10, 190), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Primitives: {GraphicsDevice.Metrics.PrimitiveCount}", new Vector2(10, 210), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Sprites: {GraphicsDevice.Metrics.SpriteCount}", new Vector2(10, 230), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Gen 0: {GC.CollectionCount(0)}", new Vector2(10, 250), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Gen 1: {GC.CollectionCount(1)}", new Vector2(10, 270), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Gen 2: {GC.CollectionCount(2)}", new Vector2(10, 290), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Total: {GC.CollectionCount(3)}", new Vector2(10, 310), Color.White);
+        var gcMemoryInfo = GC.GetGCMemoryInfo();
+        _spriteBatch.DrawString(_debugFont, $"GC Memory: {gcMemoryInfo.TotalAvailableMemoryBytes / (1024 * 1024):0.00} MB", new Vector2(10, 350), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Fragmentation: {gcMemoryInfo.FragmentedBytes / (1024 * 1024):0.00} MB", new Vector2(10, 370), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Heap Size: {gcMemoryInfo.HeapSizeBytes / (1024 * 1024):0.00} MB", new Vector2(10, 390), Color.White);
     }
 
     protected override void Draw(GameTime gameTime)
