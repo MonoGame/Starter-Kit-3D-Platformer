@@ -6,7 +6,6 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
     <AssemblyName>3DPlatformer</AssemblyName>
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
@@ -29,7 +28,7 @@
     <Compile Include="..\..\Source\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5-develop.13" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5-develop.*" />
   </ItemGroup>
   <Target Name="BuildContent" BeforeTargets="Build">
     <PropertyGroup>

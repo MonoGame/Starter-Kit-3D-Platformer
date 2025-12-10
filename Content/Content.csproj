@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,8 +18,8 @@
 	<None Include="Assets/*" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.5-develop.13" />
-    <PackageReference Include="MonoGame.Framework.Native" Version="3.8.5-develop.13" />
+    <PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.5-develop.*" />
+    <PackageReference Include="MonoGame.Framework.Native" Version="3.8.5-develop.*" />
     <PackageReference Include="MIConvexHull" Version="1.1.19.1019" />
     <PackageReference Include="MonoGame.Tool.Basisu" Version="1.60.0.3" />
     <PackageReference Include="MonoGame.Tool.Crunch" Version="1.0.4.5" />

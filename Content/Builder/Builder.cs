@@ -2,36 +2,29 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
-using System.Diagnostics;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using MonoGame.Framework.Content.Pipeline.Builder;
 
-
-/// <summary>
-/// Entry point for the Content Builder project, 
-/// which when executed will build content according to the "Content Collection Strategy" defined in the MyContentCollector class.
-/// </summary>
-/// <remarks>
-/// Make sure to validate the directory paths in the "ContentBuilderParams" for your specific project.
-/// For more details regarding the Content Builder, see the MonoGame documentation: <tbc.>
-/// </remarks>
-///
-
-
-// If you need to debug the content build process you can enable
-// this, build the game, then attach the debugger when prompted.
-//Debugger.Launch();
-
-
+var contentCollectionArgs = new ContentBuilderParams()
+{
+    Mode = ContentBuilderMode.Builder,
+    WorkingDirectory = $"{AppContext.BaseDirectory}../../../", // path to where your content folder can be located
+    SourceDirectory = "Assets", // Not actually needed as this is the default, but added for reference
+    Platform = TargetPlatform.DesktopGL
+};
 var builder = new Builder();
-//builder.Logger = new MsBuildLogger(); <- logger not present in base package yet
-builder.Run(args);
-var parameters = ContentBuilderParams.Parse(args);
-//parameters.Rebuild = true;
-builder.Run(parameters);
-return builder.FailedToBuild > 0 ? -1 : 0; 
 
+if (args is not null && args.Length > 0)
+{
+    builder.Run(args);
+}
+else
+{
+    builder.Run(contentCollectionArgs);
+}
+
+return builder.FailedToBuild > 0 ? -1 : 0;
 
 public class Builder : ContentBuilder
 {
@@ -40,7 +33,7 @@ public class Builder : ContentBuilder
         var content = new ContentCollection();
 
         // include everything in the folder
-        content.Include<RegexRule>(".");
+        content.Include<WildcardRule>("*");
         content.Include<WildcardRule>("*.fbx", new FbxImporter(), new MeshAnimatedModelProcessor());
         content.Include<WildcardRule>("*.glb", new FbxImporter(), new MeshAnimatedModelProcessor());
 
