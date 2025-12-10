@@ -60,7 +60,7 @@ public class PlatformerGame : Game
     private SpriteFont _debugFont;
 
     private PostProcessor _postProcessor;
-    private ShadowProcessor _shadowProcessor;
+    private SceneRenderer _sceneRenderer;
     private TransitionProcessor _transitionProcessor;
 
     private SoundEffectInstance _song;
@@ -116,11 +116,11 @@ public class PlatformerGame : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _postProcessor = new PostProcessor(GraphicsDevice, _spriteBatch);
         _postProcessor.LoadContent(Content);
-        _shadowProcessor = new ShadowProcessor(GraphicsDevice, _spriteBatch);
-        _shadowProcessor.LoadContent(Content);
-        _shadowProcessor.LightDirection = Vector3.Normalize(new Vector3(10, 20, 10));
-        _shadowProcessor.SpecularIntensity = 10f;
-        _shadowProcessor.Shininess = 160.0f;
+        _sceneRenderer = new SceneRenderer(GraphicsDevice, _spriteBatch);
+        _sceneRenderer.LoadContent(Content);
+        _sceneRenderer.LightDirection = Vector3.Normalize(new Vector3(10, 20, 10));
+        _sceneRenderer.SpecularIntensity = 10f;
+        _sceneRenderer.Shininess = 160.0f;
         _transitionProcessor = new TransitionProcessor(GraphicsDevice, _spriteBatch);
         _sceneLoader = new SceneLoader(GraphicsDevice, Content);
         _overlayTexture = new Texture2D(_spriteBatch.GraphicsDevice, 1, 1);
@@ -217,9 +217,9 @@ public class PlatformerGame : Game
     private void LoadLevel(string level)
     {
         _currentScene = _sceneLoader.LoadScene(level);
-        _shadowProcessor.LightDirection = Vector3.Normalize(_currentScene.LightPosition);
-        _shadowProcessor.SpecularIntensity = 0.1f;
-        _shadowProcessor.Shininess = 0.5f;
+        _sceneRenderer.LightDirection = Vector3.Normalize(_currentScene.LightPosition);
+        _sceneRenderer.SpecularIntensity = 0.1f;
+        _sceneRenderer.Shininess = 0.5f;
         _currentScene.ResetTimer = 0;
     }
 
@@ -372,7 +372,7 @@ public class PlatformerGame : Game
 
                 _currentScene.Update(scaledTime);
 
-                _shadowProcessor.TargetPosition = _currentScene.Player.Position;
+                _sceneRenderer.TargetPosition = _currentScene.Player.Position;
 
                 if (_currentScene.Goal.Complete && !_transitionProcessor.IsTransitioning)
                 {
@@ -430,25 +430,22 @@ public class PlatformerGame : Game
 
     private void DrawMetrics(GameTime gameTime)
     {
-        if (_debugFlags.HasFlag(DebugFlags.ShowMetrics))
-        {
-            // Draw any additional metrics here
-            _spriteBatch.DrawString(_debugFont, $"FPS: {1f / (float)gameTime.ElapsedGameTime.TotalSeconds:0.00}", new Vector2(10, 110), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Time Scale: {TimeScale:0.00}", new Vector2(10, 130), Color.White);
-            //_spriteBatch.DrawString(_debugFont, $"Entities: {_entities.Count}", new Vector2(10, 150), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Clear: {GraphicsDevice.Metrics.ClearCount}", new Vector2(10, 170), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Draw: {GraphicsDevice.Metrics.DrawCount}", new Vector2(10, 190), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Primitives: {GraphicsDevice.Metrics.PrimitiveCount}", new Vector2(10, 210), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"Sprites: {GraphicsDevice.Metrics.SpriteCount}", new Vector2(10, 230), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Gen 0: {GC.CollectionCount(0)}", new Vector2(10, 250), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Gen 1: {GC.CollectionCount(1)}", new Vector2(10, 270), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Gen 2: {GC.CollectionCount(2)}", new Vector2(10, 290), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Total: {GC.CollectionCount(3)}", new Vector2(10, 310), Color.White);
-            var gcMemoryInfo = GC.GetGCMemoryInfo();
-            _spriteBatch.DrawString(_debugFont, $"GC Memory: {gcMemoryInfo.TotalAvailableMemoryBytes / (1024 * 1024):0.00} MB", new Vector2(10, 350), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Fragmentation: {gcMemoryInfo.FragmentedBytes / (1024 * 1024):0.00} MB", new Vector2(10, 370), Color.White);
-            _spriteBatch.DrawString(_debugFont, $"GC Heap Size: {gcMemoryInfo.HeapSizeBytes / (1024 * 1024):0.00} MB", new Vector2(10, 390), Color.White);
-        }
+        // Draw any additional metrics here
+        _spriteBatch.DrawString(_debugFont, $"FPS: {1f / (float)gameTime.ElapsedGameTime.TotalSeconds:0.00}", new Vector2(10, 110), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Time Scale: {TimeScale:0.00}", new Vector2(10, 130), Color.White);
+        //_spriteBatch.DrawString(_debugFont, $"Entities: {_entities.Count}", new Vector2(10, 150), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Clear: {GraphicsDevice.Metrics.ClearCount}", new Vector2(10, 170), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Draw: {GraphicsDevice.Metrics.DrawCount}", new Vector2(10, 190), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Primitives: {GraphicsDevice.Metrics.PrimitiveCount}", new Vector2(10, 210), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"Sprites: {GraphicsDevice.Metrics.SpriteCount}", new Vector2(10, 230), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Gen 0: {GC.CollectionCount(0)}", new Vector2(10, 250), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Gen 1: {GC.CollectionCount(1)}", new Vector2(10, 270), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Gen 2: {GC.CollectionCount(2)}", new Vector2(10, 290), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Total: {GC.CollectionCount(3)}", new Vector2(10, 310), Color.White);
+        var gcMemoryInfo = GC.GetGCMemoryInfo();
+        _spriteBatch.DrawString(_debugFont, $"GC Memory: {gcMemoryInfo.TotalAvailableMemoryBytes / (1024 * 1024):0.00} MB", new Vector2(10, 350), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Fragmentation: {gcMemoryInfo.FragmentedBytes / (1024 * 1024):0.00} MB", new Vector2(10, 370), Color.White);
+        _spriteBatch.DrawString(_debugFont, $"GC Heap Size: {gcMemoryInfo.HeapSizeBytes / (1024 * 1024):0.00} MB", new Vector2(10, 390), Color.White);
     }
 
     protected override void Draw(GameTime gameTime)
@@ -480,21 +477,21 @@ public class PlatformerGame : Game
 
             case GameState.LoadingScreen:
                 // Draw splash screen
-                _loadingScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
+                _loadingScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
                 break;
 
             case GameState.GameOverScreen:
                 // Draw MonoGame logo and url, Patreon logo and url and "Game Over" text.
                 // Add Source code GitHub url.
                 // Thank Patrons for their support.
-                _gameOverScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
+                _gameOverScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _gameOverScreen.Draw(gameTime, _spriteBatch);
                 _spriteBatch.End();
                 break;
 
             case GameState.MenuScreen:
-                _menuScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
+                _menuScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _spriteBatch.Draw(_logoTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100), 50, _logoTexture.Width - 200, _logoTexture.Height - 50), Color.White);
                 _spriteBatch.End();
@@ -507,7 +504,7 @@ public class PlatformerGame : Game
             case GameState.MainScene:
 
                 // Draw the scene
-                _currentScene.Draw(gameTime, GraphicsDevice, _shadowProcessor, _postProcessor, _spriteBatch);
+                _currentScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
 #if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
                 {
@@ -525,7 +522,7 @@ public class PlatformerGame : Game
 #if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowRenderTargets))
                 {
-                    _shadowProcessor.DebugDrawShadowMap(new Rectangle(0, 0, 256, 256));
+                    _sceneRenderer.DebugDrawShadowMap(new Rectangle(0, 0, 256, 256));
                     _postProcessor.DebugDrawRenderTargets(new Rectangle(256, 0, 256, 256));
                 }
 #endif

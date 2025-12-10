@@ -8,13 +8,13 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 /// <summary>
-/// Processes shadows for 3D entities.
+/// Renders the scene and handles shadow mapping for the scene.
 /// This process created two RenderTargets to store the shadow maps.
 /// One is for the directional or "sun" light, the other is for the player shadow
 /// which appears directly below the player. This is done to aide jumping and 
 /// is common in platformer games.
 /// </summary>
-public class ShadowProcessor
+public class SceneRenderer
 {
     private GraphicsDevice _graphicsDevice;
     private Effect _shadowEffect;
@@ -83,11 +83,11 @@ public class ShadowProcessor
     public Vector3 UpVector { get; set; } = Vector3.Up;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ShadowProcessor"/> class.
+    /// Initializes a new instance of the <see cref="SceneRenderer"/> class.
     /// </summary>
     /// <param name="graphicsDevice">The graphics device.</param>
     /// <param name="spriteBatch">The sprite batch.</param>
-    public ShadowProcessor(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
+    public SceneRenderer(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch)
     {
         _graphicsDevice = graphicsDevice;
         _spriteBatch = spriteBatch;
@@ -275,6 +275,8 @@ public class ShadowProcessor
         var lp1 = Vector3.Normalize(Vector3.TransformNormal(LightPosition1, view));
 
         Effect effect = _shadowEffect;
+        // TODO: We can cache these parameters when loading the effect for better performance.
+        // This will remove a lot of dictionary lookups during rendering.
         effect.CurrentTechnique = effect.Techniques["RenderTextured"];
         effect.Parameters["LightPosition0"]?.SetValue(lp0);
         effect.Parameters["LightPosition1"]?.SetValue(lp1);
@@ -312,6 +314,8 @@ public class ShadowProcessor
             temp.Translation = Vector3.Zero;
             Matrix worldViewIT = Matrix.Transpose(Matrix.Invert(temp));
 
+            // TODO: We can cache these parameters when loading the effect for better performance.
+            // This will remove a lot of dictionary lookups during rendering.
             effect.Parameters["NormalToView"]?.SetValue(worldViewIT);
             effect.Parameters["ModelToScreen"]?.SetValue(worldViewProjMatrix);
             effect.Parameters["ModelToLight0"]?.SetValue(lightWorldViewProjMatrix0);

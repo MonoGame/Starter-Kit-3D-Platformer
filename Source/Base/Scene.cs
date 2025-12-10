@@ -189,7 +189,7 @@ public class Scene
         }
     }
 
-    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, ShadowProcessor shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
+    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, SceneRenderer shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
     {
         shadowProcessor.SunColor = LightColor.ToVector3();
         shadowProcessor.SunIntensity = LightIntensity;
@@ -222,7 +222,7 @@ public class Scene
         spriteBatch.End();
     }
 
-    private void DrawShadownMaps(ShadowProcessor shadowProcessor)
+    private void DrawShadownMaps(SceneRenderer shadowProcessor)
     {
         _drawList.Clear();
         _drawList.AddRange(_entities);
@@ -251,7 +251,7 @@ public class Scene
         shadowProcessor.EndShadowMapPass();
     }
 
-    private void DrawScene(ShadowProcessor shadowProcessor, SpriteBatch spriteBatch)
+    private void DrawScene(SceneRenderer sceneRenderer, SpriteBatch spriteBatch)
     {
         _drawList.Clear();
         _drawList.AddRange(_entities);
@@ -273,7 +273,7 @@ public class Scene
             if (entity.Model is null)
                 continue;
 
-            shadowProcessor.DrawModelWithShadow(entity, _camera, false);
+            sceneRenderer.DrawModelWithShadow(entity, _camera, false);
         }
 
         // Now draw the transparent objects reversing the list furthest to closest.
@@ -283,7 +283,7 @@ public class Scene
             if (entity.Model is null)
                 continue;
 
-            shadowProcessor.DrawModelWithShadow(entity, _camera, true);
+            sceneRenderer.DrawModelWithShadow(entity, _camera, true);
         }
 
         _dust.Draw(_graphicsDevice, spriteBatch, _camera);
