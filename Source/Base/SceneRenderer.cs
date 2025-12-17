@@ -242,8 +242,8 @@ public class SceneRenderer
         var color = Color.White;
         if (entity is not Player)
         {
-            var FadeNear = 200.0f;
-            var FadeFar = 300.0f;
+            var FadeNear = GameConstants.SHADOW_NEAR_PLANE;
+            var FadeFar = GameConstants.SHADOWN_FAR_PLANE;
             float d = Vector3.Distance(camera.Position, entity.Position);
             float alpha = 1.0f - MathHelper.Clamp((d - FadeFar) / (FadeNear - FadeFar), 0.0f, 1.0f);
             color.A = (byte)Math.Ceiling(255 * alpha);
