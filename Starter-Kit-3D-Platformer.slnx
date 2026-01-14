@@ -1,0 +1,11 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Platforms/">
+    <Project Path="Platforms/Desktop/Desktop.csproj" />
+  </Folder>
+  <Project Path="Content/Content.csproj" />
+</Solution>
