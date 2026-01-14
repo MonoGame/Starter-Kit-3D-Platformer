@@ -50,7 +50,8 @@ public class Builder : ContentBuilder
                 Scale = 100.0f
             }
         );
-
+        content.Exclude<WildcardRule>("Font/*.txt"); 
+        content.Exclude<WildcardRule>("Font/*.ttf"); 
         return content;
     }
 }

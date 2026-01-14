@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
     <AssemblyName>3DPlatformer</AssemblyName>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
+    <MonoGamePlatform>DesktopGL</MonoGamePlatform>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -28,15 +29,7 @@
     <Compile Include="..\..\Source\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5-develop.*" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5-preview.*" />
   </ItemGroup>
-  <Target Name="BuildContent" BeforeTargets="BeforeCompile">
-    <PropertyGroup>
-      <ContentTarget>DesktopGL</ContentTarget>
-      <ContentOutput>$(ProjectDir)$(OutputPath)</ContentOutput>
-      <ContentTemp>$(ProjectDir)$(IntermediateOutputPath)</ContentTemp>
-      <ContentArgs>build -p $(ContentTarget) -s Assets -o $(ContentOutput) -i $(ContentTemp)</ContentArgs>
-    </PropertyGroup>
-    <MSbuild Projects="..\..\Content\Content.csproj" Targets="Build;Run" Properties="RunArguments=$(ContentArgs);" />
-  </Target>
+  <Import Project="..\..\Content\BuildContent.targets" />
 </Project>
