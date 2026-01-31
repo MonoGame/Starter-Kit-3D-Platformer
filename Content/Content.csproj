@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Source\Base\AnimationData.cs" Link="Builder\AnimationData.cs" />
+    <Compile Include="..\Source\Base\Contact.cs" Link="Builder\Contact.cs" />
+    <Compile Include="..\Source\Base\ConvexHull.cs" Link="Builder\ConvexHull.cs" />
+    <Compile Include="..\Source\Base\GameConstants.cs" Link="Builder\GameConstants.cs" />
+    <Compile Include="..\Source\Base\ModelData.cs" Link="Builder\ModelData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+	<None Include="Assets/*" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.5-preview.*" />
+    <PackageReference Include="MonoGame.Framework.Native" Version="3.8.5-preview.*">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MIConvexHull" Version="1.1.19.1019" />
+    <PackageReference Include="MonoGame.Tool.Basisu" Version="1.60.0.3" />
+    <PackageReference Include="MonoGame.Tool.Crunch" Version="1.0.4.5" />
+    <PackageReference Include="MonoGame.Tool.Dxc" Version="1.8.2505.10" />
+    <PackageReference Include="MonoGame.Tool.FFmpeg" Version="7.0.0.9" />
+    <PackageReference Include="MonoGame.Tool.FFprobe" Version="7.0.0.9" />
+  </ItemGroup>
+  
+</Project>

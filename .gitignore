@@ -10,4 +10,6 @@ bin
 .DS_Store
 .mgstats
 .artifacts
-*.binlog
+
+# Content Builder output
+/Content/Output

@@ -47,7 +47,8 @@ public class AnimatedEntity : Entity
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimatedEntity"/> class.
     /// </summary>
-    /// <param name="name">The name of the entity.</param>
+    /// <param name="model">The name of the entity.</param>
+    /// <param name="contentManager">The content manager managing this content.</param>
     public AnimatedEntity(Model model, ContentManager contentManager) : base(model, contentManager)
     {
         if (model.Tag is ModelData data)

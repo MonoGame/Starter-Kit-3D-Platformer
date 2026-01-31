@@ -1,13 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
-    <!-- If you change this value you need to update the GameConstants.AssemblyName value -->
     <AssemblyName>3DPlatformer</AssemblyName>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
+    <MonoGamePlatform>DesktopGL</MonoGamePlatform>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -24,14 +24,12 @@
     <EmbeddedResource Include="Icon.bmp">
       <LogicalName>Icon.bmp</LogicalName>
     </EmbeddedResource>
-    <MonoGameContentReference Include="..\..\Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Source\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5-develop.4" />
-    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.5-develop.4" />
-    <ProjectReference Include="..\..\Pipeline\Pipeline.csproj" ReferenceOutputAssembly="false" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5-preview.*" />
   </ItemGroup>
+  <Import Project="..\..\Content\BuildContent.targets" />
 </Project>
