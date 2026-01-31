@@ -407,7 +407,7 @@ public class PlatformerGame : Game
 
     private void DrawHud(GameTime gameTime, Rectangle rect, Vector2 scale)
     {
-        // Apply a globl scale to make sure all the HUD elements are scaled correctly
+        // Apply a global scale to make sure all the HUD elements are scaled correctly
         // This is useful for different screen resolutions and aspect ratios.
         // The scale is based on the original resolution of 1280x720.
         _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(new Vector3(rect.X, rect.Y, 0)) * Matrix.CreateScale(scale.X, scale.Y, 0f));
@@ -523,7 +523,7 @@ public class PlatformerGame : Game
                 if (_debugFlags.HasFlag(DebugFlags.ShowRenderTargets))
                 {
                     _sceneRenderer.DebugDrawShadowMap(new Rectangle(0, 0, 256, 256));
-                    _postProcessor.DebugDrawRenderTargets(new Rectangle(256, 0, 256, 256));
+                    _postProcessor.DebugDrawRenderTargets(new Rectangle(0, 0, 256, 256));
                 }
 #endif
                 if (_currentState == GameState.PauseScreen)

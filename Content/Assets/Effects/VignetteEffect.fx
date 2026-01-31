@@ -11,29 +11,29 @@ float2 Radius = float2(0.5f, 0.5f);
 float2 Center = float2(0.5f, 0.5f);
 float Smoothness = 0.5f;
 
-texture ScreenTexture;
+Texture2D SpriteTexture;
 
-sampler2D ScreenSampler = sampler_state
+sampler2D SpriteTextureSampler = sampler_state
 {
-    Texture = <ScreenTexture>;
+    Texture = <SpriteTexture>;
 };
 
 struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
-    float2 TexCoord : TEXCOORD0;
     float4 Color : COLOR0;
+    float2 TextureCoordinates : TEXCOORD0;
 };
 
 float4 VignettePS(VertexShaderOutput input) : COLOR0
 {
-    float4 color = tex2D(ScreenSampler, input.TexCoord);
+    float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates) * input.Color;
     
-    float2 dist = (input.TexCoord - Center) * Radius;
+    float2 dist = (input.TextureCoordinates - Center) * Radius;
     float vignette = saturate(dot(dist, dist));
     vignette = smoothstep(0.0f, Smoothness, vignette);
     
-    return float4(1,1,1, vignette) * input.Color;
+    return float4(1,1,1, vignette) * color;
 }
 
 technique Vignette

@@ -6,6 +6,7 @@
   </Configurations>
   <Folder Name="/Platforms/">
     <Project Path="Platforms/Desktop/Desktop.csproj" />
+    <Project Path="Platforms/Windows/Windows.csproj" />
   </Folder>
   <Project Path="Content/Content.csproj" />
 </Solution>

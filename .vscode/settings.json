@@ -1,5 +1,12 @@
 {
     "blender.additionalArguments": [
         "${workspaceFolder}/Blender/level.blend"
+    ],
+    "omnisharp.loggingLevel": "warning",
+    "omnisharp.excludePathsPattern": [
+        "**/bin/**",
+        "**/obj/**",
+        "**/*.fx",
+        "**/*.hlsl"
     ]
 }

@@ -86,62 +86,83 @@ public class PostProcessor
     private void ApplyPostProcessing()
     {
         // Extract bright areas for bloom.
-        _graphicsDevice.SetRenderTarget(_bloomExtractTarget);
-        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
         _bloomEffect.CurrentTechnique = _bloomEffect.Techniques["BloomExtract"];
         _bloomEffect.Parameters["BloomThreshold"].SetValue(1.2f);
-        _bloomEffect.CurrentTechnique.Passes[0].Apply();
+
+        _graphicsDevice.SetRenderTarget(_bloomExtractTarget);
+        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, effect: _bloomEffect);
         _spriteBatch.Draw(_mainRenderTarget, _bloomExtractTarget.Bounds, Color.White);
         _spriteBatch.End();
 
         // Blur horizontally.
-        _graphicsDevice.SetRenderTarget(_bloomBlurTarget1);
-        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
         _bloomEffect.CurrentTechnique = _bloomEffect.Techniques["GaussianBlur"];
         _bloomEffect.Parameters["TexelSize"].SetValue(2.0f / _bloomBlurTarget1.Width);
         _bloomEffect.Parameters["Direction"].SetValue(new Vector2(1, 0));
-        _bloomEffect.CurrentTechnique.Passes[0].Apply();
+
+        _graphicsDevice.SetRenderTarget(_bloomBlurTarget1);
+        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, effect: _bloomEffect);
         _spriteBatch.Draw(_bloomExtractTarget, _bloomBlurTarget1.Bounds, Color.White);
         _spriteBatch.End();
 
         // Blur vertically.
-        _graphicsDevice.SetRenderTarget(_bloomBlurTarget2);
-        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
         _bloomEffect.CurrentTechnique = _bloomEffect.Techniques["GaussianBlur"];
         _bloomEffect.Parameters["TexelSize"].SetValue(2.0f / _bloomBlurTarget2.Width);
         _bloomEffect.Parameters["Direction"].SetValue(new Vector2(0, 1));
-        _bloomEffect.CurrentTechnique.Passes[0].Apply();
+
+        _graphicsDevice.SetRenderTarget(_bloomBlurTarget2);
+        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, effect: _bloomEffect);
         _spriteBatch.Draw(_bloomBlurTarget1, _bloomBlurTarget2.Bounds, Color.White);
         _spriteBatch.End();
 
-        // Cpmbine the main scene with the bloom.
-        _graphicsDevice.SetRenderTarget(null);
-        var fullscreen = _graphicsDevice.Viewport.Bounds;
-        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+        // Combine the main scene with the bloom.
         _bloomEffect.CurrentTechnique = _bloomEffect.Techniques["Combine"];
         _bloomEffect.Parameters["BaseIntensity"].SetValue(1.0f);
         _bloomEffect.Parameters["BloomIntensity"].SetValue(0.5f);
         _bloomEffect.Parameters["BloomTexture"].SetValue(_bloomBlurTarget2);
-        _bloomEffect.CurrentTechnique.Passes[0].Apply();
+
+        _graphicsDevice.SetRenderTarget(null);
+        var fullscreen = _graphicsDevice.Viewport.Bounds;
+        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, effect: _bloomEffect);
         _spriteBatch.Draw(_mainRenderTarget, fullscreen, Color.White);
         _spriteBatch.End();
 
         // Apply vignette.
-        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-        _vignetteEffect.Parameters["Radius"]?.SetValue(new Vector2(1.15f));
-        _vignetteEffect.Parameters["Center"]?.SetValue(new Vector2(0.5f));
-        _vignetteEffect.Parameters["Smoothness"]?.SetValue(0.96f);
-        _vignetteEffect.CurrentTechnique.Passes[0].Apply();
+        //_vignetteEffect.Parameters["SpriteTexture"].SetValue(_mainRenderTarget);
+        _vignetteEffect.Parameters["Radius"].SetValue(new Vector2(1.15f));
+        _vignetteEffect.Parameters["Center"].SetValue(new Vector2(0.5f));
+        _vignetteEffect.Parameters["Smoothness"].SetValue(0.96f);
+
+        _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, effect: _vignetteEffect);
         _spriteBatch.Draw(_mainRenderTarget, fullscreen, Color.Black * 0.8f);
         _spriteBatch.End();
     }
 
+    /// <summary>
+    /// Optional: Utility method to visualize the post processing maps for debugging
+    /// Draws all render targets on a second row of render textures.
+    /// </summary>
+    /// <param name="destination">The destination rectangle for the shadow map visualization</param>
     public void DebugDrawRenderTargets(Rectangle rectangle)
     {
         _spriteBatch.Begin();
-        //_spriteBatch.Draw(_mainRenderTarget, rectangle, Color.White);
-        //_spriteBatch.Draw(_bloomExtractTarget, new Rectangle(rectangle.X + rectangle.Width, rectangle.Y, rectangle.Width, rectangle.Height), Color.White);
-        _spriteBatch.Draw(_bloomBlurTarget2, new Rectangle(rectangle.X + (rectangle.Width * 2), rectangle.Y, rectangle.Width, rectangle.Height), Color.White);
+        // Draw all render targets on the next row (offset vertically from shadow maps)
+        int nextRowY = rectangle.Y + rectangle.Height + 10;
+        int xOffset = rectangle.X;
+
+        // Draw main render target
+        _spriteBatch.Draw(_mainRenderTarget, new Rectangle(xOffset, nextRowY, rectangle.Width, rectangle.Height), Color.White);
+        xOffset += rectangle.Width + 10;
+
+        // Draw bloom extract target
+        _spriteBatch.Draw(_bloomExtractTarget, new Rectangle(xOffset, nextRowY, rectangle.Width, rectangle.Height), Color.White);
+        xOffset += rectangle.Width + 10;
+
+        // Draw bloom blur target 1
+        _spriteBatch.Draw(_bloomBlurTarget1, new Rectangle(xOffset, nextRowY, rectangle.Width, rectangle.Height), Color.White);
+        xOffset += rectangle.Width + 10;
+
+        // Draw bloom blur target 2
+        _spriteBatch.Draw(_bloomBlurTarget2, new Rectangle(xOffset, nextRowY, rectangle.Width, rectangle.Height), Color.White);
         _spriteBatch.End();
     }
 }

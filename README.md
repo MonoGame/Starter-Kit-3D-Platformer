@@ -82,62 +82,16 @@ The Starter Kit 3D Platformer is organized into several key directories, each se
 
 ## Level Editing
 
-This sample uses Blender to create levels. The entire game is made up of these
-building blocks of meshes.
+This sample uses Blender to create levels. The entire game is made up of these building blocks of meshes.
 
-- cloud
-- coin
-- grass
-- platform-falling
-- platform-grass
-- platform-large
-- platform-medium
-- platform
-- flag
-- jumppad
-
-All of these have already been imported into the `level.blend` file.
-When you open the `.blend` file it will ask if you want to run the `AddMenu` script.
-This script adds a `Platformer->Run Platformer Export` menu to the Blender menu to make it easy to export to the game.
-
-To layout more platforms, select one of the platforms you want to add and
-duplicate it (Shift+D). You can then move it to the desired location.
-
-We use custom properties in blender to all us to flag an object as having
-special properties. For example in the example you will now that the `Empty`
-which is used for the spawn point has an `IsSpawnPoint` boolean custom property.
-When using an `Empty` you can change the Display Type to be a sphere and alter
-the radius if you want to define an area. This can be useful for things like
-goals or trigger points.
-
-Supported custom properties:
-
-- `IsGoal`: Add this to an `Empty` and set it to `true` to make this the end goal of a level.
-- `IsSpawnPoint`: Add this to an `Empty` and set it to `true` to make this the spawn point of the level.
-- `IsCollidable`: Add this to any object to control if this mesh should collide with the player. This can be useful for things such as grass which the player can move through.
-- `JumpForce`: A float value, this defines the amount of force to apply when the player
-touches it. Usually use in conjunction with the `jumppad` mesh.
-
-Once you have organised your level you can go to the scripting tab in blender
-and run the provided script. This script will examine all the objects in the
-`Scene` collection and export their properties to a `.json` file.
-The name of the file is taken from the collection nanme. The script will also produce
-a `levels.json` file which contains a list of all the levels in the game.
-This will allow you to easily add new levels.
-
-## Debugging Blender Export Script
-
-First install the required [extension](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development).
-
-The run Ctrl+Shift+P (Cmd+Shift+P on Mac), `Blender: Start` to start blender and attach the debugger.
-Note: You will be asked for the path to Blender.
-
-Then open the `ExportScript.py` in VSCode and place a breakpoint. Then run Ctrl+Shift+P,`Blender: Run Script`. You will now be debugging the script.
+> [!NOTE]
+> For more details on the Blender Integration, see [this guide](./Documentation/00-BlenderPipeline.md)
 
 ## Ideas for Improvements
 
 This is your Starter Kit! So you can modify it , extend it, take things out.
-Here are some thoughts on things that could be added
+
+Here are some thoughts on things that could be added:
 
 - Rotating Platforms.
 - Enemies

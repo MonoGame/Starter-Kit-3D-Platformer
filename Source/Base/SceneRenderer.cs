@@ -341,13 +341,16 @@ public class SceneRenderer
     }
 
     /// <summary>
-    /// Optional: Utility method to visualize the shadow map for debugging
+    /// Optional: Utility method to visualize the shadow maps for debugging
+    /// Draws both shadow maps on the first row of render textures.
     /// </summary>
     /// <param name="destination">The destination rectangle for the shadow map visualization</param>
     public void DebugDrawShadowMap(Rectangle destination)
     {
         _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
+        // Draw shadow map 0 (directional/sun light)
         _spriteBatch.Draw(_shadowMaps[0], destination, Color.White);
+        // Draw shadow map 1 (player/placement light)
         destination.Offset(destination.Width + 10, 0);
         _spriteBatch.Draw(_shadowMaps[1], destination, Color.White);
         _spriteBatch.End();

@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Source\Base\AnimationData.cs" Link="Builder\AnimationData.cs" />
-    <Compile Include="..\Source\Base\Contact.cs" Link="Builder\Contact.cs" />
-    <Compile Include="..\Source\Base\ConvexHull.cs" Link="Builder\ConvexHull.cs" />
-    <Compile Include="..\Source\Base\GameConstants.cs" Link="Builder\GameConstants.cs" />
-    <Compile Include="..\Source\Base\ModelData.cs" Link="Builder\ModelData.cs" />
+    <Compile Include="..\Source\Base\AnimationData.cs" Link="Builder\Models\AnimationData.cs" />
+    <Compile Include="..\Source\Base\Contact.cs" Link="Builder\Models\Contact.cs" />
+    <Compile Include="..\Source\Base\ConvexHull.cs" Link="Builder\Models\ConvexHull.cs" />
+    <Compile Include="..\Source\Base\GameConstants.cs" Link="Builder\Models\GameConstants.cs" />
+    <Compile Include="..\Source\Base\ModelData.cs" Link="Builder\Models\ModelData.cs" />
   </ItemGroup>
   <ItemGroup>
 	<None Include="Assets/*" />
@@ -29,6 +29,10 @@
     <PackageReference Include="MonoGame.Tool.Dxc" Version="1.8.2505.10" />
     <PackageReference Include="MonoGame.Tool.FFmpeg" Version="7.0.0.9" />
     <PackageReference Include="MonoGame.Tool.FFprobe" Version="7.0.0.9" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Builder\ContentExtensions\" />
+    <Folder Include="Builder\Models\" />
   </ItemGroup>
   
 </Project>
