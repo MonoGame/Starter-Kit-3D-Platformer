@@ -55,6 +55,10 @@ public static class GameConstants
     // Controls how quickly the player rotates
     public const float PLAYER_ROTATION_SPEED = 6.0f;
 
+    // Shadow mapping constants
+    public const float SHADOWN_FAR_PLANE = 300f;
+    public const float SHADOW_NEAR_PLANE = 200f;
+
     // Menu based constants.
     public const float INPUT_COOLDOWN_TIME = 0.15f; // Prevents rapid input
     public const float SCALE_SPEED = 5.0f; // Speed of oscillation
