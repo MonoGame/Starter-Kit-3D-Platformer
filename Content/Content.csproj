@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Source\Base\AnimationData.cs" Link="Builder\AnimationData.cs" />
-    <Compile Include="..\Source\Base\Contact.cs" Link="Builder\Contact.cs" />
-    <Compile Include="..\Source\Base\ConvexHull.cs" Link="Builder\ConvexHull.cs" />
-    <Compile Include="..\Source\Base\GameConstants.cs" Link="Builder\GameConstants.cs" />
-    <Compile Include="..\Source\Base\ModelData.cs" Link="Builder\ModelData.cs" />
+    <Compile Include="..\Core\Base\AnimationData.cs" Link="Builder\AnimationData.cs" />
+    <Compile Include="..\Core\Base\Contact.cs" Link="Builder\Contact.cs" />
+    <Compile Include="..\Core\Base\ConvexHull.cs" Link="Builder\ConvexHull.cs" />
+    <Compile Include="..\Core\Base\GameConstants.cs" Link="Builder\GameConstants.cs" />
+    <Compile Include="..\Core\Base\ModelData.cs" Link="Builder\ModelData.cs" />
   </ItemGroup>
   <ItemGroup>
 	<None Include="Assets/*" />

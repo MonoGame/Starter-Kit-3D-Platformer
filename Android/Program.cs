@@ -1,0 +1,39 @@
+// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.md', which is part of this source code package.
+
+using Android.App;
+using Android.Content.PM;
+using Android.OS;
+using Android.Views;
+
+using Microsoft.Xna.Framework;
+
+namespace Platformer3D.Android;
+
+[Activity(
+    Label = "3D Platformer",
+    MainLauncher = true,
+    Icon = "@drawable/icon",
+    Theme = "@style/Theme.Splash",
+    AlwaysRetainTaskState = true,
+    LaunchMode = LaunchMode.SingleInstance,
+    ScreenOrientation = ScreenOrientation.SensorLandscape,
+    ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden
+)]
+public class MainActivity : AndroidGameActivity
+{
+    private PlatformerGame _game;
+    private View _view;
+
+    protected override void OnCreate(Bundle bundle)
+    {
+        base.OnCreate(bundle);
+
+        _game = new PlatformerGame();
+        _view = _game.Services.GetService(typeof(View)) as View;
+
+        SetContentView(_view);
+        _game.Run();
+    }
+}
