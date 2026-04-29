@@ -170,7 +170,12 @@ public class PlatformerGame : Game
                 _currentState = GameState.MainScene;
             });
         });
-        _mainMenu.AddItem("Quit", Exit);
+
+        if (!OperatingSystem.IsIOS())
+        {
+            _mainMenu.AddItem("Quit", Exit);
+        }
+
         _mainMenu.BasePosition = new Vector2(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 320, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 150);
         _pauseMenu = new Menu(_font, Content, () => _currentState = GameState.MainScene, MenuTransitionDirection.Top);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);

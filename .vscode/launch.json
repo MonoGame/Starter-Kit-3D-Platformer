@@ -14,7 +14,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Debug Desktop Build",
-            "program": "${workspaceFolder}/Desktop/bin/Debug/net9.0/Platformer3D.exe"
+            "program": "${workspaceFolder}/Desktop/bin/Debug/net9.0/Platformer3D"
         },
         {
             "name": "iOS Debug",
