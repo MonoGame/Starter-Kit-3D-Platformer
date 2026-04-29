@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework;
 [Activity(
     Label = "@string/app_name",
     MainLauncher = true,
+    Icon = "@drawable/icon",
     Theme = "@style/MainTheme",
     AlwaysRetainTaskState = true,
     LaunchMode = LaunchMode.SingleInstance,

@@ -17,5 +17,7 @@
     </array>
     <key>LSRequiresIPhoneOS</key>
     <true/>
+    <key>XSAppIconAssets</key>
+    <string>AppIcon.xcassets/AppIcon.appiconset</string>
 </dict>
 </plist>
