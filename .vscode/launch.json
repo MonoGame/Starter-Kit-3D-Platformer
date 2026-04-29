@@ -2,10 +2,42 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach to Process",
+            "name": "Desktop",
             "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-platformer-desktop",
+            "program": "${workspaceFolder}/Desktop/bin/Debug/net9.0/3DPlatformer.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Desktop",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Windows",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-platformer-windows",
+            "program": "${workspaceFolder}/Windows/bin/Debug/net9.0-windows/3DPlatformer.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Windows",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Android",
+            "type": "mono",
             "request": "attach",
-            "processId": "${command:pickProcess}",
+            "preLaunchTask": "build-platformer-android",
+            "address": "localhost",
+            "port": 10002
+        },
+        {
+            "name": "iOS",
+            "type": "mono",
+            "request": "attach",
+            "preLaunchTask": "build-platformer-ios",
+            "address": "localhost",
+            "port": 10003
         }
-    ],
+    ]
 }

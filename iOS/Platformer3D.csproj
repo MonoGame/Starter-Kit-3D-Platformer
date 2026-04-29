@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-ios</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>3DPlatformer</AssemblyName>
+    <AssemblyTitle>3D Platformer</AssemblyTitle>
+    <SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
+    <RollForward>Major</RollForward>
+    <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE;IOS</DefineConstants>
+    <DefineConstants Condition="'$(Configuration)' != 'Debug'">$(DefineConstants);IOS</DefineConstants>
+    <MonoGamePlatform>iOS</MonoGamePlatform>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <MtouchLink>None</MtouchLink>
+    <UseInterpreter>true</UseInterpreter>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Source\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.iOS" Version="3.8.5-preview.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <BundleResource Include="$(OutputPath)Content/**">
+      <Link>Content/%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </BundleResource>
+  </ItemGroup>
+
+  <Import Project="..\Content\BuildContent.targets" />
+</Project>

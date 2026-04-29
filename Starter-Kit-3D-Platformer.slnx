@@ -4,8 +4,17 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Folder Name="/Platforms/">
-    <Project Path="Platforms/Desktop/Desktop.csproj" />
+  <Folder Name="/Desktop/">
+    <Project Path="Desktop/Platformer3D.csproj" />
+  </Folder>
+  <Folder Name="/Android/">
+    <Project Path="Android/Platformer3D.csproj" />
+  </Folder>
+  <Folder Name="/iOS/">
+    <Project Path="iOS/Platformer3D.csproj" />
+  </Folder>
+  <Folder Name="/Windows/">
+    <Project Path="Windows/Platformer3D.csproj" />
   </Folder>
   <Project Path="Content/Content.csproj" />
 </Solution>

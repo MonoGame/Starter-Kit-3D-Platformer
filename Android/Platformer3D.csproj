@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-android</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>3DPlatformer</AssemblyName>
+    <AssemblyTitle>3D Platformer</AssemblyTitle>
+    <AndroidApplication>True</AndroidApplication>
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <ApplicationId>net.monogame.platformer3d</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <RollForward>Major</RollForward>
+    <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
+    <MonoGamePlatform>Android</MonoGamePlatform>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Source\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.Android" Version="3.8.5-preview.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="$(OutputPath)Content/**">
+      <Link>Assets/Content/%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </AndroidAsset>
+  </ItemGroup>
+  <Import Project="..\Content\BuildContent.targets" />
+</Project>
