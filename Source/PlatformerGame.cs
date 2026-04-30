@@ -503,7 +503,12 @@ public class PlatformerGame : Game
             case GameState.MenuScreen:
                 _menuScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
-                _spriteBatch.Draw(_logoTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100), 50, _logoTexture.Width - 200, _logoTexture.Height - 50), Color.White);
+                _spriteBatch.Draw(_logoTexture,
+                    new Rectangle(
+                        (int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100),
+                        50,
+                        (int)(_logoTexture.Width * 0.75f),
+                        (int)(_logoTexture.Height * 0.75f)), Color.White);
                 _spriteBatch.End();
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _mainMenu.Draw(_spriteBatch);
