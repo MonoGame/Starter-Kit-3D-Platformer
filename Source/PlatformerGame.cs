@@ -151,7 +151,7 @@ public class PlatformerGame : Game
 #if !DEVMODE
         _song.Play();
 #endif
-        _mainMenu = new Menu(_font, Content, Exit, MenuTransitionDirection.Right);
+        _mainMenu = new Menu(_font, Content, QuitGame, MenuTransitionDirection.Right);
         _mainMenu.AddItem("Start Game", () =>
         {
             currentLevel = 0;
@@ -161,7 +161,7 @@ public class PlatformerGame : Game
                 _currentState = GameState.MainScene;
             });
         });
-        _mainMenu.AddItem("Quit", Exit);
+        _mainMenu.AddItem("Quit", QuitGame);
         _mainMenu.BasePosition = new Vector2(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 320, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 150);
         _pauseMenu = new Menu(_font, Content, () => _currentState = GameState.MainScene, MenuTransitionDirection.Top);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
@@ -194,6 +194,16 @@ public class PlatformerGame : Game
 
         // Get the list of levels from the levels.json file.
         levels = SceneLoader.GetSceneList();
+    }
+
+    private void QuitGame()
+    {
+    #if IOS
+        // iOS does not allow apps to quit programmatically.
+        return;
+    #else
+        Exit();
+    #endif
     }
 
     private void LoadNextLevel()
@@ -493,7 +503,12 @@ public class PlatformerGame : Game
             case GameState.MenuScreen:
                 _menuScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
-                _spriteBatch.Draw(_logoTexture, new Rectangle((int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100), 50, _logoTexture.Width - 200, _logoTexture.Height - 50), Color.White);
+                _spriteBatch.Draw(_logoTexture,
+                    new Rectangle(
+                        (int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100),
+                        50,
+                        (int)(_logoTexture.Width * 0.75f),
+                        (int)(_logoTexture.Height * 0.75f)), Color.White);
                 _spriteBatch.End();
                 _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
                 _mainMenu.Draw(_spriteBatch);

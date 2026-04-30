@@ -26,10 +26,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\**\*.cs" />
+    <Compile Include="..\Source\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5-preview.*" />
   </ItemGroup>
-  <Import Project="..\..\Content\BuildContent.targets" />
+  <Import Project="..\Content\BuildContent.targets" />
 </Project>
