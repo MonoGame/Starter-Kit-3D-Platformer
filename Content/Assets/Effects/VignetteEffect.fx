@@ -21,8 +21,8 @@ sampler2D ScreenSampler = sampler_state
 struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
-    float2 TexCoord : TEXCOORD0;
     float4 Color : COLOR0;
+    float2 TexCoord : TEXCOORD0;
 };
 
 float4 VignettePS(VertexShaderOutput input) : COLOR0
