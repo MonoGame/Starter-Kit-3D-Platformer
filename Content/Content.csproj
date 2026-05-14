@@ -14,6 +14,7 @@
     <Compile Include="..\Source\Base\ConvexHull.cs" Link="Builder\ConvexHull.cs" />
     <Compile Include="..\Source\Base\GameConstants.cs" Link="Builder\GameConstants.cs" />
     <Compile Include="..\Source\Base\ModelData.cs" Link="Builder\ModelData.cs" />
+    <Compile Include="..\Source\Base\SceneAssetContent.cs" Link="Builder\SceneAssetContent.cs" />
   </ItemGroup>
   <ItemGroup>
 	<None Include="Assets/*" />

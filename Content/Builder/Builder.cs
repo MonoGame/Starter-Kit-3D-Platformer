@@ -9,7 +9,7 @@ using MonoGame.Framework.Content.Pipeline.Builder;
 var contentCollectionArgs = new ContentBuilderParams()
 {
     Mode = ContentBuilderMode.Builder,
-    WorkingDirectory = $"{AppContext.BaseDirectory}../../../", // path to where your content folder can be located
+    WorkingDirectory = $"{AppContext.BaseDirectory}../../", // path to where your content folder can be located
     SourceDirectory = "Assets", // Not actually needed as this is the default, but added for reference
     Platform = TargetPlatform.DesktopGL
 };
@@ -32,26 +32,35 @@ public class Builder : ContentBuilder
     {
         var content = new ContentCollection();
 
-        // include everything in the folder
-        content.Include<WildcardRule>("*");
-        content.Include<WildcardRule>("*.fbx", new FbxImporter(), new MeshAnimatedModelProcessor());
-        content.Include<WildcardRule>("*.glb", new FbxImporter(), new MeshAnimatedModelProcessor());
+        // Only effect files from the Effects folder
+        content.Include<WildcardRule>("Effects/*.fx");
+
+        // Only spritefonts from the Fonts folder (not ttf)
+        content.Include<WildcardRule>("Font/*.spritefont");
+
+        // include everything in the Models folder
+        content.Include<WildcardRule>("Models/*.fbx", new FbxImporter(), new MeshAnimatedModelProcessor());
+        content.Include<WildcardRule>("Models/*.glb", new FbxImporter(), new MeshAnimatedModelProcessor());
+
+        // We use .ogg files for SoundEffects and not Song.
+        content.Include<WildcardRule>("Sounds/*.ogg", new OggImporter(), new SoundEffectProcessor());
+        content.Include<WildcardRule>("Sounds/*.wav");
+
+        // Only import PNG files from the Textures Folder
+        content.Include<WildcardRule>("Textures/*.png");
+        content.Include("splash-screen.png");
 
         // Copy out the level json files.
         content.IncludeCopy<WildcardRule>("*.json");
+        content.Include("Levels/level1.json", new JsonImporter(), new JsonSceneProcessor());
 
-        // We use .ogg files for SoundEffects and not Song.
-        content.Include<WildcardRule>("*.ogg", new OggImporter(), new SoundEffectProcessor());
-
-        // The model is small so we need to scale it up a buch.
+        // The model is small so we need to scale it up a bunch.
         content.Include("Models/character.glb", new FbxImporter(),
             new MeshAnimatedModelProcessor()
             {
                 Scale = 100.0f
             }
         );
-        content.Exclude<WildcardRule>("Font/*.txt"); 
-        content.Exclude<WildcardRule>("Font/*.ttf"); 
         return content;
     }
 }

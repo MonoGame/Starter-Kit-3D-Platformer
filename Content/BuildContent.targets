@@ -9,4 +9,18 @@
     <MSBuild Projects="$(MSBuildThisFileDirectory)Content.csproj" Targets="Build" RemoveProperties="Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers" />
     <Exec Command="$(ContentCommand) $(ContentArgs)" WorkingDirectory="$(MSBuildThisFileDirectory)..\" CustomErrorRegularExpression="\[E\] .+" CustomWarningRegularExpression="\[W\] .+" />
    </Target>
+  <Target Name="AddGeneratedContentAssets"
+    AfterTargets="BuildContent">
+    <ItemGroup>
+      <AndroidAsset Include="$(ProjectDir)$(OutputPath)Content\**\*"
+        Condition="'$(MonoGamePlatform)' == 'Android'">
+        <Link>Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      </AndroidAsset>
+
+      <BundledResource Include="$(ProjectDir)$(OutputPath)Content\**\*"
+        Condition="'$(MonoGamePlatform)' == 'MacOSX' Or '$(MonoGamePlatform)' == 'iOS'">
+        <Link>Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      </BundledResource>
+    </ItemGroup>
+  </Target>
 </Project>

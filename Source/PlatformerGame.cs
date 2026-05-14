@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -134,6 +135,8 @@ public class PlatformerGame : Game
         Content.Load<Model>("Models/platform-large");
         Content.Load<Model>("Models/cloud");
         Content.Load<Model>("Models/character");
+
+        var level = Content.Load<SceneAssetContent>("Levels/level1");
 
         _gameOverScreen = new GameOver(GraphicsDevice, Content, _font);
         _gameOverScreen.OnReturnToMainMenu = () =>
