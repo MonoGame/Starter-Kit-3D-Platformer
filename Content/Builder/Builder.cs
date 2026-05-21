@@ -51,8 +51,8 @@ public class Builder : ContentBuilder
         content.Include("splash-screen.png");
 
         // Copy out the level json files.
-        content.IncludeCopy<WildcardRule>("*.json");
-        content.Include("Levels/level1.json", new JsonImporter(), new JsonSceneProcessor());
+        content.IncludeCopy("levels.json", "");
+        content.Include<WildcardRule>("Levels/*.json", new JsonImporter(), new JsonSceneProcessor());
 
         // The model is small so we need to scale it up a bunch.
         content.Include("Models/character.glb", new FbxImporter(),

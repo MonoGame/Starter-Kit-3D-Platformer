@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content.Pipeline;
 
 internal static class JsonSceneReader
@@ -9,11 +10,11 @@ internal static class JsonSceneReader
 
         var node = new SceneNodeContent
         {
-            Name = ReadString(element, sourceFilename, "name"),
+            Name = TryReadString(element, sourceFilename, "name"),
             Type = ReadNodeType(element, sourceFilename),
-            InstanceOf = ReadString(element, sourceFilename, "instanceof"),
-            ColorHex = ReadString(element, sourceFilename, "color"),
-            BackgroundHex = ReadString(element, sourceFilename, "background")
+            InstanceOf = TryReadString(element, sourceFilename, "instanceof"),
+            ColorHex = TryReadString(element, sourceFilename, "color"),
+            BackgroundHex = TryReadString(element, sourceFilename, "background")
         };
 
         if (TryReadVector3(element, sourceFilename, "position", out var position))
@@ -97,7 +98,7 @@ internal static class JsonSceneReader
         }
     }
 
-    public static string ReadString(JsonElement element, string sourceFilename, string propertyName)
+    public static string TryReadString(JsonElement element, string sourceFilename, string propertyName)
     {
         if (!element.TryGetProperty(propertyName, out var property))
             return string.Empty;
@@ -166,7 +167,7 @@ internal static class JsonSceneReader
 
     private static SceneNodeType ReadNodeType(JsonElement element, string sourceFilename)
     {
-        var rawType = ReadString(element, sourceFilename, "type");
+        var rawType = TryReadString(element, sourceFilename, "type");
         if (string.IsNullOrWhiteSpace(rawType))
             return SceneNodeType.Unknown;
 
@@ -193,7 +194,7 @@ internal static class JsonSceneReader
 
             var spline = new SceneSplineContent
             {
-                Type = ReadString(splineElement, sourceFilename, "type")
+                Type = TryReadString(splineElement, sourceFilename, "type")
             };
 
             if (!splineElement.TryGetProperty("points", out var pointsElement))

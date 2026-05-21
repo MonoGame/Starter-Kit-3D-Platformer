@@ -22,30 +22,28 @@ public class FollowPath
     /// </summary>
     /// <param name="data">The JSON element containing path data.</param>
     /// <returns>The starting position of the path.</returns>
-    public Vector3 LoadFromJson(JsonElement data)
+    public Vector3 LoadFromContent(SceneNodeContent data)
     {
-        _moveSpeed = data.GetProperty("movespeed").GetSingle();
+        if (!data.HasMoveSpeed)
+            throw new InvalidOperationException($"Scene node '{data.Name}' is missing 'movespeed'.");
 
-        if (data.TryGetProperty("splines", out var splineValue))
+        _moveSpeed = data.MoveSpeed;
+
+        if (data.Splines != null)
         {
-            if (splineValue.ValueKind == JsonValueKind.Array)
+            foreach (var spline in data.Splines)
             {
-                foreach (var spline in splineValue.EnumerateArray())
-                {
-                    // Process each spline point
-                    // This could be used to adjust the platform's path
-
-                    // Handle spline data if necessary
-                    // This could be used for more complex movement patterns
-                    var type = spline.GetProperty("type").GetString();
-                    _pathPoints = spline.GetProperty("points").ReadSplineFromJson();
-                }
+                _pathPoints = spline.Points.ToArray();
             }
-            ;
-            _direction = Vector3.Normalize(_pathPoints[_currentPathIndex] - _pathPoints[0]);
-            _destination = _pathPoints[_currentPathIndex];
-            _moveDirection = 1; // Start moving towards the first destination
         }
+
+        if (_pathPoints == null || _pathPoints.Length < 2)
+            throw new InvalidOperationException($"Scene node '{data.Name}' requires a spline with at least two points.");
+
+        _direction = Vector3.Normalize(_pathPoints[_currentPathIndex] - _pathPoints[0]);
+        _destination = _pathPoints[_currentPathIndex];
+        _moveDirection = 1; // Start moving towards the first destination
+
         return _pathPoints[0];
     }
 

@@ -136,8 +136,6 @@ public class PlatformerGame : Game
         Content.Load<Model>("Models/cloud");
         Content.Load<Model>("Models/character");
 
-        var level = Content.Load<SceneAssetContent>("Levels/level1");
-
         _gameOverScreen = new GameOver(GraphicsDevice, Content, _font);
         _gameOverScreen.OnReturnToMainMenu = () =>
         {

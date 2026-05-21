@@ -35,10 +35,10 @@ public class MovingPlatform : Platform
     /// This overrides the base SetProperties method to also load the path.
     /// </summary>
     /// <param name="data">The JSON element containing the path data and other properties</param>
-    public override void SetProperties(JsonElement data)
+    public override void SetProperties(SceneNodeContent data)
     {
         base.SetProperties(data);
-        Position = _followPath.LoadFromJson(data);
+        Position = _followPath.LoadFromContent(data);
     }
 
     /// <summary>

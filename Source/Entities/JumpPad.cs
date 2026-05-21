@@ -29,10 +29,14 @@ public class JumpPad : AnimatedEntity
         _sound = content.Load<SoundEffect>("Sounds/pad");
     }
 
-    public override void SetProperties(JsonElement data)
+    public override void SetProperties(SceneNodeContent data)
     {
         base.SetProperties(data);
-        _jumpForce = data.GetProperty("jumpforce").GetSingle();
+
+        if (!data.HasJumpForce)
+            throw new InvalidOperationException($"Scene node '{data.Name}' is missing 'jumpforce'.");
+
+        _jumpForce = data.JumpForce;
     }
 
     public override bool CheckCollision(Entity other)
