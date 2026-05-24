@@ -146,17 +146,8 @@ public class SceneLoader
     /// Gets a list of all available scene names.
     /// </summary>
     /// <returns> A list of scene names.</returns>
-    public static string[] GetSceneList()
+    public string[] GetSceneList()
     {
-        var levelsJson = TitleContainer.OpenStream("Content/levels.json");
-        using var reader = new StreamReader(levelsJson);
-        var json = reader.ReadToEnd();
-        var document = JsonDocument.Parse(json);
-        var sceneList = new List<string>();
-        foreach (var element in document.RootElement.EnumerateArray())
-        {
-            sceneList.Add(element.GetString());
-        }
-        return sceneList.ToArray();
+        return _content.Load<SceneListContent>("Levels/levels").SceneNames.ToArray();
     }
 }

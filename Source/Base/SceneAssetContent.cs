@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 /// </summary>
 public class SceneAssetContent
 {
-    public List<SceneNodeContent> Nodes { get; set; } = new();
+    public List<SceneNodeContent> Nodes { get; set; } = [];
 }
 
 /// <summary>
@@ -15,7 +15,7 @@ public class SceneAssetContent
 /// </summary>
 public class SceneListContent
 {
-    public List<string> SceneNames { get; set; } = new();
+    public List<string> SceneNames { get; set; } = [];
 }
 
 /// <summary>

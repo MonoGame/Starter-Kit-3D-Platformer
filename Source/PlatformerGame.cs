@@ -194,7 +194,7 @@ public class PlatformerGame : Game
         _gameOverScene.AcceptInput = false;
 
         // Get the list of levels from the levels.json file.
-        levels = SceneLoader.GetSceneList();
+        levels = _sceneLoader.GetSceneList();
     }
 
     private void QuitGame()
