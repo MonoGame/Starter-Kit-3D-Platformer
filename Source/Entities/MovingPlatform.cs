@@ -3,8 +3,6 @@
 // file 'LICENSE.md', which is part of this source code package.
 
 using System;
-using System.Text.Json;
-using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;

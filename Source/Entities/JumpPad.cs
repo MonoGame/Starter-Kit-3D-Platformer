@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Text.Json;
 
 /// <summary>
 /// A jump pad entity that launches the player into the air when they collide with it.

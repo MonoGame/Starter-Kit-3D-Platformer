@@ -12,14 +12,16 @@
   <Target Name="AddGeneratedContentAssets"
     AfterTargets="BuildContent">
     <ItemGroup>
-      <AndroidAsset Include="$(ProjectDir)$(OutputPath)Content\**\*"
+      <GeneratedAsset Include="$(ProjectDir)$(OutputPath)Content\**\*" />
+
+      <AndroidAsset Include="@(GeneratedAsset)"
         Condition="'$(MonoGamePlatform)' == 'Android'">
-        <Link>Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        <Link>Content\%(GeneratedAsset.RecursiveDir)%(GeneratedAsset.Filename)%(GeneratedAsset.Extension)</Link>
       </AndroidAsset>
 
-      <BundledResource Include="$(ProjectDir)$(OutputPath)Content\**\*"
+      <BundledResource Include="@(GeneratedAsset)"
         Condition="'$(MonoGamePlatform)' == 'MacOSX' Or '$(MonoGamePlatform)' == 'iOS'">
-        <Link>Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
+        <Link>Content\%(GeneratedAsset.RecursiveDir)%(GeneratedAsset.Filename)%(GeneratedAsset.Extension)</Link>
       </BundledResource>
     </ItemGroup>
   </Target>
