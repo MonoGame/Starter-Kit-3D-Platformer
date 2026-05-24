@@ -5,6 +5,12 @@ import mathutils
 import json
 import subprocess
 
+blend_file_path = bpy.data.filepath
+blend_file_dir = os.path.dirname(blend_file_path)
+repo_root = os.path.abspath(os.path.join(blend_file_dir, ".."))
+asset_dir = os.path.join(repo_root, "Content", "Assets", "Levels")
+os.makedirs(asset_dir, exist_ok=True)
+
 # Example function to get the object name of the instancer
 def get_instancer_object_name(obj):
     if obj.is_instancer:
@@ -23,9 +29,9 @@ def is_linked_duplicate(obj):
                 return True
     return False
 
-def get_rotation_degrees(obk):
+def get_rotation_degrees(obj):
     if obj:
-        # Get rotation modew
+        # Get rotation mode
         if obj.rotation_mode == 'QUATERNION':
             # Convert quaternion to euler
             euler = obj.rotation_quaternion.to_euler()
@@ -211,26 +217,27 @@ for collection in bpy.data.collections:
                 splines.append(spline_data)
             object_data["splines"] = splines
         objects_data.append(object_data)
-        
-    blend_file_path = bpy.data.filepath
-    blend_file_dir = os.path.dirname(blend_file_path)
 
-    with open(blend_file_dir + "/../Content/" + collection.name.lower() + ".json", 'w') as file:
+    output_path = os.path.join(asset_dir, collection.name.lower() + ".json")
+    with open(output_path, 'w') as file:
         json.dump(objects_data, file, indent=4)
-        
-with open(blend_file_dir + "/../Content/levels.json", 'w') as file:
+
+levels_path = os.path.join(asset_dir, "levels.json")
+with open(levels_path, 'w') as file:
     json.dump(levels_data, file, indent=4)
-    
-#run the content compiler
-# The command you want to run (can add arguments as needed)
-command = ["dotnet", "build", "Platforms/Desktop/Desktop.csproj", '-t:"IncludeContent;CopyFilesToOutputDirectory"']  # Replace '--help' with your actual arguments
-workingdir = blend_file_dir + '/..'
+
+# Optional: run the content and game build so the new level is compiled immediately.
+command = ["dotnet", "build", "Platforms/Desktop/Desktop.csproj"]
+workingdir = repo_root
 my_env = os.environ.copy()
-my_env["PATH"] = "/usr/local/share/dotnet:" + my_env["PATH"]
+dotnet_dir = "/usr/local/share/dotnet"
+if os.path.isdir(dotnet_dir):
+    my_env["PATH"] = dotnet_dir + os.pathsep + my_env.get("PATH", "")
 
 # Run the command
 try:
     print("Executing:", command)
+    print("Writing level assets to:", asset_dir)
     result = subprocess.run(command, env=my_env, cwd=workingdir, check=True, capture_output=True, text=True)
     print("STDOUT:", result.stdout)
     print("STDERR:", result.stderr)
@@ -238,5 +245,4 @@ except subprocess.CalledProcessError as e:
     print(f"Command failed with exit code {e.returncode}")
     print("STDERR:", e.stderr)
 except subprocess.FileNotFoundError as fnf:
-    print(f"Command failed with exit code {e.returncode}")
-    print("STDERR:", e.stderr)
+    print(f"Command failed: {fnf}")
