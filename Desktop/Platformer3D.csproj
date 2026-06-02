@@ -7,7 +7,7 @@
     <TieredCompilation>false</TieredCompilation>
     <AssemblyName>3DPlatformer</AssemblyName>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
-    <MonoGamePlatform>DesktopGL</MonoGamePlatform>
+    <MonoGamePlatform>DesktopVK</MonoGamePlatform>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <PropertyGroup>
@@ -30,7 +30,8 @@
     <Compile Include="..\Source\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.5-preview.*" />
+    <PackageReference Include="MonoGame.Framework.Native" Version="3.8.5-preview.*" />
+    <PackageReference Include="MonoGame.Runtime.Windows.Vulkan" Version="3.8.5-preview.*" />
   </ItemGroup>
   <Import Project="..\Content\BuildContent.targets" />
 </Project>

@@ -1,11 +1,4 @@
-#if OPENGL
-    #define SV_POSITION POSITION
-    #define VS_SHADERMODEL vs_3_0
-    #define PS_SHADERMODEL ps_3_0
-#else
-    #define VS_SHADERMODEL vs_4_0
-    #define PS_SHADERMODEL ps_4_0
-#endif
+#include "Macros.hlsl"
 
 // used by both shadow and shadow map
 float4x4 ModelToLight0;
@@ -28,10 +21,8 @@ float2 ShadowMask;
 
 static const int ShadowSamples = 64;
 
-texture ShadowMap0;
-sampler2D ShadowMap0Sampler = sampler_state
+DECLARE_TEXTURE(ShadowMap0, 0)
 {
-    Texture = (ShadowMap0);
     MinFilter = linear;
     MagFilter = linear;
     MipFilter = linear;
@@ -39,10 +30,8 @@ sampler2D ShadowMap0Sampler = sampler_state
     AddressV = Clamp;
 };
 
-texture ShadowMap1;
-sampler2D ShadowMap1Sampler = sampler_state
+DECLARE_TEXTURE(ShadowMap1, 1)
 {
-    Texture = (ShadowMap1);
     MinFilter = linear;
     MagFilter = linear;
     MipFilter = linear;
@@ -50,10 +39,8 @@ sampler2D ShadowMap1Sampler = sampler_state
     AddressV = Clamp;
 };
 
-texture Texture;
-sampler2D TextureSampler = sampler_state
+DECLARE_TEXTURE(Texture, 3)
 {
-    Texture = (Texture);
     Filter = ANISOTROPIC;
     MaxAnisotropy = 16;
     AddressU = Wrap;
@@ -89,7 +76,7 @@ struct V2P
     float2 SMPosition1 : TEXCOORD4;
     float SMDepth0 : TEXCOORD5;
     float SMDepth1 : TEXCOORD6;
-    float4 Color : COLOR;
+    float4 Color : TEXCOORD7;
 };
 
 float2 randomOffset(float4 seed)
@@ -127,7 +114,7 @@ float4 ApplyLightingModel(V2P input, float4 color)
         float2 samplePosition = input.SMPosition0 + jitter;        
         float2 edgeDist = min(samplePosition, 1.0 - samplePosition);
         float edgeFade = saturate(min(edgeDist.x, edgeDist.y) * EdgeFadeScale);         
-        float sampledDepth = tex2D(ShadowMap0Sampler, samplePosition).x;
+        float sampledDepth = SAMPLE_TEXTURE(ShadowMap0, samplePosition).x;
         if (sampledDepth < input.SMDepth0)
             shadowScalar -= ShadowMask.x * (1.0f / ShadowSamples) * edgeFade;
         
@@ -135,7 +122,7 @@ float4 ApplyLightingModel(V2P input, float4 color)
         float2 samplePosition1 = input.SMPosition1 + jitter;       
         float2 edgeDist1 = min(samplePosition1, 1.0 - samplePosition1);
         float edgeFade1 = saturate(min(edgeDist1.x, edgeDist1.y) * EdgeFadeScale);       
-        float sampledDepth1 = tex2D(ShadowMap1Sampler, samplePosition1).x;
+        float sampledDepth1 = SAMPLE_TEXTURE(ShadowMap1, samplePosition1).x;
         if (sampledDepth1 < input.SMDepth1)
             shadowScalar -= ShadowMask.y * (1.0f / ShadowSamples) * edgeFade1;
     }
@@ -189,15 +176,15 @@ V2P VShader(VSInput input)
     return output;
 }
 
-float4 PSDepthMap(V2PDepth input) : COLOR
+float4 PSDepthMap(V2PDepth input) : SV_TARGET0
 {
     // Add a little bias to the final depth to avoid shadow acne.
     return float4(input.Depth + 0.001, 0, 0, 1);
 }
 
-float4 PShaderTextureColor(V2P input) : COLOR
+float4 PShaderTextureColor(V2P input) : SV_TARGET0
 {
-    float4 diffuse = input.Color * tex2D(TextureSampler, input.TextureCoords);   
+    float4 diffuse = input.Color * SAMPLE_TEXTURE(Texture, input.TextureCoords);   
     return ApplyLightingModel(input, diffuse);
 }
 
