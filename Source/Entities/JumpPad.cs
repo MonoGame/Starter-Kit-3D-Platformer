@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Text.Json;
 
 /// <summary>
 /// A jump pad entity that launches the player into the air when they collide with it.
@@ -29,10 +28,14 @@ public class JumpPad : AnimatedEntity
         _sound = content.Load<SoundEffect>("Sounds/pad");
     }
 
-    public override void SetProperties(JsonElement data)
+    public override void SetProperties(SceneNodeContent data)
     {
         base.SetProperties(data);
-        _jumpForce = data.GetProperty("jumpforce").GetSingle();
+
+        if (!data.HasJumpForce)
+            throw new InvalidOperationException($"Scene node '{data.Name}' is missing 'jumpforce'.");
+
+        _jumpForce = data.JumpForce;
     }
 
     public override bool CheckCollision(Entity other)

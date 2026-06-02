@@ -6,7 +6,7 @@ class MONOGAME_OT_run_script(bpy.types.Operator):
     bl_label = "Run Platformer Export"
 
     def execute(self, context):
-        text = bpy.data.texts.get('ExportScript')
+        text = bpy.data.texts.get('ExportScript') or bpy.data.texts.get('ExportScript.py')
         if text is not None:
             try:
                 exec(text.as_string(), {})

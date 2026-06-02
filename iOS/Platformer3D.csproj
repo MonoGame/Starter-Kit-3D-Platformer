@@ -10,6 +10,7 @@
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE;IOS</DefineConstants>
     <DefineConstants Condition="'$(Configuration)' != 'Debug'">$(DefineConstants);IOS</DefineConstants>
     <MonoGamePlatform>iOS</MonoGamePlatform>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

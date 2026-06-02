@@ -4,10 +4,7 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using System;
 using Microsoft.Xna.Framework.Content;
-using System.Text.Json;
 
 /// <summary>
 /// Represents a game entity.
@@ -122,19 +119,21 @@ public class Entity
     /// Sets the properties of the entity from the JSON data.
     /// </summary>
     /// <param name="data">The JSON element containing the properties.</param>
-    public virtual void SetProperties(JsonElement data)
+    public virtual void SetProperties(SceneNodeContent data)
     {
-        if (data.TryGetProperty("position", out var position))
-            Position = position.ReadVector3FromJson();
+        if (data.HasPosition)
+        {
+            Position = data.Position;
+        }
 
-        if (data.TryGetProperty("rotation", out var rotation))
-            Rotation = rotation.ReadRotationFromJson();
+        if (data.HasRotation)
+            Rotation = SceneContentValueConverters.ToQuaternion(data.RotationDegrees);
 
-        if (data.TryGetProperty("scale", out var scale))
-            Scale = scale.ReadVector3FromJson();
+        if (data.HasScale)
+            Scale = data.Scale;
 
-        if (data.TryGetProperty("collidable", out var collidable))
-            IsBlockingMovement = collidable.GetBoolean();
+        if (data.HasCollidable)
+            IsBlockingMovement = data.Collidable;
 
     }
 

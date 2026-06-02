@@ -13,6 +13,7 @@
     <RollForward>Major</RollForward>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
     <MonoGamePlatform>Android</MonoGamePlatform>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Source\**\*.cs" />

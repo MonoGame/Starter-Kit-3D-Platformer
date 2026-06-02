@@ -1,10 +1,9 @@
-﻿// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// MonoGame - Copyright (C) MonoGame Foundation, Inc
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -193,7 +192,7 @@ public class PlatformerGame : Game
         _gameOverScene.AcceptInput = false;
 
         // Get the list of levels from the levels.json file.
-        levels = SceneLoader.GetSceneList();
+        levels = _sceneLoader.GetSceneList();
     }
 
     private void QuitGame()

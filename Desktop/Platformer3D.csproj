@@ -8,6 +8,7 @@
     <AssemblyName>3DPlatformer</AssemblyName>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>

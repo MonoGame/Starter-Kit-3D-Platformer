@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -41,10 +40,14 @@ public class Goal : Entity
         Shininess = 0.5f;
     }
 
-    public override void SetProperties(JsonElement data)
+    public override void SetProperties(SceneNodeContent data)
     {
         base.SetProperties(data);
-        Radius = data.GetProperty("radius").GetSingle();
+
+        if (!data.HasRadius)
+            throw new InvalidOperationException($"Scene node '{data.Name}' is missing 'radius'.");
+
+        Radius = data.Radius;
 
         _collisionMesh = new CollisionMesh(this, Model, new List<ConvexHull>(), GetBoundingBox());
         _collisionMesh.GenerateFromSphere(Position, Radius, 6);

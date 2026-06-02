@@ -18,9 +18,9 @@
         "name": "PlayerSpawn.002",
         "type": "SPAWNPOINT",
         "position": [
-            908.9113159179688,
-            155.78334045410156,
-            2.0281872749328613
+            1197.9718017578125,
+            194.72154235839844,
+            -4.926478862762451
         ],
         "rotation": [
             0,
@@ -523,5 +523,26 @@
             1.0
         ],
         "collidable": false
+    },
+    {
+        "name": "platform.016",
+        "type": "MESH",
+        "instanceof": "platform",
+        "position": [
+            1200.0,
+            0.0,
+            -0.0
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "collidable": true
     }
 ]
