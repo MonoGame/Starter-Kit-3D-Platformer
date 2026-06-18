@@ -102,7 +102,7 @@ public class PlatformerGame : Game
         _graphics.ApplyChanges();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        Window.Title = "3D Platformer Game";
+        Window.Title = "3D Platformer";
         Window.AllowUserResizing = true;
         Window.AllowAltF4 = true;
     }
