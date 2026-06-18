@@ -4,17 +4,25 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <!--#if (IncludeDesktop) -->
   <Folder Name="/Desktop/">
     <Project Path="Desktop/Platformer3D.csproj" />
   </Folder>
+  <!--#endif -->
+  <!--#if (IncludeAndroid) -->
   <Folder Name="/Android/">
     <Project Path="Android/Platformer3D.csproj" />
   </Folder>
+  <!--#endif -->
+  <!--#if (IncludeiOS) -->  
   <Folder Name="/iOS/">
     <Project Path="iOS/Platformer3D.csproj" />
   </Folder>
+  <!--#endif -->
+  <!--#if (IncludeWindows) -->  
   <Folder Name="/Windows/">
     <Project Path="Windows/Platformer3D.csproj" />
   </Folder>
+  <!--#endif -->
   <Project Path="Content/Content.csproj" />
 </Solution>

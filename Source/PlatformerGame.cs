@@ -10,6 +10,8 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+//-:cnd:noEmit
+
 /// <summary>
 /// This is the main type for your game.
 /// </summary>

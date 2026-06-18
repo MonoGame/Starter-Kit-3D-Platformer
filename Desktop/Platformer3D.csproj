@@ -6,6 +6,7 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
     <AssemblyName>3DPlatformer</AssemblyName>
+    <AssemblyTitle>3D Platformer</AssemblyTitle>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>

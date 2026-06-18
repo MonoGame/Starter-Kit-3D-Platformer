@@ -5,6 +5,8 @@
 using System;
 using Microsoft.Xna.Framework;
 
+//-:cnd:noEmit
+
 /// <summary>
 /// Holds various game constants used throughout the game.
 /// </summary>
