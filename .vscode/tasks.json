@@ -1,6 +1,7 @@
 {
     "version": "2.0.0",
     "tasks": [
+//#if (IncludeDesktop)
         {
             "label": "build-platformer-desktop",
             "type": "shell",
@@ -19,8 +20,10 @@
                 "clear": false
             },
             "problemMatcher": "$msCompile"
-        },
-        {
+        }
+//#endif
+//#if (IncludeWindows)
+        ,{
             "label": "build-platformer-windows",
             "type": "shell",
             "command": "dotnet",
@@ -38,8 +41,10 @@
                 "clear": false
             },
             "problemMatcher": "$msCompile"
-        },
-        {
+        }
+//#endif
+//#if (IncludeAndroid)
+        ,{
             "label": "build-platformer-android",
             "type": "shell",
             "command": "dotnet",
@@ -55,8 +60,10 @@
                 "panel": "shared"
             },
             "problemMatcher": "$msCompile"
-        },
-        {
+        }
+//#endif
+//#if (IncludeiOS)
+        ,{
             "label": "build-platformer-ios",
             "type": "shell",
             "command": "dotnet",
@@ -77,5 +84,6 @@
             },
             "problemMatcher": "$msCompile"
         }
+//#endif
     ]
 }
