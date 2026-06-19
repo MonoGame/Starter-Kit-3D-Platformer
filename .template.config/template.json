@@ -1,166 +1,188 @@
 {
-	"$schema": "http://json.schemastore.org/template",
-	"author": "MonoGame Foundation",
-	"classifications": [
-		"MonoGame",
-		"Game",
-		"3D",
-		"Platformer",
-		"StarterKit",
-		"Kenney"
-	],
-	"identity": "MonoGame.Kenney.StarterKit.3DPlatformer",
-	"name": "Kenny StarterKit 3D Platformer",
-	"shortName": "mg-3dplatformer",
-	"sourceName": "Starter-Kit-3D-Platformer",
-	"tags": {
-		"language": "C#",
-		"type": "project"
-	},
-	"preferNameDirectory": false,
-	"symbols": {
-		"GameTitle": {
-			"type": "parameter",
-			"datatype": "text",
-			"replaces": "3D Platformer",
-			"defaultValue": "3D Platformer",
-			"description": "The display name of the game."
-		},
-		"ProjectName": {
-			"type": "parameter",
-			"datatype": "text",
-			"replaces": "Platformer3D",
-			"defaultValue": "Platformer3D",
-			"fileRename": "Platformer3D",
-			"description": "The name for the project file."
-		},
-		"AssemblyName": {
-			"type": "parameter",
-			"datatype": "text",
-			"replaces": "3DPlatformer",
-			"defaultValue": "3DPlatformer",
-			"description": "The name for the built assembly file."
-		},
-		"Platforms": {
-			"type": "parameter",
-			"datatype": "choice",
-			"allowMultipleValues": true,
-			"choices": [
-				{
-					"choice": "android",
-					"description": "Include Android project"
-				},
-				{
-					"choice": "ios",
-					"description": "Include iOS project"
-				},
-				{
-					"choice": "desktop",
-					"description": "Include the Desktop Vulkan project"
-				},
-				{
-					"choice": "windows",
-					"description": "Include Windows DX 12 project"
-				}
-			],
-			"defaultValue": "desktop",
-			"description": "Target platforms to include."
-		},
-		"IncludeAndroid": {
-			"type": "computed",
-			"value": "Platforms == android"
-		},
-		"IncludeIOS": {
-			"type": "computed",
-			"value": "Platforms == ios"
-		},
-		"IncludeWindows": {
-			"type": "computed",
-			"value": "Platforms == windows"
-		},
-		"IncludeDesktop": {
-			"type": "computed",
-			"value": "Platforms == desktop"
-		}
-	},
-	"sources": [
-		{
-			"modifiers": [
-				{
-					"copyOnly": [
-						"**/*.fbx",
-						"**/*.blend",
-						"**/*.md"
-					]
-				},
-				{
-					"exclude": [
-						".git/**",
-						".github/**",
-						".vs/**"
-					]
-				},
-				{
-					"condition": "(!IncludeAndroid)",
-					"exclude": [
-						"Android/**"
-					]
-				},
-				{
-					"condition": "(!IncludeIOS)",
-					"exclude": [
-						"iOS/**"
-					]
-				},
-				{
-					"condition": "(!IncludeWindows)",
-					"exclude": [
-						"Windows/**"
-					]
-				},
-				{
-					"condition": "(!IncludeDesktop)",
-					"exclude": [
-						"Desktop/**"
-					]
-				}
-			]
-		}
-	],
+  "$schema": "http://json.schemastore.org/template",
+  "author": "MonoGame Foundation",
+  "classifications": [
+    "MonoGame",
+    "Game",
+    "3D",
+    "Platformer",
+    "StarterKit",
+    "Kenney"
+  ],
+  "identity": "MonoGame.Kenney.StarterKit.3DPlatformer",
+  "name": "Kenny StarterKit 3D Platformer",
+  "shortName": "mg-3dplatformer",
+  "sourceName": "Starter-Kit-3D-Platformer",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "preferNameDirectory": false,
 
-	/*
+  "monogame": {
+    "longDescription": "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.",
+    "images": [
+      "https://github.com/MonoGame/Starter-Kit-3D-Platformer/blob/.template.config/screenshot.png?raw=true"
+    ],
+    "videos": [
+      "https://www.youtube.com/watch?v=odFSoTYmrAQ"
+    ],
+    "links": [
+      {
+        "label": "Source Code",
+        "url": "https://github.com/MonoGame/Starter-Kit-3D-Platformer"
+      },
+      {
+        "label": "Documentation",
+        "url": "https://github.com/MonoGame/Starter-Kit-3D-Platformer/blob/main/README.md"
+      }
+    ]
+  },
+
+  "symbols": {
+    "GameTitle": {
+      "type": "parameter",
+      "datatype": "text",
+      "replaces": "3D Platformer",
+      "defaultValue": "3D Platformer",
+      "description": "The display name of the game."
+    },
+    "ProjectName": {
+      "type": "parameter",
+      "datatype": "text",
+      "replaces": "Platformer3D",
+      "defaultValue": "Platformer3D",
+      "fileRename": "Platformer3D",
+      "description": "The name for the project file."
+    },
+    "AssemblyName": {
+      "type": "parameter",
+      "datatype": "text",
+      "replaces": "3DPlatformer",
+      "defaultValue": "3DPlatformer",
+      "description": "The name for the built assembly file."
+    },
+    "Platforms": {
+      "type": "parameter",
+      "datatype": "choice",
+      "allowMultipleValues": true,
+      "choices": [
+        {
+          "choice": "android",
+          "description": "Include Android project"
+        },
+        {
+          "choice": "ios",
+          "description": "Include iOS project"
+        },
+        {
+          "choice": "desktop",
+          "description": "Include the Desktop Vulkan project"
+        },
+        {
+          "choice": "windows",
+          "description": "Include Windows DX 12 project"
+        }
+      ],
+      "defaultValue": "desktop",
+      "description": "Target platforms to include."
+    },
+    "IncludeAndroid": {
+      "type": "computed",
+      "value": "Platforms == android"
+    },
+    "IncludeIOS": {
+      "type": "computed",
+      "value": "Platforms == ios"
+    },
+    "IncludeWindows": {
+      "type": "computed",
+      "value": "Platforms == windows"
+    },
+    "IncludeDesktop": {
+      "type": "computed",
+      "value": "Platforms == desktop"
+    }
+  },
+
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "copyOnly": [
+            "**/*.fbx",
+            "**/*.blend",
+            "**/*.md"
+          ]
+        },
+        {
+          "exclude": [
+            ".git/**",
+            ".github/**",
+            ".vs/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeAndroid)",
+          "exclude": [
+            "Android/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeIOS)",
+          "exclude": [
+            "iOS/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeWindows)",
+          "exclude": [
+            "Windows/**"
+          ]
+        },
+        {
+          "condition": "(!IncludeDesktop)",
+          "exclude": [
+            "Desktop/**"
+          ]
+        }
+      ]
+    }
+  ],
+
+  /*
 		NOTE: This is required because the template engine doesn't yet 
 		recognize the .slnx format as XML to be preprocessed.
 	*/
-	"specialCustomOperations": {
-		"**/*.slnx": {
-			"operations": [
-				{
-					"type": "conditional",
-					"configuration": {
-						"actionableIf": [
-							"<!--#if"
-						],
-						"actionableElse": [
-							"#else",
-							"<!--#else"
-						],
-						"actionableElseif": [
-							"#elseif",
-							"<!--#elseif",
-							"#elif",
-							"<!--#elif"
-						],
-						"endif": [
-							"#endif",
-							"<!--#endif"
-						],
-						"trim": true,
-						"wholeLine": true,
-						"evaluator": "C++"
-					}
-				}
-			]
-		}
-	}
+  "specialCustomOperations": {
+    "**/*.slnx": {
+      "operations": [
+        {
+          "type": "conditional",
+          "configuration": {
+            "actionableIf": [
+              "<!--#if"
+            ],
+            "actionableElse": [
+              "#else",
+              "<!--#else"
+            ],
+            "actionableElseif": [
+              "#elseif",
+              "<!--#elseif",
+              "#elif",
+              "<!--#elif"
+            ],
+            "endif": [
+              "#endif",
+              "<!--#endif"
+            ],
+            "trim": true,
+            "wholeLine": true,
+            "evaluator": "C++"
+          }
+        }
+      ]
+    }
+  }
 }
