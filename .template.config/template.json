@@ -12,7 +12,7 @@
   "identity": "MonoGame.Kenney.StarterKit.3DPlatformer",
   "name": "Kenny StarterKit 3D Platformer",
   "shortName": "mg-3dplatformer",
-  "sourceName": "Starter-Kit-3D-Platformer",
+  "sourceName": "Starter-Kit-3D-Platformer", // TODO: Maybe we sould rename the solution to Platformer3D.
   "tags": {
     "language": "C#",
     "type": "project"
@@ -20,11 +20,15 @@
   "preferNameDirectory": false,
 
   "monogame": {
+    // TODO: How do we make a long description here with nice formatting?
     "longDescription": "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.",
     "images": [
+      // TODO: Is this a good way to get the images?
+      // Could we assume a relative local path after the template is cloned?
       "https://github.com/MonoGame/Starter-Kit-3D-Platformer/blob/.template.config/screenshot.png?raw=true"
     ],
     "videos": [
+      // TODO: We may need to use some other embedded url here maybe.
       "https://www.youtube.com/watch?v=odFSoTYmrAQ"
     ],
     "links": [
@@ -45,22 +49,14 @@
       "datatype": "text",
       "replaces": "3D Platformer",
       "defaultValue": "3D Platformer",
-      "description": "The display name of the game."
-    },
-    "ProjectName": {
-      "type": "parameter",
-      "datatype": "text",
-      "replaces": "Platformer3D",
-      "defaultValue": "Platformer3D",
-      "fileRename": "Platformer3D",
-      "description": "The name for the project file."
+      "description": "The display name for your game that players will see."
     },
     "AssemblyName": {
       "type": "parameter",
       "datatype": "text",
       "replaces": "3DPlatformer",
       "defaultValue": "3DPlatformer",
-      "description": "The name for the built assembly file."
+      "description": "The name for your built assembly file."
     },
     "Platforms": {
       "type": "parameter",
@@ -69,23 +65,31 @@
       "choices": [
         {
           "choice": "android",
-          "description": "Include Android project"
+          "description": "Android mobile device platform"
         },
         {
           "choice": "ios",
-          "description": "Include iOS project"
+          "description": "Apple iOS device platform"
         },
         {
           "choice": "desktop",
-          "description": "Include the Desktop Vulkan project"
+          "description": "Cross-platform Windows, MacOS, and Linux desktop platform using Vulkan"
         },
         {
           "choice": "windows",
-          "description": "Include Windows DX 12 project"
+          "description": "Windows desktop platform using DirectX 12"
         }
       ],
       "defaultValue": "desktop",
-      "description": "Target platforms to include."
+      "description": "Target platforms you want to support."
+    },
+
+    "ProjectName": {
+      "type": "derived",
+      "valueSource": "name",
+      "valueTransform": "asIs", // The name should already be filename safe
+      "replaces": "Platformer3D",
+      "fileRename": "Platformer3D"
     },
     "IncludeAndroid": {
       "type": "computed",
@@ -102,6 +106,14 @@
     "IncludeDesktop": {
       "type": "computed",
       "value": "Platforms == desktop"
+    }
+  },
+
+  "forms": {
+    "asIs": {
+      "identifier": "replace",
+      "pattern": "(?!)",
+      "replacement": ""
     }
   },
 
