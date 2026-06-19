@@ -18,7 +18,7 @@ Includes features like;
 
 ## Screenshot
 
-![Screenshot of the 3D platformer game](ScreenShots/screenshot.png)
+![Screenshot of the 3D platformer game](screenshot.png)
 
 ## Controls
 

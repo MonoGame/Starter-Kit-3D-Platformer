@@ -25,7 +25,7 @@
     "images": [
       // TODO: Is this a good way to get the images?
       // Could we assume a relative local path after the template is cloned?
-      "https://github.com/MonoGame/Starter-Kit-3D-Platformer/blob/.template.config/screenshot.png?raw=true"
+      "https://github.com/MonoGame/Starter-Kit-3D-Platformer/blob/screenshot.png?raw=true"
     ],
     "videos": [
       // TODO: We may need to use some other embedded url here maybe.
