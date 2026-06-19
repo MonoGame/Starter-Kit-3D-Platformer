@@ -7,12 +7,19 @@
     "3D",
     "Platformer",
     "StarterKit",
-    "Kenney"
+    "Kenney",
+    "CrossPlatform",
+    "Physics",
+    "Collision",
+    "PostProcessing",
+    "Gamepad"
   ],
-  "identity": "MonoGame.Kenney.StarterKit.3DPlatformer",
-  "name": "Kenny StarterKit 3D Platformer",
+  "identity": "MonoGame.Templates.StarterKit3DPlatformer.CSharp",
+  "name": "Kenny 3D Platformer Starter Kit for MonoGame",
+  "description": "A fully-featured 3D platformer starter kit ported from Kenney's Godot starter kit.",
   "shortName": "mg-3dplatformer",
-  "sourceName": "Starter-Kit-3D-Platformer", // TODO: Maybe we sould rename the solution to Platformer3D.
+  "sourceName": "Platformer3D",
+  "defaultName": "My3DPlatformer",
   "tags": {
     "language": "C#",
     "type": "project"
@@ -20,12 +27,11 @@
   "preferNameDirectory": false,
 
   "monogame": {
-    // TODO: How do we make a long description here with nice formatting?
-    "longDescription": "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.",
+    "longDescription": "# MonoGame 3D Platformer Starter Kit\n\nA complete 3D platformer game ported from [Kenney's Godot 4.3 Starter Kit](https://kenney.nl/tools/starter-kits), rebuilt entirely in MonoGame. Perfect starting point for a 3D game without building the fundamentals from scratch.\n\n## Features\n\n- Character controller with walk, run, and double jump\n- Collectible coins with HUD counter\n- Falling platforms that drop when the player steps on them\n- Moving platforms along predefined paths\n- Convex hull collision system (custom content pipeline processor)\n- Bloom, shadow, and vignette post-processing effects\n- Camera with rotate and zoom controls\n- Full gamepad support\n- Level data designed in Blender and exported to JSON\n- Multi-platform: DesktopGL, Windows DX, Android, iOS\n\n## Assets\n\nAll art assets (sprites, 3D models, sound effects) are [CC0 licensed](https://creativecommons.org/public-domain/cc0/) from Kenney.nl. Code is MIT licensed.",
     "images": [
       // TODO: Is this a good way to get the images?
       // Could we assume a relative local path after the template is cloned?
-      "https://github.com/MonoGame/Starter-Kit-3D-Platformer/blob/screenshot.png?raw=true"
+      "https://raw.githubusercontent.com/MonoGame/Starter-Kit-3D-Platformer/main/screenshot.png"
     ],
     "videos": [
       // TODO: We may need to use some other embedded url here maybe.
@@ -39,8 +45,15 @@
       {
         "label": "Documentation",
         "url": "https://github.com/MonoGame/Starter-Kit-3D-Platformer/blob/main/README.md"
+      },
+      {
+        "label": "Kenney Starter Kits",
+        "url": "https://kenney.nl/tools/starter-kits"
       }
-    ]
+    ],
+
+    // TODO: We can make MG version selection a parameter in the template engine.
+    "monoGameVersion": "3.8.5"
   },
 
   "symbols": {
@@ -84,6 +97,7 @@
       "description": "Target platforms you want to support."
     },
 
+    /*
     "ProjectName": {
       "type": "derived",
       "valueSource": "name",
@@ -91,6 +105,7 @@
       "replaces": "Platformer3D",
       "fileRename": "Platformer3D"
     },
+    */
     "IncludeAndroid": {
       "type": "computed",
       "value": "Platforms == android"
@@ -122,7 +137,7 @@
       "modifiers": [
         {
           "copyOnly": [
-            "**/*.fbx",
+            "**/ *.fbx",
             "**/*.blend",
             "**/*.md"
           ]
@@ -131,7 +146,8 @@
           "exclude": [
             ".git/**",
             ".github/**",
-            ".vs/**"
+            ".vs/**",
+            ".idea/**"
           ]
         },
         {
