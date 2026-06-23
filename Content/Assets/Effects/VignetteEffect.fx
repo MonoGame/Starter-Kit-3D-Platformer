@@ -1,33 +1,30 @@
-#if OPENGL
-    #define SV_POSITION POSITION
-    #define VS_SHADERMODEL vs_3_0
-    #define PS_SHADERMODEL ps_3_0
-#else
-    #define VS_SHADERMODEL vs_4_0
-    #define PS_SHADERMODEL ps_4_0
-#endif
+#include "Macros.hlsl"
 
-float2 Radius = float2(0.5f, 0.5f);
-float2 Center = float2(0.5f, 0.5f);
-float Smoothness = 0.5f;
+BEGIN_CONSTANTS
+float2 Radius;
+float2 Center;
+float Smoothness;
+END_CONSTANTS
 
-texture ScreenTexture;
-
-sampler2D ScreenSampler = sampler_state
+DECLARE_TEXTURE(ScreenTexture, 0)
 {
-    Texture = <ScreenTexture>;
+    MipFilter = NONE;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+    AddressU = Clamp;
+    AddressV = Clamp;
 };
 
 struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
-    float4 Color : COLOR0;
+    float4 Color : TEXCOORD1;
     float2 TexCoord : TEXCOORD0;
 };
 
-float4 VignettePS(VertexShaderOutput input) : COLOR0
+float4 VignettePS(VertexShaderOutput input) : SV_TARGET0
 {
-    float4 color = tex2D(ScreenSampler, input.TexCoord);
+    float4 color = SAMPLE_TEXTURE(ScreenTexture, input.TexCoord);
     
     float2 dist = (input.TexCoord - Center) * Radius;
     float vignette = saturate(dot(dist, dist));
