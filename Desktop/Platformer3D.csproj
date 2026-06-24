@@ -32,6 +32,8 @@
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.Native" Version="3.8.5-preview.*" />
     <PackageReference Include="MonoGame.Runtime.Windows.Vulkan" Version="3.8.5-preview.*" />
-  </ItemGroup>
+    <PackageReference Include="MonoGame.Runtime.Mac.Vulkan" Version="3.8.5-preview.*" />
+    <PackageReference Include="MonoGame.Runtime.Linux.Vulkan" Version="3.8.5-preview.*" />
+  </ItemGroup>  
   <Import Project="..\Content\BuildContent.targets" />
 </Project>
