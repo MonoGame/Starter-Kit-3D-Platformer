@@ -19,6 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
+env:
+  XCodeVersion: 26.5
+
 jobs:
   test:
     name: ${{ matrix.os }}
@@ -34,6 +37,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: Pin xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        if: runner.environment == 'github-hosted' && runner.os == 'macos'
+        with:
+          xcode-version: '${{ env.XCodeVersion }}'
 
       - name: Validate the 3D Platformer template
         uses: MonoGame/monogame-actions/sample-template-validator@v1
