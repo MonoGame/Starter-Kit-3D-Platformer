@@ -1,0 +1,42 @@
+name: Validate template
+
+# Validates the 3D Platformer template on Windows, macOS and Linux using the shared
+# MonoGame/monogame-actions/sample-template-validator composite action. The action reads this template's
+# declared platforms (and its monogame.platforms map) and runs the applicable structural + build
+# tests; this workflow only owns the OS matrix and points the action at this template.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name || github.repository }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, workload: '' }       # builds desktop (DesktopVK) + windows (WindowsDX12)
+          - { os: macos-latest,   workload: ios }      # builds desktop + ios
+          - { os: ubuntu-latest,  workload: android }  # builds desktop + android
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate the 3D Platformer template
+        uses: MonoGame/monogame-actions/sample-template-validator@v1
+        with:
+          template: .
+          workload: ${{ matrix.workload }}
