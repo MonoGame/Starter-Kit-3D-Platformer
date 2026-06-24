@@ -12,10 +12,10 @@
             "cwd": "${workspaceFolder}/Desktop",
             "console": "internalConsole",
             "stopAtEntry": false
-        }
+        },
 //#endif
 //#if (IncludeWindows)
-        ,{
+        {
             "name": "Windows",
             "type": "coreclr",
             "request": "launch",
@@ -25,27 +25,27 @@
             "cwd": "${workspaceFolder}/Windows",
             "console": "internalConsole",
             "stopAtEntry": false
-        }
+        },
 //#endif
 //#if (IncludeAndroid)
-	,{
+        {
             "name": "Android",
             "type": "mono",
             "request": "attach",
             "preLaunchTask": "build-platformer-android",
             "address": "localhost",
             "port": 10002
-        }
+        },
 //#endif
-//#if (IncludeiOS)
-	,{
+//#if (IncludeIOS)
+        {
             "name": "iOS",
             "type": "mono",
             "request": "attach",
             "preLaunchTask": "build-platformer-ios",
             "address": "localhost",
             "port": 10003
-        }
+        },
 //#endif
     ]
 }

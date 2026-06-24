@@ -14,7 +14,7 @@
     <Project Path="Android/Platformer3D.csproj" />
   </Folder>
   <!--#endif -->
-  <!--#if (IncludeiOS) -->  
+  <!--#if (IncludeIOS) -->  
   <Folder Name="/iOS/">
     <Project Path="iOS/Platformer3D.csproj" />
   </Folder>

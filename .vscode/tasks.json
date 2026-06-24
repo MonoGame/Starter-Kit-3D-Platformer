@@ -62,7 +62,7 @@
             "problemMatcher": "$msCompile"
         }
 //#endif
-//#if (IncludeiOS)
+//#if (IncludeIOS)
         ,{
             "label": "build-platformer-ios",
             "type": "shell",
