@@ -44,6 +44,21 @@ jobs:
         with:
           xcode-version: '${{ env.XCodeVersion }}'
 
+      - name: Update Homebrew
+        if: runner.environment == 'github-hosted' && runner.os == 'macos'
+        run: |
+          brew update
+
+      - name: Setup Android Dependencies
+        if: runner.arch != 'arm64'
+        uses: monogame/monogame-actions/install-android-dependencies@v1
+
+      - name: Setup Wine
+        uses: monogame/monogame-actions/install-wine@v1
+
+      - name: Install Fonts
+        uses: monogame/monogame-actions/install-fonts@v1
+
       - name: Validate the 3D Platformer template
         uses: MonoGame/monogame-actions/sample-template-validator@v1
         with:
