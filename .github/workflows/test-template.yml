@@ -6,10 +6,6 @@ name: Validate template
 # tests; this workflow only owns the OS matrix and points the action at this template.
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
   workflow_dispatch:
 
 permissions:
