@@ -20,13 +20,18 @@ public static class InputState
     public static GamePadState GamepadState;
     private static GamePadState _previousGamePadState;
 
+    public static MouseState MouseState;
+    private static MouseState _previousMouseState;
+
     public static void Update()
     {
         _previousKeyboardState = _keyboardState;
         _previousGamePadState = GamepadState;
+        _previousMouseState = MouseState;
 
         _keyboardState = Keyboard.GetState();
         GamepadState = GamePad.GetState(0);
+        MouseState = Mouse.GetState();
     }
 
     public static bool IsButtonPressed(Buttons button)
@@ -51,5 +56,41 @@ public static class InputState
     public static bool IsKeyDown(Keys key)
     {
         return _keyboardState.IsKeyDown(key);
+    }
+
+    public static Vector2 MousePosition => new Vector2(MouseState.X, MouseState.Y);
+
+    public static Vector2 MouseDelta => new Vector2(MouseState.X - _previousMouseState.X, MouseState.Y - _previousMouseState.Y);
+
+    public static int ScrollWheelDelta => MouseState.ScrollWheelValue - _previousMouseState.ScrollWheelValue;
+
+    public static bool IsMouseButtonDown(MouseButton button)
+    {
+        return GetButtonState(MouseState, button) == ButtonState.Pressed;
+    }
+
+    public static bool IsMouseButtonPressed(MouseButton button)
+    {
+        return GetButtonState(MouseState, button) == ButtonState.Pressed
+            && GetButtonState(_previousMouseState, button) == ButtonState.Released;
+    }
+
+    public static bool IsMouseButtonReleased(MouseButton button)
+    {
+        return GetButtonState(MouseState, button) == ButtonState.Released
+            && GetButtonState(_previousMouseState, button) == ButtonState.Pressed;
+    }
+
+    private static ButtonState GetButtonState(MouseState state, MouseButton button)
+    {
+        switch (button)
+        {
+            default:
+                return state.LeftButton;
+            case MouseButton.RightButton:
+                return state.RightButton;
+            case MouseButton.MiddleButton:
+                return state.MiddleButton;
+        }
     }
 }

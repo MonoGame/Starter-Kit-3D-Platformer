@@ -22,7 +22,7 @@ public class Menu
     private int _selectedIndex;
     private float _inputCooldown;
     private Action _cancelAction; // Action to perform on cancel (e.g., exit menu)
-    
+
     // Oscillating scale properties
     private float _scaleTimer;
 
@@ -51,16 +51,16 @@ public class Menu
     public Color SelectedColor { get; set; } = Color.Yellow;
 
     // Transition properties
-    public MenuTransitionDirection TransitionDirection 
-    { 
-        get => _transitionDirection; 
-        set => _transitionDirection = value; 
+    public MenuTransitionDirection TransitionDirection
+    {
+        get => _transitionDirection;
+        set => _transitionDirection = value;
     }
 
-    public Vector2 BasePosition 
-    { 
-        get => _basePosition; 
-        set => _basePosition = value; 
+    public Vector2 BasePosition
+    {
+        get => _basePosition;
+        set => _basePosition = value;
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ public class Menu
         _selectedIndex = 0;
         _cancelAction = cancelAction ?? (() => { /* Default cancel action */ });
         _scaleTimer = 0f;
-        
+
         // Initialize transition properties
         _menuState = MenuState.Hidden;
         _transitionDirection = transitionDirection;
@@ -113,7 +113,7 @@ public class Menu
     public void AddItem(MenuItem item)
     {
         _menuItems.Add(item);
-        
+
         // If this is the first item, select it
         if (_menuItems.Count == 1)
         {
@@ -171,7 +171,7 @@ public class Menu
         _inputCooldown = GameConstants.INPUT_COOLDOWN_TIME;
         _selectedIndex = 0; // Reset selection when activated
         UpdateSelectionHighlight();
-        
+
         // Start transition in
         _menuState = MenuState.TransitionIn;
         _transitionTimer = 0f;
@@ -249,6 +249,9 @@ public class Menu
             return;
         }
 
+        // Mouse hover/click support.
+        HandleMouseInput(InputState.MousePosition);
+
         // Check for navigation input (only if cooldown has expired)
         if (_inputCooldown <= 0)
         {
@@ -294,7 +297,7 @@ public class Menu
             {
                 // Execute the action of the selected item
                 PlayClick();
-                SelectedItem?.Action?.Invoke();                
+                SelectedItem?.Action?.Invoke();
             }
             if (menuCancelPressed)
             {
@@ -304,6 +307,64 @@ public class Menu
             }
 
         }
+    }
+
+    /// <summary>
+    /// Handles mouse hover and click interaction with menu items.
+    /// </summary>
+    private void HandleMouseInput(Vector2 uiMousePosition)
+    {
+        int hovered = GetItemIndexAtPosition(uiMousePosition);
+        if (hovered < 0)
+            return;
+
+        if (InputState.MouseDelta != Vector2.Zero && hovered != _selectedIndex)
+        {
+            _selectedIndex = hovered;
+            UpdateSelectionHighlight();
+            PlaySelect();
+        }
+
+        if (_inputCooldown <= 0 && InputState.IsMouseButtonPressed(MouseButton.LeftButton))
+        {
+            if (hovered != _selectedIndex)
+            {
+                _selectedIndex = hovered;
+                UpdateSelectionHighlight();
+            }
+
+            PlayClick();
+            _menuItems[hovered].Action?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Returns the index of the menu item under the given UI-space position, or -1 if none.
+    /// </summary>
+    private int GetItemIndexAtPosition(Vector2 position)
+    {
+        if (Font == null)
+            return -1;
+
+        float transitionProgress = GetTransitionProgress();
+        for (int i = 0; i < _menuItems.Count; i++)
+        {
+            // Match exactly where Draw() places the item so the hit area
+            // tracks the rendered text (including transition offsets).
+            var itemBasePosition = _basePosition + new Vector2(0, i * ItemSpacing);
+            var itemPosition = GetTransitionPosition(itemBasePosition, transitionProgress, i);
+            var size = Font.MeasureString(_menuItems[i].Text);
+
+            // A little vertical padding makes items easier to hover.
+            float pad = ItemSpacing * 0.25f;
+            if (position.X >= itemPosition.X && position.X <= itemPosition.X + size.X &&
+                position.Y >= itemPosition.Y - pad && position.Y <= itemPosition.Y + size.Y + pad)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /// <summary>
@@ -398,10 +459,10 @@ public class Menu
         for (int i = 0; i < _menuItems.Count; i++)
         {
             var item = _menuItems[i];
-            
+
             // Calculate base position for this item
             var itemBasePosition = _basePosition + new Vector2(0, i * ItemSpacing);
-            
+
             // Apply transition offset
             var itemPosition = GetTransitionPosition(itemBasePosition, transitionProgress, i);
 
@@ -446,7 +507,7 @@ public class Menu
             return finalPosition;
 
         // Apply easing to the progress for smoother animation
-        float easedProgress = _menuState == MenuState.TransitionOut ? 
+        float easedProgress = _menuState == MenuState.TransitionOut ?
             MathHelpers.EaseInCubic(progress) : MathHelpers.EaseOutCubic(progress);
 
         // Add staggered delay for each item (creates a cascade effect)
