@@ -48,9 +48,9 @@ public class Player : AnimatedEntity
     private float _targetRotationAngle = 1.5f; // The angle we want to rotate towards
     private float _currentRotationAngle = 1.5f; // Current rotation angle, start facing the player
     private SoundEffect _jumpSound;
-    private SoundEffectInstance _landSound;
+    private SoundEffect _landSound;
     private SoundEffectInstance _walkSound;
-    private SoundEffectInstance _playerDied;
+    private SoundEffect _playerDied;
 
     // Used to do effects when the player lands from a fall/jump.
     private float _landVelocity = 0.0f;
@@ -79,9 +79,9 @@ public class Player : AnimatedEntity
         // Load any additional content here
         base.LoadContent();
         _jumpSound = Content.Load<SoundEffect>("Sounds/jump");
-        _landSound = Content.Load<SoundEffect>("Sounds/land").CreateInstance();
+        _landSound = Content.Load<SoundEffect>("Sounds/land");
         _walkSound = Content.Load<SoundEffect>("Sounds/walking").CreateInstance();
-        _playerDied = Content.Load<SoundEffect>("Sounds/burst").CreateInstance();
+        _playerDied = Content.Load<SoundEffect>("Sounds/burst");
     }
 
     public override bool CheckCollision(Entity other)

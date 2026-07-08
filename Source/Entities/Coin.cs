@@ -20,7 +20,7 @@ public class Coin : BobingEntity
     private float _rotationAngle = 0f;
     private bool _collected = false;
     private Vector3 _initialPosition;
-    private SoundEffectInstance _collectedSound; // Sound effect for coin collection
+    private SoundEffect _collectedSound;
     private Sparkles _sparkles;
     private float _sparkleTimer = 0f;
     private const float SPARKLE_SPAWN_RATE = 0.8f; // Spawn a new sparkle every 0.3 seconds
@@ -43,7 +43,7 @@ public class Coin : BobingEntity
     override protected void LoadContent()
     {
         // Load the sound effect for coin collection
-        _collectedSound = Content.Load<SoundEffect>("Sounds/coin").CreateInstance();
+        _collectedSound = Content.Load<SoundEffect>("Sounds/coin");
         _sparkles = new Sparkles(Content);
         base.LoadContent();
     }
