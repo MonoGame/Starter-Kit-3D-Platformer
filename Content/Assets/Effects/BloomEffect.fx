@@ -27,7 +27,7 @@ DECLARE_TEXTURE(BloomTexture, 1)
 struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
-    float4 Color : TEXCOORD1;
+    float4 Color : Color0;
     float2 TexCoord : TEXCOORD0;    
 };
 
