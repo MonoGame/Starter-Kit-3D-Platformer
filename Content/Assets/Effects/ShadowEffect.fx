@@ -76,7 +76,7 @@ struct V2P
     float2 SMPosition1 : TEXCOORD4;
     float SMDepth0 : TEXCOORD5;
     float SMDepth1 : TEXCOORD6;
-    float4 Color : TEXCOORD7;
+    float4 Color : Color0;
 };
 
 float2 randomOffset(float4 seed)
