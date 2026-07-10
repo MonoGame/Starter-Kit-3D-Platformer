@@ -16,7 +16,6 @@ using Microsoft.Xna.Framework.Graphics;
 public class Scene
 {
     private List<Entity> _entities = new List<Entity>();
-    private Queue<Entity> _entitiesToRemove = new Queue<Entity>();
 
     private List<Entity> _drawList = new List<Entity>();
 
@@ -31,7 +30,6 @@ public class Scene
 
     public List<Entity> Entities => _entities;
     public Camera Camera => _camera;
-    public Vector3 LightDirection => Vector3.Normalize(LightPosition);
     public Color LightColor { get; set; } = Color.White;
     public float LightIntensity { get; set; } = 1.0f;
     public Player Player => _player;
@@ -156,20 +154,40 @@ public class Scene
         _dust.Update(gameTime);
         _sparkles.Update(gameTime);
 
-        foreach (var entity in _entities)
+        // Update the world entities to let them move and possibly die.
+        for (int i = 0; i < _entities.Count; i++)
         {
+            var entity = _entities[i];
             entity.Update(gameTime);
-            entity.CheckCollision(_player);
+            if (entity.Dead())
+            {
+                _entities.Remove(entity);
+                --i;
+            }
+        }
+
+        // Update the player collision.
+        for (int i = 0; i < _entities.Count; i++)
+        {
+            var entity = _entities[i];
             _player.CheckCollision(entity);
             if (entity.Dead())
             {
-                _entitiesToRemove.Enqueue(entity);
+                _entities.Remove(entity);
+                --i;
             }
         }
-        while (_entitiesToRemove.Count > 0)
+
+        // Update the world collision.
+        for (int i = 0; i < _entities.Count; i++)
         {
-            var entity = _entitiesToRemove.Dequeue();
-            _entities.Remove(entity);
+            var entity = _entities[i];
+            entity.CheckCollision(_player);
+            if (entity.Dead())
+            {
+                _entities.Remove(entity);
+                --i;
+            }
         }
 
         if (Goal != null && Goal.GoalReached)
