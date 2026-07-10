@@ -130,8 +130,23 @@ public class Scene
         {
             _player.InputEnabled = AcceptInput;
 
-            // TODO: Should the player really update before the world?
-            _player.Forward = _camera.ForwardDirection;
+            // Pick a good forward vector for player movement based
+            // on the camera and knowing the player walks on the ground.
+            var forward = _camera.ForwardDirection;
+            forward.Y = 0f;
+            if (forward.LengthSquared() > 1e-6f)
+                forward.Normalize();
+            else
+            {
+                // The camera is looking straight up/down
+                // so we use the screen-up vector instead.
+                var camWorld = Matrix.Invert(_camera.ViewMatrix);
+                forward = camWorld.Up;
+                forward.Y = 0f;
+                forward.Normalize();
+            }
+            _player.Forward = forward;
+
             _player.Update(gameTime);
 
             // TODO: Maybe all entities should have this callback?
