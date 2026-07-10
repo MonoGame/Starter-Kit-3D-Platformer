@@ -155,11 +155,11 @@ public class PlatformerGame : Game
         _mainMenu = new Menu(_font, Content, QuitGame, MenuTransitionDirection.Right);
         _mainMenu.AddItem("Start Game", () =>
         {
-            currentLevel = 0;
-            LoadLevel(levels[currentLevel]);
+            currentLevel = 0;            
             _transitionProcessor.StartTransition(() =>
             {
                 _currentState = GameState.MainScene;
+                LoadLevel(levels[currentLevel]);
             });
         });
         _mainMenu.AddItem("Quit", QuitGame);
