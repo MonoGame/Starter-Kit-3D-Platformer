@@ -50,7 +50,6 @@ DECLARE_TEXTURE(Texture, 3)
 struct VSInputDepth
 {
     float4 Position : POSITION0;
-    float4 Normal : NORMAL0;
 };
 
 struct V2PDepth
@@ -137,7 +136,7 @@ float4 ApplyLightingModel(V2P input, float4 color)
 V2PDepth VSDepthMap(VSInputDepth input)
 {
     V2PDepth output;
-        
+
     output.Position = mul(input.Position, ModelToLight0);
     output.Depth = output.Position.z / output.Position.w;
     
