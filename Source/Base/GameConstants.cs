@@ -1,4 +1,4 @@
-﻿// MonoGame - Copyright (C) MonoGame Foundation, Inc
+// MonoGame - Copyright (C) MonoGame Foundation, Inc
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
@@ -70,9 +70,9 @@ public static class GameConstants
     // Menu transition constants
     public const float MENU_TRANSITION_DURATION = 0.5f; // Duration of menu transitions in seconds
     public const float MENU_TRANSITION_OFFSET = 200f;   // How far off-screen menu items start
-    public const string PATREONURL = "https://www.patreon.com/monogame";
-    public const string WEBSITEURL = "https://www.monogame.net";
-    public const string GITHUBURL = "https://github.com/MonoGame/Starter-Kit-3D-Platformer";
-    public static readonly Color DEFAULT_BACKGROUND_COLOR = new Color(0.752941f, 0.776471f, 0.827451f);
+    public const string SUPPORT_URL = "https://www.monogame.net/donate";
+    public const string WEBSITE_URL = "https://www.monogame.net";
+    public const string CODE_URL = "https://github.com/MonoGame/Starter-Kit-3D-Platformer";
+    public static readonly Color DEFAULT_BACKGROUND_COLOR = Color.SkyBlue; // new Color(0.752941f, 0.776471f, 0.827451f);
     public const float DEFAULT_CELEBRATION_TIMER = 5.0f; // Duration of celebration effect after completing a level
 }

@@ -45,17 +45,17 @@ public class GameOver
         {
             OnReturnToMainMenu?.Invoke();
         });
-        _menu.AddItem("Visit MonoGame Website", () =>
+        _menu.AddItem("MonoGame Website", () =>
         {
-            OpenUrl(GameConstants.WEBSITEURL);
+            OpenUrl(GameConstants.WEBSITE_URL);
         });
-        _menu.AddItem("Support us on Patreon", () =>
+        _menu.AddItem("Support Us", () =>
         {
-            OpenUrl(GameConstants.PATREONURL);
+            OpenUrl(GameConstants.SUPPORT_URL);
         });
-        _menu.AddItem("View Source Code on GitHub", () =>
+        _menu.AddItem("View Source Code", () =>
         {
-            OpenUrl(GameConstants.GITHUBURL);
+            OpenUrl(GameConstants.CODE_URL);
         });
 
         _menu.TextColor = textColor;
