@@ -20,7 +20,7 @@ public class TransitionProcessor
 
     private TransitionState _transitionState = TransitionState.None;
     private float _transitionTimer = 0f;
-    private float _transitionDuration = 0.5f;
+    private float _transitionDuration = 0.33f;
     private Texture2D _overlayTexture;
     private SpriteBatch _spriteBatch;
     private Action _onStateChangeCallback;
@@ -107,7 +107,7 @@ public class TransitionProcessor
         _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(scale.X, scale.Y, 0f));
         _spriteBatch.Draw(_overlayTexture,
             new Rectangle(0, 0, (int)baseResolutionWidth, (int)baseResolutionHeight),
-            GameConstants.DEFAULT_BACKGROUND_COLOR * alpha);
+            Color.Black * alpha);
         _spriteBatch.End();
     }
 
