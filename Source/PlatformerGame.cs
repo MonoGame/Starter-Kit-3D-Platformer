@@ -329,6 +329,14 @@ public class PlatformerGame : Game
                     _song.Resume();
                 }
             }
+            if (InputState.IsKeyPressed(Keys.B))
+            {
+                _postProcessor.BloomEnabled = !_postProcessor.BloomEnabled;
+            }
+            if (InputState.IsKeyPressed(Keys.V))
+            {
+                _postProcessor.VignetteEnabled = !_postProcessor.VignetteEnabled;
+            }
         }
 #endif
 
