@@ -409,6 +409,11 @@ public class PlatformerGame : Game
                         _transitionProcessor.StartTransition(() =>
                         {
                             _currentState = GameState.LoadingScreen;
+
+                            // Have the load screen match the lighting and sky of the current level.
+                            _loadingScene.SkyColor = _currentScene.SkyColor;
+                            _loadingScene.LightColor = _currentScene.LightColor;
+
                             LoadLevel(levels[currentLevel]); // Reload the level
                         });
                     }
