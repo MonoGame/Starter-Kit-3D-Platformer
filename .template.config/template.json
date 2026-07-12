@@ -27,9 +27,10 @@
   "preferNameDirectory": true,
 
   "monogame": {
+    "name": "Kenny 3D Platformer Starter Kit",
     "longDescription": "# MonoGame 3D Platformer Starter Kit\n\nA complete 3D platformer game ported from [Kenney's Godot 4.3 Starter Kit](https://kenney.nl/tools/starter-kits), rebuilt entirely in MonoGame. A perfect starting point for a 3D game without building the fundamentals from scratch.\n\n## Features\n\n- A character controller with walk, run, and double jump\n- Collectible coins with HUD counter\n- Falling platforms that drop when the player steps on them\n- Moving platforms along predefined paths\n- Convex hull collision system (custom content pipeline processor)\n- Bloom, shadow, and vignette post-processing effects\n- Camera with rotate and zoom controls\n- Full gamepad support\n- Level data designed in Blender and exported to JSON\n- Multi-platform: DesktopVK (Vulkan), WindowsDX12, Android, iOS\n\n## Assets\n\nAll art assets (sprites, 3D models, sound effects) are [CC0 licensed](https://creativecommons.org/public-domain/cc0/) from Kenney.nl. Code is MIT licensed.",
     "images": [
-      "https://raw.githubusercontent.com/MonoGame/Starter-Kit-3D-Platformer/refs/heads/main/ScreenShots/screenshot.png"
+      "https://raw.githubusercontent.com/MonoGame/Starter-Kit-3D-Platformer/refs/heads/main/screenshot.png"
     ],
     "videos": [
       "https://www.youtube.com/watch?v=odFSoTYmrAQ"
