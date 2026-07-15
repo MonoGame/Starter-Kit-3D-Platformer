@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.Input;
 
 
 /// <summary>
-/// A simple menu system that supports keyboard and gamepad navigation.
+/// A simple menu system that supports keyboard and GamePad navigation.
 /// Uses state-based selection rather than events.
 /// Supports animated transitions when activating and deactivating.
 /// </summary>

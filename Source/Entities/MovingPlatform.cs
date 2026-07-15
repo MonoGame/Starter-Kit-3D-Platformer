@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 /// <summary>
 /// A platform that moves along a predefined path.
-/// In blender, you can define the path using the NURBS curve tool.
+/// In Blender, you can define the path using the NURBS curve tool.
 /// Then assign the path to the platform using Custom properties.
 /// The path data is loaded from JSON.
 /// </summary>

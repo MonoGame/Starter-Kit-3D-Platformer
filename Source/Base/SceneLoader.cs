@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 /// <summary>
 /// Loads and manages scenes in the game.
 /// Scenes are defined in JSON files and can be loaded at runtime.
-/// They can be created by hand , but we use blender to create them
+/// They can be created by hand , but we use Blender to create them
 /// and a export screen is provided to facilitate this process.
 /// </summary>
 public class SceneLoader

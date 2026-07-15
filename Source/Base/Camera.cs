@@ -111,7 +111,7 @@ public class Camera
     private void HandleInput(GameTime gameTime)
     {
 
-        // Handle gamepad rotation
+        // Handle GamePad rotation
         Vector2 rightStick = InputState.GamepadState.ThumbSticks.Right;
 
         // Handle keyboard rotation
@@ -144,7 +144,7 @@ public class Camera
         if (InputState.IsKeyDown(Keys.OemPeriod))
             Zoom(-1f);
 
-        // Handle zoom with gamepad triggers
+        // Handle zoom with GamePad triggers
         float triggerDifference = InputState.GamepadState.Triggers.Left - InputState.GamepadState.Triggers.Right;
         if (triggerDifference != 0)
             Zoom(triggerDifference);

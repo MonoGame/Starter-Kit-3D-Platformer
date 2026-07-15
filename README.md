@@ -1,16 +1,18 @@
-<p align="center"><img src="icon.png"/></p>
+<p align="center"><img src="icon.png" alt="Platformer sample icon"/></p>
 
 # Starter Kit 3D Platformer
 
 This repository has a basic template for a 3D platformer game.
-The [original](https://github.com/KenneyNL/Starter-Kit-3D-Platformer) was written by [Kenney](https://www.kenney.nl/starter-kits) for Godot 4.3 (stable).
 
-Includes features like;
+> [!NOTE]
+> The [original](https://github.com/KenneyNL/Starter-Kit-3D-Platformer) was written by [Kenney](https://www.kenney.nl/starter-kits) for Godot 4.3 (stable).
+
+The template includes such features as:
 
 - Character controller (with double jump)
 - Collectable coins and falling platforms
 - Camera controls (rotate, zoom)
-- Gamepad support
+- GamePad support
 - Basic Convex Hull Collision System
 - Uses Blender for Level Editing
 - Sprites and 3D Models _(CC0 licensed)_
@@ -18,19 +20,23 @@ Includes features like;
 
 ## Screenshot
 
-![Screenshot of the 3D platformer game](screenshot.png)
+![Screenshot of the 3D platformer game](Screenshots/screenshot.png)
 
 ## Controls
 
 - Standard keyboard controls (WASD, Space), plus GamePad support
 - Camera controls (Arrows to move), Comma/Period Zoom
+- Mouse clickable menus
 
 ## Build Instructions
 
-- Make sure your system is setup for MonoGame development by following the documentation at [https://docs.monogame.net/](https://docs.monogame.net/)
+- Make sure your system is set up for MonoGame development by following the documentation at [https://docs.monogame.net/](https://docs.monogame.net/)
 - Clone the repository.
 - `dotnet build Starter-Kit-3D-Platformer.sln`
 - `dotnet run --project Platforms/Desktop/Desktop.csproj`
+
+> [!NOTE]
+> A `Directory.Packages.props` configuration exists at the root of the project to make managing the version of MonoGame (and the Content Dependencies) used by the project simpler.  From here, you only need to change the `MonoGameVersion` property to update the version of MonoGame used to build/run the project.
 
 For debug builds we define a `DEVMODE` conditional define. This is used to make sure
 development code is not included in the final build.
@@ -38,7 +44,7 @@ development code is not included in the final build.
 When in debug mode you can use the following keys to show/see debug information.
 
 - F1 : Show/Hide collision meshes
-- F2 : Show/Hide RenderTargets for Shadow and Post Process'.
+- F2 : Show/Hide RenderTargets for Shadow and Post Processing'.
 - F3 : Show/Hide Performance Metrics.
 - +/- : Speed up or slow time the game time. Useful for debugging animations.
 - M : Mute/UnMute the Music.
@@ -60,15 +66,24 @@ The Starter Kit 3D Platformer is organized into several key directories, each se
   - **Effects/** - Shader effects like Bloom, Shadow, and Vignette
   - **Font/** - Font files and spritefont definitions
   - **Sounds/** - Sound effects and music files
-  - **Content.mgcb** - MonoGame Content Builder project file
-  - **level*.json** - Level definition files exported from Blender
-  - **levels.json** - Index of all available levels
+  - **Levels/level*.json** - Level definition files exported from Blender
+  - **Levels/levels.json** - Index of all available levels
+  - **BuildContent.targets** - The Content Builder import definition, used by the runtime project to build the content automatically.
 
-- **Pipeline/** - Custom content processing
+> [!NOTE]
+> This sample utilizes the new [Content Builder](https://docs.monogame.net/articles/getting_started/content_pipeline/content_builder_project.html) solution for building assets, which is far superior to the legacy MGCB Editor.
+>
+> To read more about it, check out the [Documentation here](https://docs.monogame.net/articles/getting_started/content_pipeline/content_builder_project.html)
+
+- **Builder/** - Content Builder and Custom content processing
+  - **Builder.cs** - The Content Builder project definition to define how assets are processed.
   - **ConvexHullHelper.cs** - Generates collision meshes from 3D models
   - **MeshAnimatedModelProcessor.cs** - Processes animated models
   - **MeshAnimatedModelHelper.cs** - Utilities for model processing
   - **Pipeline.csproj** - MonoGame Content Pipeline extension project
+
+> [!IMPORTANT]
+> For `3.8.5` the Content Builder is still classed as `experimental` and not recommended for production projects at this time (that is your decision to make).  This sample acts as a testbed for the new approach and is tested thoroughly to function with the new builder. This only affects asset building, the runtime is unchanged.
 
 - **Platforms/** - Platform-specific implementations
   - **Desktop/** - Desktop (Windows/macOS/Linux) implementation
@@ -77,13 +92,12 @@ The Starter Kit 3D Platformer is organized into several key directories, each se
 
 - **Blender/** - Level editing tools
   - **level.blend** - Main Blender file for level editing
-  - **AddMenu.py** - Adds export menu to Blender
-  - **ExportScript.py** - Exports level data to JSON
+  - **AddMenu.py** - Adds export menu to Blender (in the scene view)
+  - **ExportScript.py** - Exports level data to JSON files in the `Content/Levels` folder
 
 ## Level Editing
 
-This sample uses Blender to create levels. The entire game is made up of these
-building blocks of meshes.
+This sample demonstrates using Blender as a 3D design tool to create levels. The entire game is made up of these building blocks of meshes.
 
 - cloud
 - coin
@@ -96,19 +110,17 @@ building blocks of meshes.
 - flag
 - jumppad
 
-All of these have already been imported into the `level.blend` file.
-When you open the `.blend` file it will ask if you want to run the `AddMenu` script.
-This script adds a `Platformer->Run Platformer Export` menu to the Blender menu to make it easy to export to the game.
+All of these models have already been imported into the `level.blend` file.
 
-To layout more platforms, select one of the platforms you want to add and
+> [!NOTE]
+> When you open the `.blend` file it will ask if you want to run the `AddMenu` script.
+This script adds a `Platformer->Run Platformer Export` menu to the Blender scene menu to make it easy to export to the game.
+
+To create / layout more platforms, select one of the platforms you want to add and
 duplicate it (Shift+D). You can then move it to the desired location.
 
-We use custom properties in blender to all us to flag an object as having
-special properties. For example in the example you will now that the `Empty`
-which is used for the spawn point has an `IsSpawnPoint` boolean custom property.
-When using an `Empty` you can change the Display Type to be a sphere and alter
-the radius if you want to define an area. This can be useful for things like
-goals or trigger points.
+We use `custom properties` in Blender to allow us to flag an object as having special properties. For example in the sample you will see the `Empty` property, which is used for the spawn point and has an `IsSpawnPoint` Boolean custom property.
+When using an `Empty` you can change the Display Type to be a sphere and alter the radius if you want to define an area. This can be useful for things like goals or trigger points.
 
 Supported custom properties:
 
@@ -116,27 +128,29 @@ Supported custom properties:
 - `IsSpawnPoint`: Add this to an `Empty` and set it to `true` to make this the spawn point of the level.
 - `IsCollidable`: Add this to any object to control if this mesh should collide with the player. This can be useful for things such as grass which the player can move through.
 - `JumpForce`: A float value, this defines the amount of force to apply when the player
-touches it. Usually use in conjunction with the `jumppad` mesh.
+touches it. Usually used in conjunction with the `jumppad` mesh.
 
-Once you have organised your level you can go to the scripting tab in blender
-and run the provided script. This script will examine all the objects in the
-`Scene` collection and export their properties to a `.json` file.
-The name of the file is taken from the collection nanme. The script will also produce
-a `levels.json` file which contains a list of all the levels in the game.
+Once you have organised your level you can go to the scripting tab in Blender
+and run the provided `ExportScript` script (or click "Run Platformer Export" from the scene menu). This script will examine all the objects in the `Scene` collection and export their properties to a `.json` file.
+> [!NOTE]
+> The name of the file is taken from the collection name.
+
+The script will also produce a `levels.json` file which contains a list of all the levels in the game.
 This will allow you to easily add new levels.
 
 ## Debugging Blender Export Script
 
 First install the required [extension](https://marketplace.visualstudio.com/items?itemName=JacquesLucke.blender-development).
 
-The run Ctrl+Shift+P (Cmd+Shift+P on Mac), `Blender: Start` to start blender and attach the debugger.
+The run command `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac), `Blender: Start`, is used to start Blender and attach the debugger.
 Note: You will be asked for the path to Blender.
 
-Then open the `ExportScript.py` in VSCode and place a breakpoint. Then run Ctrl+Shift+P,`Blender: Run Script`. You will now be debugging the script.
+Then open the `ExportScript.py` in VSCode and place a breakpoint. When you then run `Ctrl+Shift+P` the `Blender: Run Script` command, you will now be debugging the script.
 
 ## Ideas for Improvements
 
-This is your Starter Kit! So you can modify it , extend it, take things out.
+This is your Starter Kit! So you can modify it, extend it, or take things out.
+
 Here are some thoughts on things that could be added
 
 - Rotating Platforms.
