@@ -1,28 +1,28 @@
 {
     "version": "0.2.0",
     "configurations": [
-//#if (IncludeDesktop)
+//#if (IncludeDesktopVK)
         {
-            "name": "Desktop",
+            "name": "DesktopVK",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build-platformer-desktop",
-            "program": "${workspaceFolder}/Desktop/bin/Debug/net9.0/3DPlatformer.dll",
+            "preLaunchTask": "build-platformer-DesktopVK",
+            "program": "${workspaceFolder}/DesktopVK/bin/Debug/net9.0/3DPlatformer.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Desktop",
+            "cwd": "${workspaceFolder}/DesktopVK",
             "console": "internalConsole",
             "stopAtEntry": false
         },
 //#endif
-//#if (IncludeWindows)
+//#if (IncludeWindowsDX12)
         {
-            "name": "Windows",
+            "name": "WindowsDX12",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build-platformer-windows",
-            "program": "${workspaceFolder}/Windows/bin/Debug/net9.0-windows/3DPlatformer.dll",
+            "preLaunchTask": "build-platformer-WindowsDX12",
+            "program": "${workspaceFolder}/WindowsDX12/bin/Debug/net9.0-WindowsDX12/3DPlatformer.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Windows",
+            "cwd": "${workspaceFolder}/WindowsDX12",
             "console": "internalConsole",
             "stopAtEntry": false
         },

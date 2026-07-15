@@ -54,8 +54,8 @@
 
     "monoGameVersion": "3.8.5",
     "platforms": {
-      "desktop": { "target": "DesktopVK",   "folder": "Desktop" },
-      "windows": { "target": "WindowsDX12", "folder": "Windows" },
+      "desktopvk": { "target": "DesktopVK",   "folder": "DesktopVK" },
+      "windowsdx12": { "target": "WindowsDX12", "folder": "WindowsDX12" },
       "android": { "target": "Android",     "folder": "Android" },
       "ios":     { "target": "iOS",         "folder": "iOS" }
     }
@@ -90,15 +90,15 @@
           "description": "Apple iOS device platform"
         },
         {
-          "choice": "desktop",
-          "description": "Cross-platform Windows, MacOS, and Linux desktop platform using Vulkan"
+          "choice": "desktopvk",
+          "description": "Cross-platform Windows, MacOS, and Linux Desktop platform using Vulkan"
         },
         {
-          "choice": "windows",
-          "description": "Windows desktop platform using DirectX 12"
+          "choice": "windowsdx12",
+          "description": "windowsdx12 desktop platform using DirectX 12"
         }
       ],
-      "defaultValue": "desktop",
+      "defaultValue": "desktopvk",
       "description": "Target platforms you want to support."
     },
     "IncludeAndroid": {
@@ -109,13 +109,13 @@
       "type": "computed",
       "value": "Platforms == ios"
     },
-    "IncludeWindows": {
+    "IncludeWindowsDX12": {
       "type": "computed",
-      "value": "Platforms == windows"
+      "value": "Platforms == windowsdx12"
     },
-    "IncludeDesktop": {
+    "IncludeDesktopVK": {
       "type": "computed",
-      "value": "Platforms == desktop"
+      "value": "Platforms == desktopvk"
     }
   },
 
@@ -150,15 +150,15 @@
           ]
         },
         {
-          "condition": "(!IncludeWindows)",
+          "condition": "(!IncludeWindowsDX12)",
           "exclude": [
-            "Windows/**"
+            "WindowsDX12/**"
           ]
         },
         {
-          "condition": "(!IncludeDesktop)",
+          "condition": "(!IncludeDesktopVK)",
           "exclude": [
-            "Desktop/**"
+            "DesktopVK/**"
           ]
         }
       ]

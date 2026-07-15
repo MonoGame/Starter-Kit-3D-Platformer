@@ -1,0 +1,35 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
+  </PropertyGroup>
+
+  <!-- Single version for MonoGame packages. -->
+  <PropertyGroup>
+    <MonoGameVersion>3.8.5-preview.*</MonoGameVersion>
+  </PropertyGroup>
+
+  <!-- MonoGame framework / runtimes -->
+  <ItemGroup>
+    <PackageVersion Include="MonoGame.Framework.Native" Version="$(MonoGameVersion)" />
+    <PackageVersion Include="MonoGame.Framework.Android" Version="$(MonoGameVersion)" />
+    <PackageVersion Include="MonoGame.Framework.iOS" Version="$(MonoGameVersion)" />
+    <PackageVersion Include="MonoGame.Framework.Content.Pipeline" Version="$(MonoGameVersion)" />
+    <PackageVersion Include="MonoGame.Runtime.Windows.DX12" Version="$(MonoGameVersion)" />
+    <PackageVersion Include="MonoGame.Runtime.Windows.Vulkan" Version="$(MonoGameVersion)" />
+    <PackageVersion Include="MonoGame.Runtime.Mac.Vulkan" Version="$(MonoGameVersion)" />
+    <PackageVersion Include="MonoGame.Runtime.Linux.Vulkan" Version="$(MonoGameVersion)" />
+  </ItemGroup>
+
+  <!-- Content pipeline dependencies -->
+  <ItemGroup>
+    <PackageVersion Include="MIConvexHull" Version="1.1.19.1019" />
+    <PackageVersion Include="MonoGame.Library.FreeType" Version="2.13.2.4" />
+    <PackageVersion Include="MonoGame.Library.MojoShader" Version="1.0.0.6" />
+    <PackageVersion Include="MonoGame.Tool.Basisu" Version="2.0.2.1" />
+    <PackageVersion Include="MonoGame.Tool.Crunch" Version="1.0.4.7" />
+    <PackageVersion Include="MonoGame.Tool.Dxc" Version="1.8.2505.11" />
+    <PackageVersion Include="MonoGame.Tool.FFmpeg" Version="7.0.0.10" />
+    <PackageVersion Include="MonoGame.Tool.FFprobe" Version="7.0.0.10" />
+  </ItemGroup>
+</Project>

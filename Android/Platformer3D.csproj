@@ -19,7 +19,7 @@
     <Compile Include="..\Source\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.Android" Version="3.8.5-preview.*" />
+    <PackageReference Include="MonoGame.Framework.Android" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="$(OutputPath)Content/**">

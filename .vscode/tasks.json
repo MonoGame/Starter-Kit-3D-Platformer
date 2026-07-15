@@ -1,14 +1,14 @@
 {
     "version": "2.0.0",
     "tasks": [
-//#if (IncludeDesktop)
+//#if (IncludeDesktopVK)
         {
-            "label": "build-platformer-desktop",
+            "label": "build-platformer-DesktopVK",
             "type": "shell",
             "command": "dotnet",
             "args": [
                 "build",
-                "${workspaceFolder}/Desktop/Platformer3D.csproj"
+                "${workspaceFolder}/DesktopVK/Platformer3D.csproj"
             ],
             "group": "build",
             "presentation": {
@@ -22,14 +22,14 @@
             "problemMatcher": "$msCompile"
         }
 //#endif
-//#if (IncludeWindows)
+//#if (IncludeWindowsDX12)
         ,{
-            "label": "build-platformer-windows",
+            "label": "build-platformer-WindowsDX12",
             "type": "shell",
             "command": "dotnet",
             "args": [
                 "build",
-                "${workspaceFolder}/Windows/Platformer3D.csproj"
+                "${workspaceFolder}/WindowsDX12/Platformer3D.csproj"
             ],
             "group": "build",
             "presentation": {
