@@ -14,6 +14,19 @@
             "stopAtEntry": false
         },
 //#endif
+//#if (IncludeDesktopGL)
+        {
+            "name": "DesktopGL",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-platformer-DesktopGL",
+            "program": "${workspaceFolder}/DesktopGL/bin/Debug/net9.0/3DPlatformer.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/DesktopGL",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+//#endif
 //#if (IncludeWindowsDX12)
         {
             "name": "WindowsDX12",
@@ -23,6 +36,19 @@
             "program": "${workspaceFolder}/WindowsDX12/bin/Debug/net9.0-WindowsDX12/3DPlatformer.dll",
             "args": [],
             "cwd": "${workspaceFolder}/WindowsDX12",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+//#endif
+//#if (IncludeWindowsDX)
+        {
+            "name": "WindowsDX",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-platformer-WindowsDX",
+            "program": "${workspaceFolder}/WindowsDX/bin/Debug/net9.0-windows/3DPlatformer.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/WindowsDX",
             "console": "internalConsole",
             "stopAtEntry": false
         },
