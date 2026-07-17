@@ -6,32 +6,32 @@
   </Configurations>
   <!--#if (IncludeAndroid) -->
   <Folder Name="/Android/">
-    <Project Path="Android/Platformer3D.csproj" />
+    <Project Path="Android/Platformer3D.csproj" DefaultStartup="true" />
   </Folder>
   <!--#endif -->
   <!--#if (IncludeDesktopVK) -->
   <Folder Name="/DesktopVK/">
-    <Project Path="DesktopVK/Platformer3D.csproj" />
+    <Project Path="DesktopVK/Platformer3D.csproj" DefaultStartup="true" />
   </Folder>
   <!--#endif -->
   <!--#if (IncludeDesktopGL) -->
   <Folder Name="/DesktopGL/">
-    <Project Path="DesktopGL/Platformer3D.csproj" />
+    <Project Path="DesktopGL/Platformer3D.csproj" DefaultStartup="true" />
   </Folder>
   <!--#endif -->
   <!--#if (IncludeIOS) -->  
   <Folder Name="/iOS/">
-    <Project Path="iOS/Platformer3D.csproj" />
+    <Project Path="iOS/Platformer3D.csproj" DefaultStartup="true" />
   </Folder>
   <!--#endif -->
   <!--#if (IncludeWindowsDX12) -->
   <Folder Name="/WindowsDX12/">
-    <Project Path="WindowsDX12/Platformer3D.csproj" />
+    <Project Path="WindowsDX12/Platformer3D.csproj" DefaultStartup="true" />
   </Folder>
   <!--#endif -->
   <!--#if (IncludeWindowsDX) -->
   <Folder Name="/WindowsDX/">
-    <Project Path="WindowsDX/Platformer3D.csproj" />
+    <Project Path="WindowsDX/Platformer3D.csproj" DefaultStartup="true" />
   </Folder>
   <!--#endif -->
   <Project Path="Content/Content.csproj" />
