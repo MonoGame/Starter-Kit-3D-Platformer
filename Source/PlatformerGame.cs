@@ -155,14 +155,19 @@ public class PlatformerGame : Game
         _mainMenu = new Menu(_font, Content, QuitGame, MenuTransitionDirection.Right);
         _mainMenu.AddItem("Start Game", () =>
         {
-            currentLevel = 0;            
+            currentLevel = 0;
             _transitionProcessor.StartTransition(() =>
             {
                 _currentState = GameState.MainScene;
                 LoadLevel(levels[currentLevel]);
             });
         });
-        _mainMenu.AddItem("Quit", QuitGame);
+
+        if (!OperatingSystem.IsIOS())
+        {
+            _mainMenu.AddItem("Quit", QuitGame);
+        }
+        
         _mainMenu.BasePosition = new Vector2(GameConstants.BASE_RESOLUTION_WIDTH / 2f - _mainMenu.GetMenuWidth() / 2f + 320, GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _mainMenu.GetMenuHeight() / 2f + 150);
         _pauseMenu = new Menu(_font, Content, () => _currentState = GameState.MainScene, MenuTransitionDirection.Top);
         _pauseMenu.AddItem("Resume", () => _currentState = GameState.MainScene);
