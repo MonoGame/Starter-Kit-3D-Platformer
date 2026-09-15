@@ -98,13 +98,13 @@ public class TransitionProcessor
         }
     }
 
-    public void DrawTransition(Vector2 scale, float baseResolutionWidth, float baseResolutionHeight)
+    public void DrawTransition(Matrix transform, float baseResolutionWidth, float baseResolutionHeight)
     {
         if (!IsTransitioning)
             return;
 
         float alpha = GetTransitionAlpha();
-        _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(scale.X, scale.Y, 0f));
+        _spriteBatch.Begin(transformMatrix: transform);
         _spriteBatch.Draw(_overlayTexture,
             new Rectangle(0, 0, (int)baseResolutionWidth, (int)baseResolutionHeight),
             Color.Black * alpha);
