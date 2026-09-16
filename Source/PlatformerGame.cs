@@ -81,16 +81,39 @@ public class PlatformerGame : Game
     private Scene _currentScene;
     private GameOver _gameOverScreen;
 
+    private Matrix _globalTransformationMatrix = Matrix.Identity;
+    private Matrix _inverseGlobalTransformationMatrix = Matrix.Identity;
+    private int _backbufferWidth;
+    private int _backbufferHeight;
+    private readonly Vector2 _baseScreenSize = new Vector2(GameConstants.BASE_RESOLUTION_WIDTH, GameConstants.BASE_RESOLUTION_HEIGHT);
+
     private string[] levels;
     private int currentLevel = 0;
 
     public PlatformerGame()
     {
         _graphics = new GraphicsDeviceManager(this);
-        // We use a fixed resolution of 1280x720 for the game.
-        // we then use RenderTargets to scale to the actual window size.
-        _graphics.PreferredBackBufferWidth = (int)GameConstants.BASE_RESOLUTION_WIDTH;
-        _graphics.PreferredBackBufferHeight = (int)GameConstants.BASE_RESOLUTION_HEIGHT;
+
+        if (!OperatingSystem.IsIOS()
+            && !OperatingSystem.IsAndroid())
+        {
+            // We use a fixed resolution of 1280x720 for the game.
+            // we then use RenderTargets to scale to the actual window size.
+            _graphics.IsFullScreen = false;
+            _graphics.PreferredBackBufferWidth = (int)GameConstants.BASE_RESOLUTION_WIDTH;
+            _graphics.PreferredBackBufferHeight = (int)GameConstants.BASE_RESOLUTION_HEIGHT;
+            IsMouseVisible = true;
+
+            Window.Title = "3D Platformer";
+            Window.AllowUserResizing = true;
+            Window.AllowAltF4 = true;
+        }
+        else
+        {
+            _graphics.IsFullScreen = true;
+            IsMouseVisible = false;
+        }
+
         _graphics.PreferredBackBufferFormat = SurfaceFormat.Color;
         _graphics.PreferredDepthStencilFormat = DepthFormat.Depth24;
         _graphics.GraphicsProfile = GraphicsProfile.HiDef;
@@ -101,10 +124,6 @@ public class PlatformerGame : Game
         _graphics.PreparingDeviceSettings += (s, e) => e.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 4;
         _graphics.ApplyChanges();
         Content.RootDirectory = "Content";
-        IsMouseVisible = true;
-        Window.Title = "3D Platformer";
-        Window.AllowUserResizing = true;
-        Window.AllowAltF4 = true;
     }
 
     protected override void Initialize()
@@ -153,7 +172,7 @@ public class PlatformerGame : Game
         _song.Play();
 #endif
         _mainMenu = new Menu(_font, Content, QuitGame, MenuTransitionDirection.Right);
-        _mainMenu.AddItem("Start Game", () =>
+        _mainMenu.AddItem("Start", () =>
         {
             currentLevel = 0;
             _transitionProcessor.StartTransition(() =>
@@ -200,6 +219,8 @@ public class PlatformerGame : Game
 
         // Get the list of levels from the levels.json file.
         levels = _sceneLoader.GetSceneList();
+
+        ScalePresentationArea();
     }
 
     private void QuitGame()
@@ -243,6 +264,12 @@ public class PlatformerGame : Game
     {
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+        if (_backbufferHeight != GraphicsDevice.PresentationParameters.BackBufferHeight
+            || _backbufferWidth != GraphicsDevice.PresentationParameters.BackBufferWidth)
+        {
+            ScalePresentationArea();
+        }
+
         // Update transitions first
         _transitionProcessor.Update(deltaTime);
 
@@ -253,6 +280,7 @@ public class PlatformerGame : Game
         // Capture the current input state here once which is
         // then used all through out the game.
         InputState.Update();
+        InputState.SetViewport(new Viewport(Window.ClientBounds));
 
         // Skip input handling during transitions
         if (!_transitionProcessor.IsTransitioning && (InputState.IsButtonPressed(Buttons.Back) || InputState.IsKeyPressed(Keys.Escape)))
@@ -434,12 +462,9 @@ public class PlatformerGame : Game
         base.Update(gameTime);
     }
 
-    private void DrawHud(GameTime gameTime, Rectangle rect, Vector2 scale)
+    private void DrawHud(GameTime gameTime)
     {
-        // Apply a globl scale to make sure all the HUD elements are scaled correctly
-        // This is useful for different screen resolutions and aspect ratios.
-        // The scale is based on the original resolution of 1280x720.
-        _spriteBatch.Begin(transformMatrix: Matrix.CreateTranslation(new Vector3(rect.X, rect.Y, 0)) * Matrix.CreateScale(scale.X, scale.Y, 0f));
+        _spriteBatch.Begin(transformMatrix: _globalTransformationMatrix);
 
         _spriteBatch.Draw(_coinTexture, new Rectangle(10, 10, 100, 100), Color.White);
         _spriteBatch.DrawString(_font, $"{_currentScene.Player.Score}", new Vector2(110, 30), Color.White);
@@ -479,9 +504,8 @@ public class PlatformerGame : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Transparent);
-        var screenRect = _graphics.GraphicsDevice.Viewport.Bounds;
-        Vector2 uiScale = new Vector2(screenRect.Width / GameConstants.BASE_RESOLUTION_WIDTH, screenRect.Height / GameConstants.BASE_RESOLUTION_HEIGHT); // Scale UI based on screen size
+        GraphicsDevice.Clear(Color.Black);
+        var presentationRect = GetPresentationRect();
 
         // TODO: Add your drawing code here
         switch (_currentState)
@@ -490,7 +514,7 @@ public class PlatformerGame : Game
                 // Draw splash screen
                 GraphicsDevice.Clear(GameConstants.DEFAULT_BACKGROUND_COLOR);
 
-                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _spriteBatch.Begin(transformMatrix: _globalTransformationMatrix);
 
                 // Draw splash texture centered on screen
                 Rectangle destinationRectangle = new Rectangle(
@@ -506,22 +530,22 @@ public class PlatformerGame : Game
 
             case GameState.LoadingScreen:
                 // Draw splash screen
-                _loadingScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
+                _loadingScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch, presentationRect);
                 break;
 
             case GameState.GameOverScreen:
                 // Draw MonoGame logo and url, Patreon logo and url and "Game Over" text.
                 // Add Source code GitHub url.
                 // Thank Patrons for their support.
-                _gameOverScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
-                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _gameOverScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch, presentationRect);
+                _spriteBatch.Begin(transformMatrix: _globalTransformationMatrix);
                 _gameOverScreen.Draw(gameTime, _spriteBatch);
                 _spriteBatch.End();
                 break;
 
             case GameState.MenuScreen:
-                _menuScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
-                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _menuScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch, presentationRect);
+                _spriteBatch.Begin(transformMatrix: _globalTransformationMatrix);
                 _spriteBatch.Draw(_logoTexture,
                     new Rectangle(
                         (int)GameConstants.BASE_RESOLUTION_WIDTH - (_logoTexture.Width - 100),
@@ -529,7 +553,7 @@ public class PlatformerGame : Game
                         (int)(_logoTexture.Width * 0.75f),
                         (int)(_logoTexture.Height * 0.75f)), Color.White);
                 _spriteBatch.End();
-                _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                _spriteBatch.Begin(transformMatrix: _globalTransformationMatrix);
                 _mainMenu.Draw(_spriteBatch);
                 _spriteBatch.End();
                 break;
@@ -538,7 +562,7 @@ public class PlatformerGame : Game
             case GameState.MainScene:
 
                 // Draw the scene
-                _currentScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch);
+                _currentScene.Draw(gameTime, GraphicsDevice, _sceneRenderer, _postProcessor, _spriteBatch, presentationRect);
 #if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowCollisionMesh))
                 {
@@ -552,7 +576,7 @@ public class PlatformerGame : Game
                 _spriteBatch.End();
 #endif
                 // Draw the score etc.
-                DrawHud(gameTime, screenRect, uiScale);
+                DrawHud(gameTime);
 #if DEVMODE
                 if (_debugFlags.HasFlag(DebugFlags.ShowRenderTargets))
                 {
@@ -567,7 +591,7 @@ public class PlatformerGame : Game
                         GameConstants.BASE_RESOLUTION_HEIGHT / 2f - _pauseMenu.GetMenuHeight() / 2f
                     );
                     _pauseMenu.BasePosition = pauseMenuPosition;
-                    _spriteBatch.Begin(transformMatrix: Matrix.CreateScale(uiScale.X, uiScale.Y, 0f));
+                    _spriteBatch.Begin(transformMatrix: _globalTransformationMatrix);
                     // Draw semi-transparent overlay
                     _spriteBatch.Draw(_overlayTexture,
                         new Rectangle(0, 0, (int)GameConstants.BASE_RESOLUTION_WIDTH, (int)GameConstants.BASE_RESOLUTION_HEIGHT),
@@ -580,8 +604,61 @@ public class PlatformerGame : Game
         }
 
         // Draw transition overlay at the end (over everything including post-processing effects)
-        _transitionProcessor.DrawTransition(uiScale, GameConstants.BASE_RESOLUTION_WIDTH, GameConstants.BASE_RESOLUTION_HEIGHT);
+        _transitionProcessor.DrawTransition(_globalTransformationMatrix, GameConstants.BASE_RESOLUTION_WIDTH, GameConstants.BASE_RESOLUTION_HEIGHT);
 
         base.Draw(gameTime);
+    }
+
+    private Rectangle GetPresentationRect()
+    {
+        var x = (int)MathF.Round(_globalTransformationMatrix.M41);
+        var y = (int)MathF.Round(_globalTransformationMatrix.M42);
+        var width = (int)MathF.Round(GameConstants.BASE_RESOLUTION_WIDTH * _globalTransformationMatrix.M11);
+        var height = (int)MathF.Round(GameConstants.BASE_RESOLUTION_HEIGHT * _globalTransformationMatrix.M22);
+
+        return new Rectangle(
+            x,
+            y,
+            Math.Max(1, width),
+            Math.Max(1, height));
+    }
+
+    private void ScalePresentationArea()
+    {
+        if (GraphicsDevice == null || _baseScreenSize.X <= 0 || _baseScreenSize.Y <= 0)
+        {
+            throw new InvalidOperationException("Invalid graphics configuration");
+        }
+
+        _backbufferWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
+        _backbufferHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+        if (_backbufferHeight == 0 || _baseScreenSize.Y == 0)
+        {
+            return;
+        }
+
+        float baseAspectRatio = _baseScreenSize.X / _baseScreenSize.Y;
+        float screenAspectRatio = _backbufferWidth / (float)_backbufferHeight;
+
+        float scalingFactor;
+        float horizontalOffset = 0f;
+        float verticalOffset = 0f;
+
+        if (screenAspectRatio > baseAspectRatio)
+        {
+            scalingFactor = _backbufferHeight / _baseScreenSize.Y;
+            horizontalOffset = (_backbufferWidth - _baseScreenSize.X * scalingFactor) / 2f;
+        }
+        else
+        {
+            scalingFactor = _backbufferWidth / _baseScreenSize.X;
+            verticalOffset = (_backbufferHeight - _baseScreenSize.Y * scalingFactor) / 2f;
+        }
+
+        _globalTransformationMatrix = Matrix.CreateScale(scalingFactor) *
+            Matrix.CreateTranslation(horizontalOffset, verticalOffset, 0f);
+        _inverseGlobalTransformationMatrix = Matrix.Invert(_globalTransformationMatrix);
+        InputState.UpdateInputTransformation(_inverseGlobalTransformationMatrix);
     }
 }

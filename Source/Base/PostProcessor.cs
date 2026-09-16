@@ -2,6 +2,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.md', which is part of this source code package.
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,6 +14,7 @@ using Microsoft.Xna.Framework.Graphics;
 public class PostProcessor
 {
     private GraphicsDevice _graphicsDevice;
+    private Viewport _backBufferViewport;
     private RenderTarget2D _mainRenderTarget;
     private RenderTarget2D _bloomExtractTarget;
     private RenderTarget2D _bloomBlurTarget1;
@@ -38,35 +40,37 @@ public class PostProcessor
     private void CreateRenderTargets()
     {
         var hdrFormat = SurfaceFormat.HdrBlendable;
+        int targetWidth = Math.Max(1, (int)GameConstants.BASE_RESOLUTION_WIDTH);
+        int targetHeight = Math.Max(1, (int)GameConstants.BASE_RESOLUTION_HEIGHT);
 
         _mainRenderTarget = new RenderTarget2D(
             _graphicsDevice,
-            _graphicsDevice.PresentationParameters.BackBufferWidth,
-            _graphicsDevice.PresentationParameters.BackBufferHeight,
+            targetWidth,
+            targetHeight,
             false,
             hdrFormat,
             DepthFormat.Depth24);
 
         _bloomExtractTarget = new RenderTarget2D(
             _graphicsDevice,
-            _graphicsDevice.PresentationParameters.BackBufferWidth,
-            _graphicsDevice.PresentationParameters.BackBufferHeight,
+            targetWidth,
+            targetHeight,
             false,
             hdrFormat,
             DepthFormat.None);
 
         _bloomBlurTarget1 = new RenderTarget2D(
             _graphicsDevice,
-            _graphicsDevice.PresentationParameters.BackBufferWidth / 2,
-            _graphicsDevice.PresentationParameters.BackBufferHeight / 2,
+            Math.Max(1, targetWidth / 2),
+            Math.Max(1, targetHeight / 2),
             false,
             hdrFormat,
             DepthFormat.None);
 
         _bloomBlurTarget2 = new RenderTarget2D(
             _graphicsDevice,
-            _graphicsDevice.PresentationParameters.BackBufferWidth / 4,
-            _graphicsDevice.PresentationParameters.BackBufferHeight / 4,
+            Math.Max(1, targetWidth / 4),
+            Math.Max(1, targetHeight / 4),
             false,
             hdrFormat,
             DepthFormat.None);
@@ -80,16 +84,18 @@ public class PostProcessor
 
     public void BeginScene()
     {
+        _backBufferViewport = _graphicsDevice.Viewport;
         _graphicsDevice.SetRenderTarget(_mainRenderTarget);
     }
 
-    public void EndScene()
+    public void EndScene(Rectangle destination)
     {
         _graphicsDevice.SetRenderTarget(null);
-        ApplyPostProcessing();
+        _graphicsDevice.Viewport = _backBufferViewport;
+        ApplyPostProcessing(destination);
     }
 
-    private void ApplyPostProcessing()
+    private void ApplyPostProcessing(Rectangle destination)
     {
         if (BloomEnabled)
         {
@@ -126,7 +132,8 @@ public class PostProcessor
         }
 
         // Cpmbine the main scene with the bloom.
-        var fullscreen = _graphicsDevice.Viewport.Bounds;
+        _graphicsDevice.Viewport = _backBufferViewport;
+        var fullscreen = destination;
         _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque);
         _bloomEffect.CurrentTechnique = _bloomEffect.Techniques["Combine"];
         _bloomEffect.Parameters["BaseIntensity"].SetValue(1.0f);
