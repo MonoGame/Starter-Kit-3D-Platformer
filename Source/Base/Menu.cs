@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Input.Touch;
 
 
 /// <summary>
@@ -249,8 +250,9 @@ public class Menu
             return;
         }
 
-        // Mouse hover/click support.
-        HandleMouseInput(InputState.MousePosition);
+        // Mouse and touch interactions are mapped to canonical UI coordinates.
+        HandleMouseInput(InputState.UiMousePosition);
+        HandleTouchInput(InputState.TouchState);
 
         // Check for navigation input (only if cooldown has expired)
         if (_inputCooldown <= 0)
@@ -335,6 +337,45 @@ public class Menu
 
             PlayClick();
             _menuItems[hovered].Action?.Invoke();
+        }
+    }
+
+    private void HandleTouchInput(TouchCollection touches)
+    {
+        if (touches.Count == 0 || _inputCooldown > 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < touches.Count; i++)
+        {
+            var touch = touches[i];
+            if (touch.State == TouchLocationState.Invalid)
+            {
+                continue;
+            }
+
+            var uiTouchPosition = InputState.TouchToUi(touch.Position);
+            int hovered = GetItemIndexAtPosition(uiTouchPosition);
+            if (hovered < 0)
+            {
+                continue;
+            }
+
+            if (hovered != _selectedIndex)
+            {
+                _selectedIndex = hovered;
+                UpdateSelectionHighlight();
+                PlaySelect();
+            }
+
+            // Trigger selection on release for consistent mobile tap behavior.
+            if (touch.State == TouchLocationState.Released)
+            {
+                PlayClick();
+                _menuItems[hovered].Action?.Invoke();
+                _inputCooldown = GameConstants.INPUT_COOLDOWN_TIME;
+            }
         }
     }
 

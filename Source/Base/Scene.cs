@@ -222,7 +222,7 @@ public class Scene
         }
     }
 
-    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, SceneRenderer shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch)
+    public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, SceneRenderer shadowProcessor, PostProcessor postProcessor, SpriteBatch spriteBatch, Rectangle presentationRect)
     {
         shadowProcessor.SunColor = LightColor.ToVector3();
         shadowProcessor.SunIntensity = LightIntensity;
@@ -231,7 +231,7 @@ public class Scene
         graphicsDevice.Clear(SkyColor);
         DrawScene(shadowProcessor, spriteBatch);
         DrawBillboards(spriteBatch);
-        postProcessor.EndScene();
+        postProcessor.EndScene(presentationRect);
     }
 
     public void DrawCollisionMeshs(SpriteBatch spriteBatch)

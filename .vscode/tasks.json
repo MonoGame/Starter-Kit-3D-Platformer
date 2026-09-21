@@ -108,13 +108,7 @@
         {
             "label": "build-platformer-ios",
             "type": "shell",
-            "command": "dotnet",
-            "args": [
-                "build",
-                "${workspaceFolder}/iOS/Platformer3D.csproj",
-                "-t:Run",
-                "/property:Configuration=Debug"
-            ],
+            "command": "dotnet build ${workspaceFolder}/iOS/Platformer3D.csproj && dotnet build ${workspaceFolder}/iOS/Platformer3D.csproj -t:Run",
             "group": "build",
             "presentation": {
                 "echo": true,
