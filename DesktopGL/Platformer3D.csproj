@@ -5,6 +5,7 @@
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
+    <PublishAot>true</PublishAot>
     <AssemblyName>3DPlatformer</AssemblyName>
     <AssemblyTitle>3D Platformer</AssemblyTitle>
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);DEVMODE</DefineConstants>

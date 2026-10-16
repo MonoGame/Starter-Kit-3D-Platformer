@@ -1,0 +1,66 @@
+name: Publish Workflow
+
+on:
+  push:
+    tags: 
+      - '*.*.*'
+
+jobs:
+  publish-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Wine
+        uses: monogame/monogame-actions/install-wine@v1.0.3
+      - name: Build
+        run: |
+          dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids osx-x64,osx-arm64 -i ./DesktopGL/Info.plist -c ./DesktopGL/Icon.icns -z -e 3DPlatformer --macos-universal
+      - name: Publish to Itch
+        uses: monogame/monogame-actions/publish-itchio@v1.0.3
+        with:
+          ITCHIO_USER: ${{ secrets.ITCHIO_USER }}
+          ITCHIO_GAME: ${{ secrets.ITCHIO_GAME }}
+          ITCHIO_TOKEN: ${{ secrets.ITCHIO_TOKEN }}
+          channel: 'macos'
+          tag: '-latest'
+          file: 'artifacts/Platformer3D-universal.zip'
+          version: '${{ github.ref_name }}'
+  publish-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Wine
+        uses: monogame/monogame-actions/install-wine@v1.0.3
+      - name: Build
+        run: |
+          dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids linux-x64 -z -e 3DPlatformer
+      - name: Publish to Itch
+        uses: monogame/monogame-actions/publish-itchio@v1.0.3
+        with:
+          ITCHIO_USER: ${{ secrets.ITCHIO_USER }}
+          ITCHIO_GAME: ${{ secrets.ITCHIO_GAME }}
+          ITCHIO_TOKEN: ${{ secrets.ITCHIO_TOKEN }}
+          channel: 'linux'
+          tag: '-latest'
+          file: 'artifacts/Platformer3D-linux-x64.zip'
+          version: '${{ github.ref_name }}'
+  publish-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids win-x64 -z -e 3DPlatformer
+      - name: Publish to Itch
+        uses: monogame/monogame-actions/publish-itchio@v1.0.3
+        with:
+          ITCHIO_USER: ${{ secrets.ITCHIO_USER }}
+          ITCHIO_GAME: ${{ secrets.ITCHIO_GAME }}
+          ITCHIO_TOKEN: ${{ secrets.ITCHIO_TOKEN }}
+          channel: 'windows'
+          tag: '-latest'
+          file: 'artifacts/Platformer3D-win-x64.zip'
+          version: '${{ github.ref_name }}'
