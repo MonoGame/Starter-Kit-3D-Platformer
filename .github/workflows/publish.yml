@@ -22,7 +22,7 @@ jobs:
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids osx-x64,osx-arm64 -i ./DesktopGL/Info.plist -c ./DesktopGL/Icon.icns -z -e 3DPlatformer --macos-universal
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v7
         with:
           name: Platformer3D-macos
           path: artifacts/Platformer3D-universal.zip
@@ -48,7 +48,7 @@ jobs:
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids linux-x64 -z -e 3DPlatformer
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v7
         with:
           name: Platformer3D-linux
           path: artifacts/Platformer3D-linux-x64.zip
@@ -72,7 +72,7 @@ jobs:
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids win-x64 -z -e 3DPlatformer
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v7
         with:
           name: Platformer3D-windows
           path: artifacts/Platformer3D-win-x64.zip
