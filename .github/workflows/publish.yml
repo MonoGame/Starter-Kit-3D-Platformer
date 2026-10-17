@@ -23,7 +23,7 @@ jobs:
           dotnet tool restore
       - name: Build Content Builder
         run: |
-          dotnet build ContentBuilder/ContentBuilder.csproj -c Debug
+          dotnet build Content/Content.csproj -c Debug
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids osx-x64,osx-arm64 -i ./DesktopGL/Info.plist -c ./DesktopGL/Icon.icns -z -e 3DPlatformer --macos-universal -v
@@ -55,7 +55,7 @@ jobs:
           dotnet tool restore
       - name: Build Content Builder
         run: |
-          dotnet build ContentBuilder/ContentBuilder.csproj -c Debug
+          dotnet build Content/Content.csproj -c Debug
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids linux-x64 -z -e 3DPlatformer -v
@@ -85,7 +85,7 @@ jobs:
           dotnet tool restore
       - name: Build Content Builder
         run: |
-          dotnet build ContentBuilder/ContentBuilder.csproj -c Debug
+          dotnet build Content/Content.csproj -c Debug
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids win-x64 -z -e 3DPlatformer -v
