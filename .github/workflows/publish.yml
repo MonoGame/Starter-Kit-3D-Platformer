@@ -18,6 +18,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup Wine
         uses: monogame/monogame-actions/install-wine@v1.0.3
+      - name: Restore Tools
+        run: |
+          dotnet tool restore
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids osx-x64,osx-arm64 -i ./DesktopGL/Info.plist -c ./DesktopGL/Icon.icns -z -e 3DPlatformer --macos-universal
@@ -44,6 +47,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup Wine
         uses: monogame/monogame-actions/install-wine@v1.0.3
+      - name: Restore Tools
+        run: |
+          dotnet tool restore
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids linux-x64 -z -e 3DPlatformer
@@ -68,6 +74,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Restore Tools
+        run: |
+          dotnet tool restore
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids win-x64 -z -e 3DPlatformer
