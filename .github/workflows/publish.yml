@@ -30,7 +30,8 @@ jobs:
           dotnet tool restore
       - name: Restore
         run: |
-          dotnet restore
+          dotnet restore Content/Content.csproj
+          dotnet restore DesktopGL/Platformer3D.csproj
       - name: Build Content Builder
         run: |
           dotnet build Content/Content.csproj -c Debug
@@ -69,7 +70,8 @@ jobs:
           dotnet tool restore
       - name: Restore
         run: |
-          dotnet restore
+          dotnet restore Content/Content.csproj
+          dotnet restore DesktopGL/Platformer3D.csproj
       - name: Build Content Builder
         run: |
           dotnet build Content/Content.csproj -c Debug
@@ -106,7 +108,8 @@ jobs:
           dotnet tool restore
       - name: Restore
         run: |
-          dotnet restore
+          dotnet restore Content/Content.csproj
+          dotnet restore DesktopGL/Platformer3D.csproj
       - name: Build Content Builder
         run: |
           dotnet build Content/Content.csproj -c Debug
