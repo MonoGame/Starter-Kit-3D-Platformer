@@ -28,6 +28,9 @@ jobs:
       - name: Restore Tools
         run: |
           dotnet tool restore
+      - name: Restore
+        run: |
+          dotnet restore
       - name: Build Content Builder
         run: |
           dotnet build Content/Content.csproj -c Debug
@@ -57,9 +60,16 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup Wine
         uses: monogame/monogame-actions/install-wine@v1.0.3
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '${{ env.DotnetVersion }}'
       - name: Restore Tools
         run: |
           dotnet tool restore
+      - name: Restore
+        run: |
+          dotnet restore
       - name: Build Content Builder
         run: |
           dotnet build Content/Content.csproj -c Debug
@@ -87,9 +97,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '${{ env.DotnetVersion }}'
       - name: Restore Tools
         run: |
           dotnet tool restore
+      - name: Restore
+        run: |
+          dotnet restore
       - name: Build Content Builder
         run: |
           dotnet build Content/Content.csproj -c Debug
