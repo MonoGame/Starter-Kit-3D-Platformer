@@ -7,7 +7,7 @@
       <ContentOutput>$([MSBuild]::NormalizePath('$(ProjectDir)', '$(OutputPath)').TrimEnd('\/'))</ContentOutput>
       <ContentTemp>$([MSBuild]::NormalizePath('$(ProjectDir)', '$(IntermediateOutputPath)').TrimEnd('\/'))</ContentTemp>
       <ContentArgs>build -p $(MonoGamePlatform) -s "$(MSBuildThisFileDirectory)Assets" -o "$(ContentOutput)" -i "$(ContentTemp)"</ContentArgs>
-      <ContentCommand>@(_ContentBuilderAssembly->'%(RootDir)%(Directory)%(Filename)')</ContentCommand>
+      <ContentCommand>$(MSBuildThisFileDirectory)bin/Debug/Content</ContentCommand>
     </PropertyGroup>
     <Exec Command="&quot;$(ContentCommand)&quot; $(ContentArgs)" WorkingDirectory="$(MSBuildThisFileDirectory)..\" CustomErrorRegularExpression="\[E\] .+" CustomWarningRegularExpression="\[W\] .+" />
    </Target>
