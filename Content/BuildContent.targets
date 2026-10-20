@@ -1,8 +1,8 @@
 <Project>
   <Target Name="BuildContent" BeforeTargets="BeforeCompile">
-    <MSBuild Projects="$(MSBuildThisFileDirectory)Content.csproj" Targets="Build" RemoveProperties="Configuration;TargetFramework">
+    <!-- <MSBuild Projects="$(MSBuildThisFileDirectory)Content.csproj" Targets="Build" RemoveProperties="Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers">
       <Output TaskParameter="TargetOutputs" ItemName="_ContentBuilderAssembly" />
-    </MSBuild>
+    </MSBuild> -->
     <PropertyGroup>
       <ContentOutput>$([MSBuild]::NormalizePath('$(ProjectDir)', '$(OutputPath)').TrimEnd('\/'))</ContentOutput>
       <ContentTemp>$([MSBuild]::NormalizePath('$(ProjectDir)', '$(IntermediateOutputPath)').TrimEnd('\/'))</ContentTemp>
