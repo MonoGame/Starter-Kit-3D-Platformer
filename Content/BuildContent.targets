@@ -1,6 +1,9 @@
 <Project>
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)Content.csproj" ReferenceOutputAssembly="false" Private="false" />
+  </ItemGroup>
   <Target Name="BuildContent" BeforeTargets="BeforeCompile">
-    <MSBuild Projects="$(MSBuildThisFileDirectory)/Content.csproj" Targets="GetTargetPath" Properties="Configuration=$(Configuration)">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)Content.csproj" Targets="GetTargetPath" RemoveProperties="Configuration;TargetFramework;RuntimeIdentifier;RuntimeIdentifiers;SelfContained">
       <Output TaskParameter="TargetOutputs" ItemName="_ContentBuilderAssembly" />
     </MSBuild>
     <PropertyGroup>
