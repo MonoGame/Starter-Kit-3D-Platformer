@@ -1,0 +1,134 @@
+name: Publish Workflow
+
+on:
+  push:
+    tags: 
+      - '*.*.*'
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  DotnetVersion: 10.0.301
+
+jobs:
+  publish-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Wine
+        uses: monogame/monogame-actions/install-wine@v1.0.3
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '${{ env.DotnetVersion }}'
+      - name: Restore Tools
+        run: |
+          dotnet tool restore
+      - name: Restore
+        run: |
+          dotnet restore Content/Content.csproj
+          dotnet restore DesktopGL/Platformer3D.csproj
+      - name: Build Content Builder
+        run: |
+          dotnet build Content/Content.csproj -c Release
+      - name: Build
+        run: |
+          dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids osx-x64,osx-arm64 -i ./DesktopGL/Info.plist -c ./DesktopGL/Icon.icns -z -e 3DPlatformer --macos-universal -v
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          path: artifacts/3DPlatformer-universal.zip
+          archive: false
+      - name: Publish to Itch
+        uses: monogame/monogame-actions/publish-itchio@v1.0.3
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        with:
+          ITCHIO_USER: ${{ secrets.ITCHIO_USER }}
+          ITCHIO_GAME: ${{ secrets.ITCHIO_GAME }}
+          ITCHIO_TOKEN: ${{ secrets.ITCHIO_TOKEN }}
+          channel: 'macos'
+          tag: '-latest'
+          file: 'artifacts/3DPlatformer-universal.zip'
+          version: '${{ github.ref_name }}'
+  publish-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Wine
+        uses: monogame/monogame-actions/install-wine@v1.0.3
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '${{ env.DotnetVersion }}'
+      - name: Restore Tools
+        run: |
+          dotnet tool restore
+      - name: Restore
+        run: |
+          dotnet restore Content/Content.csproj
+          dotnet restore DesktopGL/Platformer3D.csproj
+      - name: Build Content Builder
+        run: |
+          dotnet build Content/Content.csproj -c Release
+      - name: Build
+        run: |
+          dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids linux-x64 -z -e 3DPlatformer -v
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          path: artifacts/3DPlatformer-linux-x64.zip
+          archive: false
+      - name: Publish to Itch
+        uses: monogame/monogame-actions/publish-itchio@v1.0.3
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        with:
+          ITCHIO_USER: ${{ secrets.ITCHIO_USER }}
+          ITCHIO_GAME: ${{ secrets.ITCHIO_GAME }}
+          ITCHIO_TOKEN: ${{ secrets.ITCHIO_TOKEN }}
+          channel: 'linux'
+          tag: '-latest'
+          file: 'artifacts/3DPlatformer-linux-x64.zip'
+          version: '${{ github.ref_name }}'
+  publish-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '${{ env.DotnetVersion }}'
+      - name: Restore Tools
+        run: |
+          dotnet tool restore
+      - name: Restore
+        run: |
+          dotnet restore Content/Content.csproj
+          dotnet restore DesktopGL/Platformer3D.csproj
+      - name: Build Content Builder
+        run: |
+          dotnet build Content/Content.csproj -c Release
+      - name: Build
+        run: |
+          dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids win-x64 -z -e 3DPlatformer -v
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          path: artifacts/3DPlatformer-win-x64.zip
+          archive: false
+      - name: Publish to Itch
+        uses: monogame/monogame-actions/publish-itchio@v1.0.3
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        with:
+          ITCHIO_USER: ${{ secrets.ITCHIO_USER }}
+          ITCHIO_GAME: ${{ secrets.ITCHIO_GAME }}
+          ITCHIO_TOKEN: ${{ secrets.ITCHIO_TOKEN }}
+          channel: 'windows'
+          tag: '-latest'
+          file: 'artifacts/3DPlatformer-win-x64.zip'
+          version: '${{ github.ref_name }}'

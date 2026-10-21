@@ -92,6 +92,32 @@ public class PlatformerGame : Game
 
     public PlatformerGame()
     {
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ReflectiveReader<AnimationData>).FullName),
+            () => new ReflectiveReader<AnimationData>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ReflectiveReader<AnimationClip>).FullName),
+            () => new ReflectiveReader<AnimationClip>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ReflectiveReader<Keyframe>).FullName),
+            () => new ReflectiveReader<Keyframe>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ReflectiveReader<ModelData>).FullName),
+            () => new ReflectiveReader<ModelData>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ReflectiveReader<ConvexHull>).FullName),
+            () => new ReflectiveReader<ConvexHull>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ReflectiveReader<ConvexHull.Face>).FullName),
+            () => new ReflectiveReader<ConvexHull.Face>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ModelData).FullName),
+            () => new ReflectiveReader<ModelData>());
+        // Special case as we need to have the assembly version for the string for some reason
+        ContentTypeReaderManager.AddTypeCreator("Microsoft.Xna.Framework.Content.DictionaryReader`2[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[AnimationClip, 3DPlatformer]]",
+           () => new DictionaryReader<string, AnimationClip>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ListReader<Keyframe>).FullName),
+            () => new ListReader<Keyframe>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ListReader<ConvexHull>).FullName),
+            () => new ListReader<ConvexHull>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(ArrayReader<ConvexHull.Face>).FullName),
+            () => new ArrayReader<ConvexHull.Face>());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(SceneAssetContentReader).AssemblyQualifiedName), () => new SceneAssetContentReader());
+        ContentTypeReaderManager.AddTypeCreator(ContentTypeReaderManager.PrepareType(typeof(SceneListContentReader).AssemblyQualifiedName), () => new SceneListContentReader());
+
         _graphics = new GraphicsDeviceManager(this);
 
         if (!OperatingSystem.IsIOS()
