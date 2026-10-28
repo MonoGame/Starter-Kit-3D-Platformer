@@ -28,13 +28,6 @@ jobs:
       - name: Restore Tools
         run: |
           dotnet tool restore
-      - name: Restore
-        run: |
-          dotnet restore Content/Content.csproj
-          dotnet restore DesktopGL/Platformer3D.csproj
-      - name: Build Content Builder
-        run: |
-          dotnet build Content/Content.csproj -c Release
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids osx-x64,osx-arm64 -i ./DesktopGL/Info.plist -c ./DesktopGL/Icon.icns -z -e 3DPlatformer --macos-universal -v
@@ -68,13 +61,6 @@ jobs:
       - name: Restore Tools
         run: |
           dotnet tool restore
-      - name: Restore
-        run: |
-          dotnet restore Content/Content.csproj
-          dotnet restore DesktopGL/Platformer3D.csproj
-      - name: Build Content Builder
-        run: |
-          dotnet build Content/Content.csproj -c Release
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids linux-x64 -z -e 3DPlatformer -v
@@ -106,13 +92,6 @@ jobs:
       - name: Restore Tools
         run: |
           dotnet tool restore
-      - name: Restore
-        run: |
-          dotnet restore Content/Content.csproj
-          dotnet restore DesktopGL/Platformer3D.csproj
-      - name: Build Content Builder
-        run: |
-          dotnet build Content/Content.csproj -c Release
       - name: Build
         run: |
           dotnet monopack -p DesktopGL/Platformer3D.csproj -o artifacts -rids win-x64 -z -e 3DPlatformer -v
