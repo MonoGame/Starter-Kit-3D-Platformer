@@ -1,6 +1,6 @@
 <Project>
   <Target Name="BuildContent" BeforeTargets="BeforeCompile">
-    <MSBuild Projects="$(MSBuildThisFileDirectory)Content.csproj" Targets="Build" RemoveProperties="TargetFramework;RuntimeIdentifier;RuntimeIdentifiers">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)Content.csproj" Targets="Build" RemoveProperties="TargetFramework;RuntimeIdentifier;RuntimeIdentifiers;SelfContained">
       <Output TaskParameter="TargetOutputs" ItemName="_ContentBuilderAssembly" />
     </MSBuild>
     <PropertyGroup>
