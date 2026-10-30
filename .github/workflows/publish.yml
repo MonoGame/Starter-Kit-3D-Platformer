@@ -52,7 +52,7 @@ jobs:
           file: 'artifacts/3DPlatformer-universal.zip'
           version: '${{ github.ref_name }}'
   publish-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
